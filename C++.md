@@ -1453,3 +1453,9354 @@ std::vector<double> scores;
 auto pv=socres.begin();
 ```
 
+# 复合类型
+
+## 数组
+
+​		数组（array）是一种数据格式，能够存储多个同类型的值。每个值都存储在一个独立的数组元素
+中，计算机在内存中依次存储数组的各个元素。
+
+​		数组声明应指出以下三点
+
+- 存储在每个元素中的值的类型；
+- 数组名；
+- 数组中的元素数。
+
+在C++中，可以通过修改简单变量的声明，添加中括号（其中包含元素数目）来完成数组声明
+
+```CPP
+typeName arrayName[arraySize];
+```
+
+表达式arraySize指定元素数目，它必须是整型常数或const值，也可以是常量表达式，即其中所有的值在编译时都是已知的。稍后将介绍如何使用new运算符来避开这种限制。
+
+​		**作为复合类型的数组**：数组之所以被称为复合类型，是因为它是使用其他类型来创建的（C语言使用术语“派生类型”，但由于C++对类关系使用术语“派生”，所以它必须创建一个新术语）。不能仅仅将某
+种东西声明为数组，它必须是特定类型的数组。没有通用的数组类型，但存在很多特定的数组类型，如char数组或long数组。
+
+```C++
+float loans[20];
+```
+
+loans的类型不是“数组”，而是“float数组”。这强调了loans数组是使用float类型创建的。
+
+​		数组的很多用途都是基于这样一个事实：可以单独访问数组元素。方法是使用下标或索引来对元素进行编号。C++数组从0开始编号。C++使用带索引的方括号表示法来指定数组元素。
+
+​		**有效下标值的重要性**：编译器不会检查使用的下标是否有效。但是程序运行后，这种赋值可能引发问题，它可能破坏数据或代码，也可能导致程序异常终止。所以必须确保程序只使用有效的下标值。
+
+```c++
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+
+    int yams[3];
+    yams[0] = 7;
+    yams[1] = 8;
+    yams[2] = 6;
+
+    // If your C++ complier or translator can't inilialize this array, 
+    // use static int yamcosts[3] instand of int yamcosts[3]
+    int yamcosts[3] = {20, 30, 5}; 
+
+    cout << "Total yams = ";
+    cout << yams[0]+yams[1]+yams[2] << endl;
+    cout << "The package with " << yams[1] << " yams costs ";
+    cout << yamcosts[1] << " cents per yam.\n";
+    int total=yams[0] * yamcosts[0] + yams[1] * yamcosts[1] + yams[2] *yamcosts[2];
+    cout << "The total yam expense is " << total << " cents.\n";
+    cout << "\nSize of yams array = " << sizeof yams;
+    cout << " bytes.\n";
+    cout << "Size of one element = " << sizeof yams[0];
+    cout << " bytes.\n";
+
+    return 0;
+}
+```
+
+C++允许在声明语句中初始化数组元素。只需提供一个用逗号分隔的值列表（初始化列表），并将它们用花括号括起即可。列表中的空格是可选的。如果没有初始化函数中定义的数组，则其元素值将是不确定的，这意味着元素的值为以前驻留在该内存单元中的值。
+
+​		如果将sizeof运算符用于数组名，得到的将是整个数组中的字节数。但如果将sizeof用于数组元素，则得到的将是元素的长度（单位为字节）
+
+### 数组的初始化规则
+
+​		C++有几条关于初始化数组的规则，它们限制了初始化的时刻，决定了数组的元素数目与初始化器中值的数目不相同时将发生的情况
+
+​		只有在定义数组时才能使用初始化，此后就不能使用了，也不能将一个数组赋给另一个数组
+
+```C++
+int cards[4]={3,6,8,10};
+int hand[4];
+hand[4]={5,6,7,8};  // not allowed
+hand=cards;         // not allowed
+```
+
+然而，可以使用下标分别给数组中的元素赋值。
+
+​		初始化数组时，提供的值可以少于数组的元素数目。如果只对数组的一部分进行初始化，则编译器将把其他元素设置为0。因此，将数组中所有的元素都初始化为0非常简单：只要显式地将第一个元素初始化为0，然后让编译器将其他元素都初始化为0即可。
+
+​		如果初始化为{1}而不是{0}，则第一个元素被设置为1，其他元素都被设置为0。
+
+​		如果初始化数组时方括号内（[ ]）为空，C++编译器将计算元素个数。
+
+```C++
+short things[]={1,5,3,8};
+```
+
+​		**让编译器去做**：通常，让编译器计算元素个数是种很糟的做法，因为其计数可能与您想象的不一样。例如，您可能不小心在列表中遗漏了一个值。然而，这种方法对于将字符数组初始化为一个字符串来说比较安全。如果主要关心的问题是程序，而不是自己是否知道数组的大小，则可以这样做
+
+```C++
+short things[]={1,5,3,8};
+int num_elements=sizeof(things)/sizeof(short)
+```
+
+这样做是有用还是偷懒取决于具体情况。
+
+### C++11数组初始化方法
+
+​		C++11将使用大括号的初始化（列表初始化）作为一种通用初始化方式，可用于所有类型。数组以前就可使用列表初始化，但C++11中的列表初始化新增了一些功能。
+
+- 始化数组时，可省略等号（=）
+- 可不在大括号内包含任何东西，这将把所有元素都设置为零
+- 列表初始化禁止缩窄转换
+
+C++标准模板库（STL）提供了一种数组替代品—模板类vector，而C++11新增了模板类array。这些替代品比内置复合类型数组更复杂、更灵活
+
+## 字符串
+
+​		字符串是存储在内存的连续字节中的一系列字符。C++处理字符串的方式有两种。第一种来自C语言，常被称为C-风格字符串（C-style string）；另一种基于string类库。
+
+​		存储在连续字节中的一系列字符意味着可以将字符串存储在char数组中，其中每个字符都位于自己的数组元素中。字符串提供了一种存储文本信息的便捷方式。C-风格字符串具有一种特殊的性质：以空字符（null character）结尾，空字符被写作\0，其ASCII码为0，用来标记字符串的结尾。
+
+```C++
+char dog[8]={'b','e','a','u','x','','I','I'}; // not a string
+char cat[8]={'f','a','t','e','s','s','a','\0'}; // a string
+```
+
+​		空字符对C-风格字符串而言至关重要。例如，C++有很多处理字符串的函数，其中包括cout使用的那些函数。它们都逐个地处理字符串中的字符，直到到达空字符为止。如果使用cout显示上面的cat这样的字符串，则将显示前7个字符，发现空字符后停止。但是，如果使用cout显示上面的dog数组（它不是字符串），cout将打印出数组中的8个字母，并接着将内存中随后的各个字节解释为要打印的字符，直到遇到空字符为止。由于空字符（实际上是被设置为0的字节）在内存中很常见，因此这一过程将很快停止。但尽管如此，还是不应将不是字符串的字符数组当作字符串来处理。
+
+​		在cat数组示例中，将数组初始化为字符串的工作看上去冗长乏味—使用大量单引号，且必须记住加上空字符。不必担心，有一种更好的、将字符数组初始化为字符串的方法—只需使用一个用引号括起的字符串即可，这种字符串被称为字符串常量（string constant）或字符串字面值（string literal）。
+
+```C++
+char bird[11]="Mr. Cheeps"; // the \0 is understood
+char fish[]= "Bubbles"; // let the compile count
+```
+
+用引号括起的字符串隐式地包括结尾的空字符，因此不用显式地包括它
+
+​		各种C++输入工具通过键盘输入，将字符串读入到char数组中时，将自动加上结尾的空字符。如果在运行前面示例程序时发现，必须使用关键字static来初始化数组，则初始化上述char数组时也必须使用该关键字。
+
+​		当然，应确保数组足够大，能够存储字符串中所有字符—包括空字符。使用字符串常量初始化字符数组是这样的一种情况，即让编译器计算元素数目更为安全。让数组比字符串长没有什么害处，只是会浪费一些空间而已。这是因为处理字符串的函数根据空字符的位置，而不是数组长度来进行处理。C++对字符串长度没有限制。
+
+​		**在确定存储字符串所需的最短数组时，别忘了将结尾的空字符计算在内。**
+
+​		字符串常量（使用双引号）不能与字符常量（使用单引号）互换。字符常量（如'S'）是字符串编码的简写表示。在ASCII系统上，'S'只是83的另一种写法，因此，下面的语句将83赋给shirt_size
+
+```c++
+char shirt_size='S';
+```
+
+但"S"不是字符常量，它表示的是两个字符（字符S和\0）组成的字符串。更糟糕的是，"S"实际上表示的是字符串所在的内存地址。因此下面的语句试图将一个内存地址赋给shirt_size
+
+```C++
+char shirt_size="S";  // illegal type mismatch
+```
+
+由于地址在C++中是一种独立的类型，因此C++编译器不允许这种不合理的做法。
+
+### 拼接字符串常量
+
+​		有时候，字符串很长，无法放到一行中。C++允许拼接字符串字面值，即将两个用引号括起的字符串合并为一个。事实上，任何两个由空白（空格、制表符和换行符）分隔的字符串常量都将自动拼接成一个。面所有的输出语句都是等效的
+
+```C++
+cout << "I'd give my right arm to be" " a great violinist.\n";
+cout << "I'd give my right arm to be a great violinist.\n";
+cout << "I'd give my right ar
+"m to be a great violinist.\n";
+```
+
+### 在数组中使用字符串
+
+​		要将字符串存储到数组中，最常用的方法有两种—将数组初始化为字符串常量、将键盘或文件输入读入到数组中。
+
+```C++
+#include <iostream>
+#include <cstring>
+
+int main()
+{
+    using namespace std;
+
+    const int Size = 15;
+    char name1[Size];
+    char name2[Size] = "C++owboy";
+    // some implements may require the static keyword to initialize the array name2
+
+    cout << "Howdy! I'm " << name2;
+    cout << "! What's your name?\n";
+    cin >> name1;
+    cout << "Well, " << name1 << ", your name has ";
+    cout << strlen(name1) << " letters and is stored\n";
+    cout << " in an array of " << sizeof(name1) << " bytes.\n";
+    cout << "Your initial is " << name1[0] << ".\n";
+    name2[3] = '\0';
+    cout << "Here are the first 3 characters of your name: ";
+    cout << name2 << endl;
+
+    return 0;
+}
+```
+
+strlen( )只计算可见的字符，而不把空字符计算在内
+
+### 字符串输入
+
+​		上面的程序有一个缺陷，这种缺陷通过精心选择输入被掩盖掉。
+
+```C++
+#include <iostream>
+int main()
+{
+    using namespace std;
+
+    const int ArSize = 20;
+    char name[ArSize];
+    char dessert[ArSize];
+
+    cout << "Enter your name:\n";
+    cin >> name;
+    cout << "Enter your favorite dessert:\n";
+    cin >> dessert;
+    cout << "I have some delicious " << dessert;
+    cout << " for you, " << name << ".\n";
+
+    return 0;
+}
+```
+
+cin是如何确定已完成字符串输入：由于不能通过键盘输入空字符，因此cin需要用别的方法来确定字符串的结尾位置。cin使用空白（空格、制表符和换行符）来确定字符串的结束位置，这意味着cin在获取字符数组输入时只读取一个单词。读取该单词后，cin将该字符串放到数组中，并自动在结尾添加空字符。
+
+​		执行上述程序，如果输入名字`AA BB`，则会发现根本不需要输入甜点程序就执行完了。
+
+​		另一个问题是，输入字符串可能比目标数组长（运行中没有揭示出来）。像这个例子一样使用cin，确实不能防止将包含30个字符的字符串放到20个字符的数组中的情况发生。
+
+​		很多程序都依赖于字符串输入，因此有必要对该主题做进一步探讨。必须使用cin的较高级特性。
+
+### 每次读取一行字符串输入
+
+​		每次读取一个单词通常不是最好的选择。istream中的类（如cin）提供了一些面向行的类成员函数：getline( )和get( )。这两个函数都读取一行输入，直到到达换行符。然而，随后getline( )将丢弃换行符，而get( )将换行符保留在输入序列中
+
+#### 面向行的输入：getline( )
+
+​		getline( )函数读取整行，它使用通过回车键输入的换行符来确定输入结尾。要调用这种方法，可以使用cin.getline( )。该函数有两个参数。第一个参数是用来存储输入行的数组的名称，第二个参数是要读取的字符数。如果这个参数为20，则函数最多读取19个字符，余下的空间用于存储自动在结尾处添加的空字符。getline( )成员函数在读取指定数目的字符或遇到换行符时停止读取。
+
+- getline( )成员函数还可以接受第三个可选参数
+
+```C++
+#include <iostream>
+int main()
+{
+    using namespace std;
+
+    const int ArSize = 20;
+    char name[ArSize];
+    char dessert[ArSize];
+
+    cout << "Enter your name:\n";
+    cin.getline(name, ArSize);
+    cout << "Enter your favorite dessert:\n";
+    cin.getline(dessert, ArSize);
+    cout << "I have some delicious " << dessert;
+    cout << " for you, " << name << ".\n";
+
+    return 0;
+}
+```
+
+getline( )函数每次读取一行。它通过换行符来确定行尾，但不保存换行符。相反，在存储字符串时，它用空字符来替换换行符
+
+#### 面向行的输入：get( )
+
+​		istream类有另一个名为get( )的成员函数，该函数有几种变体。其中一种变体的工作方式与getline( )类似，它们接受的参数相同，解释参数的方式也相同，并且都读取到行尾。但get并不再读取并丢弃换行符，而是将其留在输入队列中。假设连续两次调研get：由于第一次调用后，换行符将留在输入队列中，因此第二次调用时看到的第一个字符便是换行符。因此get( )认为已到达行尾，而没有发现
+任何可读取的内容。如果不借助于帮助，get( )将不能跨过该换行符。
+
+​		幸运的是，get( )有另一种变体。使用不带任何参数的cin.get( )调用可读取下一个字符（即使是换行符），因此可以用它来处理换行符，为读取下一行输入做好准备。
+
+```C++
+cin.get(name, ArSize);
+cin.get();
+cin.get(dessert, ArSize);
+```
+
+另一种使用get( )的方式是将两个类成员函数拼接起来（合并）
+
+```C++
+cin.get(name, ArSize).get();
+```
+
+​		之所以可以这样做，是由于cin.get（name，ArSize）返回一个cin对象，该对象随后将被用来调用get( )函数。同样，下面的语句将把输入中连续的两行分别读入到数组name1和name2 中，其效果与两次调用cin.getline( )相同
+
+```C++
+cin.getline(name, ArSize).getline(dessert, ArSize);
+```
+
+```C++
+#include <iostream>
+int main()
+{
+    using namespace std;
+
+    const int ArSize = 20;
+    char name[ArSize];
+    char dessert[ArSize];
+
+    cout << "Enter your name:\n";
+    cin.get(name, ArSize).get();
+    cout << "Enter your favorite dessert:\n";
+    cin.get(dessert, ArSize).get();
+    cout << "I have some delicious " << dessert;
+    cout << " for you, " << name << ".\n";
+
+    return 0;
+}
+```
+
+​		**函数重载**：C++允许函数有多个版本，条件是这些版本的参数列表不同。如果使用的是cin.get（name，ArSize），则编译器知道是要将一个字符串放入数组中，因而将使用适当的成员函数。如果使用的是cin.get( )，则编译器知道是要读取一个字符
+
+​		**为什么要使用get( )，而不是getline( )**：首先，老式实现没有getline( )。其次，get( )使输入更仔细。例如，假设用get( )将一行读入数组中。如何知道停止读取的原因是由于已经读取了整行，而不是由于数组已填满呢？查看下一个输入字符，如果是换行符，说明已读取了整行；否则，说明该行中还有其他输入。
+
+​		getline( )使用起来简单一些，但get( )使得检查错误更简单些。可以用其中的任何一个来读取一行输入；只是应该知道，它们的行为稍有不同。
+
+#### 空行和其他问题
+
+​		当getline( )或get( )读取空行时，将发生什么情况？最初的做法是，下一条输入语句将在前一条getline( )或get( )结束读取的位置开始读取；但当前的做法是，当get( )（不是getline( )）读取空行后将设置失效位（failbit）。这意味着接下来的输入将被阻断，但可以用下面的命令来恢复输入
+
+```C++
+cin.clear();
+```
+
+另一个潜在的问题是，输入字符串可能比分配的空间长。如果输入行包含的字符数比指定的多，则getline( )和get( )将把余下的字符留在输入队列中，而getline( )还会设置失效位，并关闭后面的输入。
+
+### 混合输入字符串和数字
+
+​		混合输入数字和面向行的字符串会导致问题。
+
+```C++
+#include <iostream>
+int main()
+{
+    using namespace std;
+
+    cout << " What year was your house built?\n";
+    int year;
+    cin >> year;
+    cout << "What is its street address?\n";
+    char address[100];
+    cin.getline(address, 100);
+    cout << "Year built: " << year << endl;
+    cout << "Street address: " << address << endl;
+    cout << "Done!\n";
+
+    return 0;
+}
+```
+
+用户根本没有输入地址的机会。问题在于，当cin读取年份，将回车键生成的换行符留在了输入队列中。后面的cin.getline( )看到换行符后，将认为是一个空行，并将一个空字符串赋给address数组。解决之道
+是，在读取地址之前先读取并丢弃换行符。这可以通过几种方法来完成，其中包括使用没有参数的get( )和使用接受一个char参数的get( )，如前面的例子所示。可以单独进行调用
+
+```C++
+cin >> year;
+cin.get();  // or cin.get(ch);
+```
+
+也可以利用表达式cin>>year返回cin对象，将调用拼接起来
+
+```C++
+(cin>> year).get(); // or (cin>> year).get(ch);
+```
+
+```C++
+#include <iostream>
+int main()
+{
+    using namespace std;
+
+    cout << " What year was your house built?\n";
+    int year;
+    (cin>> year).get();
+    cout << "What is its street address?\n";
+    char address[100];
+    cin.getline(address, 100);
+    cout << "Year built: " << year << endl;
+    cout << "Street address: " << address << endl;
+    cout << "Done!\n";
+
+    return 0;
+}
+```
+
+C++程序常使用指针（而不是数组）来处理字符串。下面介绍一种较新的处理字符串的方式：C++ string类。
+
+## string类简介
+
+​		ISO/ANSI C++98标准通过添加string类扩展了C++库，因此现在可以string类型的变量（使用C++的话说是对象）而不是字符数组来存储字符串。string类使用起来比数组简单，同时提供了将字符串作为一种数据类型的表示方法。
+
+​		要使用string类，必须在程序中包含头文件string。string类位于名称空间std中，因此必须提供一条using编译指令，或者使用std::string来引用它。string类定义隐藏了字符串的数组性质，让您能够像处理普通变量那样处理字符串。
+
+```C++
+#include <iostream>
+#include <string>
+int main()
+{
+    using namespace std;
+
+    char charr1[20];
+    char charr2[20] = "jaguar";
+    string str1;
+    string str2 = "panther";
+
+    cout << "Enter a kind of feline: ";
+    cin >> charr1;
+    cout << "Enter another kind of feline: ";
+    cin >> str1;
+    cout << "Here are some felines:\n";
+    cout << charr1 << " " << charr2 << " "
+         << str1 << " " << str2
+         << endl;
+    cout << "The third letter in " << charr2 << " is "
+         << charr2[2] << endl;
+    cout << "The third letter in " << str2 << " is "
+         << str2[2] << endl;
+
+    return 0;
+}
+```
+
+从这个示例可知，在很多方面，使用string对象的方式与使用字符数组相同。
+
+- 可以使用C-风格字符串来初始化string对象。
+- 可以使用cin来将键盘输入存储到string对象中。
+- 可以使用cout来显示string对象。
+- 可以使用数组表示法来访问存储在string对象中的字符。
+
+程序表明，string对象和字符数组之间的主要区别是，可以将string对象声明为简单变量，而不是数组
+
+```c++
+string str1;
+string str2="panther";
+```
+
+类设计让程序能够自动处理string的大小。例如，str1的声明创建一个长度为0的string对象，但程序将输入读取到str1中时，将自动调整str1的长度
+
+​		这使得与使用数组相比，使用string对象更方便，也更安全。从理论上说，可以将char数组视为一组用于存储一个字符串的char存储单元，而string类变量是一个表示字符串的实体。
+
+### C++11字符串初始化
+
+​		C++11也允许将列表初始化用于C-风格字符串和string对象
+
+```C++
+char first_date[]={"Le Chapon Dodu"};
+char second_date[]{"The Elegant Plate"};
+string third_date={"The Bread Bowl"};
+string fourth_date {"Hank's Fine Eats"};
+```
+
+### 赋值、拼接和附加
+
+​		使用string类时，某些操作比使用数组时更简单。例如，不能将一个数组赋给另一个数组，但可以将一个string对象赋给另一个string对象
+
+​		string类简化了字符串合并操作。可以使用运算符+将两个string对象合并起来，还可以使用运算符+=将字符串附加到string对象的末尾。
+
+​		可以将C-风格字符串或string对象与string对象相加，或将它们附加到string对象的末尾。
+
+```C++
+#include <iostream>
+#include <string>
+int main()
+{
+    using namespace std;
+
+    string s1 = "penguin";
+    string s2, s3;
+
+    cout << "You can assign one string object to another: s2=s1\n";
+    s2 = s1;
+    cout << "s1: " << s1 << ", s2: " << s2 << endl;
+    cout << "You can assign a C-style string to a string object.\n";
+    cout << "s2=\"buzzard\"\n";
+    s2 = "buzzard";
+    cout << "s2: " << s2 << endl;
+    cout << "You can concatenate strings: s3=s1+s2\n";
+    s3 = s1 + s2;
+    cout << "s3: " << s3 << endl;
+    cout << "You can append strings.\n";
+    s1 += s2;
+    cout << "s1+=s2 yields s1= " << s1 << endl;
+    s2 += " for a day";
+    cout << "s2+=\" for a day\" yields s2= " << s2 << endl;
+
+    return 0;
+}
+```
+
+### string类的其他操作
+
+​		在C++新增string类之前，程序员也需要完成诸如给字符串赋值等工作。对于C-风格字符串，程序员使用C语言库中的函数来完成这些任务。头文件cstring（以前为string.h）提供了这些函数。例如，可以使用函数strcpy( )将字符串复制到字符数组中，使用函数strcat( )将字符串附加到字符数组末尾。
+
+```C++
+#include <iostream>
+#include <string>
+#include <cstring>
+int main()
+{
+    using namespace std;
+
+    char charr1[20];
+    char charr2[20] = "jaguar";
+    string str1;
+    string str2 = "panther";
+
+    str1 = str2;
+    strcpy(charr1, charr2);
+
+    str1 += " paste";
+    strcat(charr1, " juice");
+
+    int len1 = str1.size();
+    int len2 = strlen(charr1);
+
+    cout << "The string " << str1 << " contains " << len1 << " characters.\n";
+    cout << "The string " << charr1 << " contains " << len2 << " characters.\n";
+
+    return 0;
+}
+```
+
+处理string对象的语法通常比使用C字符串函数简单，尤其是执行较为复杂的操作时
+
+```C++
+str3=str2+str1;
+// 使用C-风格
+strcpy(charr3,charr1);
+strcat(charr3, charr2);
+```
+
+​		另外，使用字符数组时，总是存在目标数组过小，无法存储指定信息的危险
+
+```C++
+char site[10]="house";
+strcat(site, " of pancakes"); // memory problem
+```
+
+函数strcat( )试图将全部12个字符复制到数组site中，这将覆盖相邻的内存。这可能导致程序终止，或者程序继续运行，但数据被损坏。string类具有自动调整大小的功能，从而能够避免这种问题发生。C函数
+库确实提供了与strcat( )和strcpy( )类似的函数—strncat( )和strncpy( )，它们接受指出目标数组最大允许长度的第三个参数，因此更为安全，但使用它们进一步增加了编写程序的复杂度。
+
+​		函数strlen( )是一个常规函数，它接受一个C-风格字符串作为参数，并返回该字符串包含的字符数。函数size( )的功能基本上与此相同，但句法不同：str1不是被用作函数参数，而是位于函数名之前，它们之间用句点连接。这种句法表明，str1是一个对象，而size( )是一个类方法。方法是一个函数，只能通过其所属类的对象进行调用。
+
+### string类I/O
+
+​		可以使用cin和运算符<<来将输入存储到string对象中，使用cout和运算符<<来显示string对象，其句法与处理C-风格字符串相同。但每次读取一行而不是一个单词时，使用的句法不同
+
+```C++
+#include <iostream>
+#include <string>
+#include <cstring>
+int main()
+{
+    using namespace std;
+
+    char charr[20];
+    string str;
+
+    cout << "Length of string in charr before input: "
+         << strlen(charr) << endl;
+    cout << "Length of string in str before input: "
+         << str.size() << endl;
+    cout << "Enter a line of text:\n";
+    cin.getline(charr, 20);
+    cout << "You entered: " << charr << endl;
+    cout << "Enter another line of text: \n";
+    getline(cin, str);
+    cout << "You entered: " << str << endl;
+    cout << "Length of string in charr after input: "
+         << strlen(charr) << endl;
+    cout << "Length of string in str after input: "
+         << str.size() << endl;
+
+    return 0;
+}
+```
+
+charr在输入字符串之前的长度是不确定的。函数strlen( )从数组的第一个元素开始计算字节数，直到遇到空字符。对于未被初始化的数据，第一个空字符的出现位置是随机的，因此在运行该程序时，得到的数组长度很可能与此不同。
+
+- `cin.getline(charr, 20);`：这种句点表示法表明，函数getline( )是istream类的一个类方法
+- `getline(cin, str);`：这里没有使用句点表示法，这表明这个getline( )不是类方法。它将cin作为参数，指出到哪里去查找输入。另外，也没有指出字符串长度的参数，因为string对象将根据字符串的长度自动调整自己的大小。
+
+在引入string类之前很久，C++就有istream类。因此istream的设计考虑到了诸如double和int等基本C++数据类型，但没有考虑string类型，所以istream类中，有处理double、int和其他基本类型的类方法，但没有处理string对象的类方法。
+
+​		**istream类中没有处理string对象的类方法，下述代码为何可行**：
+
+```C++
+cin >> str;
+```
+
+像下面这样的代码使用istream类的一个成员函数
+
+```C++
+cin >> x; // read a value into a basic C++ type
+```
+
+但前面处理string对象的代码使用string类的一个友元函数。有关友元函数及这种技术为何可行，将在后面进行介绍。另外，可以将cin和cout用于string对象，而不用考虑其内部工作原理。
+
+### 其他形式的字符串字面值
+
+​		除char类型外，C++还有类型wchar_t；而C++11新增了类型char16_t和char32_t。可创建这些类型的数组和这些类型的字符串字面值。对于这些类型的字符串字面值，C++分别使用前缀L、u和U表示
+
+​		C++11还支持Unicode字符编码方案UTF-8。在这种方案中，根据编码的数字值，字符可能存储为1～4个八位组。C++使用前缀u8来表示这种类型的字符串字面值。
+
+​		C++11新增的另一种类型是原始（raw）字符串。在原始字符串中，字符表示的就是自己原始字符串将`"(`和`)"`用作定界符，并使用前缀R来标识原始字符串
+
+```C++
+cout << R"(Jim "King" Tutt uses "\n" instead of endl.)" << '\n';
+```
+
+​		**如果要在原始字符串中包含`)"`**：编译器见到第一个`)"`时，会认为字符串到此结束。但原始字符串语法允许在表示字符串开头的`"`和`(`之间添加其他字符，这意味着表示字符串结尾的`"`和`)`之间也必须包含这些字符。因此，使用R`"+*(`标识原始字符串的开头时，必须使用`)+*"`标识原始字符串的结尾。
+
+​		自定义定界符时，在默认定界符之间添加任意数量的基本字符，但空格、左括号、右
+括号、斜杠和控制字符（如制表符和换行符）除外。
+
+​		可将前缀R与其他字符串前缀结合使用，以标识wchar_t等类型的原始字符串。可将R放在前面，也可将其放在后面，如Ru、UR等。
+
+## 结构简介
+
+​		结构是一种比数组更灵活的数据格式，因为同一个结构可以存储多种类型的数
+据，这使得能够将有关篮球运动员的信息放在一个结构中，从而将数据的表示合并到一起。结构也是C++ OOP堡垒（类）的基石。
+
+​		结构是用户定义的类型，而结构声明定义了这种类型的数据属性。定义了类型后，便可以创建这种类型的变量。因此创建结构包括两步。首先，定义结构描述—它描述并标记了能够存储在结构中的各种数据类型。然后按描述创建结构变量（结构数据对象）。
+
+​		假设Bloataire公司要创建一种类型来描述其生产线上充气产品的成员。具体地说，这种类型应存储产品名称、容量（单位为立方英尺）和售价。
+
+```C++
+struct inflatable {
+    char name[20];
+    float volume;
+    double price;
+};
+```
+
+关键字struct表明，这些代码定义的是一个结构的布局。标识符inflatable是这种数据格式的名称，因此新类型的名称为inflatable。这样，便可以像创建char或int类型的变量那样创建inflatable类型的变量了。接下来的大括号中包含的是结构存储的数据类型的列表，其中每个列表项都是一条声明语句。
+
+​		与C语言不同之处在于，C++允许在声明结构变量时省略关键字struct。在C++中，结构标记的用法与基本类型名相同。这种变化强调的是，结构声明定义了一种新类型。在C++中，省略struct不会出错。
+
+​		可以使用成员运算符（.）来访问各个成员。访问类成员函数的方式是从访问结构成员变量的方式衍生而来的。
+
+### 在程序中使用结构
+
+```C++
+#include <iostream>
+
+struct inflatable
+{
+    char name[20];
+    float volume;
+    double price;
+};
+int main()
+{
+    using namespace std;
+
+    inflatable guest = {
+        "Glorious Gloria",
+        1.88,
+        29.99};
+
+    inflatable pal = {
+        "Audacious Arthur",
+        3.12,
+        32.99};
+    // some implementations require using static inflatable guest =
+
+    cout << "Expand your guest list with " << guest.name;
+    cout << " and " << pal.name << "!\n";
+    cout << "You can hanve both for $";
+    cout << guest.price + pal.price << "!\n";
+
+    return 0;
+}
+```
+
+​		**结构声明的位置很重要**：对于上面的程序，可以将声明放在main( )函数中，紧跟在开始括号的后面；另一种选择是将声明放到main( )的前面。
+
+​		位于函数外面的声明被称为外部声明。对于这个程序来说，两种选择之间没有实际区别。但是对于那些包含两个或更多函数的程序来说，差别很大。外部声明可以被其后面的任何函数使用，而内部声明只能被该声明所属的函数使用。
+
+​		变量也可以在函数内部和外部定义，外部变量由所有的函数共享。C++不提倡使用外部变量，但提倡使用外部结构声明。另外，在外部声明符号常量通常更合理。
+
+​		和数组一样，使用由逗号分隔值列表，并将这些值用花括号括起就可以进行初始化。可以将结构的每个成员都初始化为适当类型的数据。
+
+### C++11结构初始化
+
+​		C++11也支持将列表初始化用于结构，且等号（=）是可选的
+
+```C++
+inflatable duck {"Daphne", 0.12 , 9.98};
+```
+
+如果大括号内未包含任何东西，各个成员都将被设置为零。不允许缩窄转换。
+
+​		**结构可以将string类作为成员吗**：只要使用的编译器支持对以string对象作为成员的结构进行初始化就可以。一定要让结构定义能够访问名称空间std。为此，可以将编译指令using移到结构定义之前；也可将name的类型声明为std::string。
+
+### 其他结构属性
+
+​		C++使用户定义的类型与内置类型尽可能相似。例如，可以将结构作为参数传递给函数，也可以让函数返回一个结构。另外，还可以使用赋值运算符（=）将结构赋给另一个同类型的结构，这样结构中每个成员都将被设置为另一个结构中相应成员的值，即使成员是数组。这种赋值被称为成员赋值（memberwise assignment）
+
+```C++
+#include <iostream>
+
+struct inflatable
+{
+    char name[20];
+    float volume;
+    double price;
+};
+int main()
+{
+    using namespace std;
+
+    inflatable bouquet = {
+        "sunflowers",
+        0.20,
+        12.49
+    };
+    inflatable choice;
+    cout << "bouquet: " << bouquet.name << " for $";
+    cout << bouquet.price << endl;
+
+    choice=bouquet;
+    cout << "choice: " << choice.name << " for $";
+    cout << choice.price << endl;
+
+    return 0;
+}
+```
+
+​		可以同时完成定义结构和创建结构变量的工作。为此，只需将变量名放在结束括号的后面即可
+
+```C++
+struct perks{
+    int key_number;
+    char car[12];
+} mr_smith, ms_jones;
+```
+
+甚至可以初始化以这种方式创建的变量
+
+```C++
+struct perks{
+    int key_number;
+    char car[12];
+} mr_smith={
+    7,
+    "Packard"
+};
+```
+
+将结构定义和变量声明分开，可以使程序更易于阅读和理解。
+
+​		还可以声明没有名称的结构类型，方法是省略名称，同时定义一种结构类型和一个这种类型的变量
+
+```C++
+struct{
+    int x;
+    int y;
+} position;
+```
+
+但这种类型没有名称，因此以后无法创建这种类型的变量。
+
+​		除了C++程序可以使用结构标记作为类型名称外，C结构具有到目前为止讨论的C++结构的所有特性（C++11特性除外），但C++结构的特性更多。例如，与C结构不同，C++结构除了成员变量之外，还可以有成员函数。但这些高级特性通常被用于类中，而不是结构中。
+
+### 结构数组
+
+​		inflatable结构包含一个数组（name）。也可以创建元素为结构的数组，方法和创建基本类型数组完全相同。
+
+​		要初始化结构数组，可以结合使用初始化数组的规则（用逗号分隔每个元素的值，并将这些值用花括号括起）和初始化结构的规则（用逗号分隔每个成员的值，并将这些值用花括号括起）。由于数组中的每个元素都是结构，因此可以使用结构初始化的方式来提供它的值。因此，最终结果为一个被括在花括号中、用逗号分隔的值列表，其中每个值本
+身又是一个被括在花括号中、用逗号分隔的值列表
+
+```C++
+#include <iostream>
+
+struct inflatable
+{
+    char name[20];
+    float volume;
+    double price;
+};
+int main()
+{
+    using namespace std;
+
+    inflatable guests[2] = {
+        {"Bambi", 0.5, 21.99},
+        {"Godzilla", 2000, 565.99}};
+
+    cout << "The guests " << guests[0].name << " and " << guests[1].name
+         << "\n have a combined volume of "
+         << guests[0].volume + guests[1].volume << " cubic feet.\n";
+
+    return 0;
+}
+```
+
+### 结构中的位字段
+
+​		与C语言一样，C++也允许指定占用特定位数的结构成员，这使得创建与某个硬件设备上的寄存器对应的数据结构非常方便。字段的类型应为整型或枚举，接下来是冒号，冒号后面是一个数字，它指定了使用的位数。可以使用没有名称的字段来提供间距。每个成员都被称为位字段（bit field）。
+
+```C++
+struct torgle_register{
+    unsigned int SN : 4;
+    unsigned int : 4;
+    bool goodIn : 1;
+    bool goodTorgle : 1;
+};
+```
+
+可以像通常那样初始化这些字段，还可以使用标准的结构表示法来访问位字段。位字段通常用在低级编程中。一般来说，可以使用整型和附录E介绍的按位运算符来代替这种方式。
+
+## 共用体
+
+​		共用体（union）是一种数据格式，它能够存储不同的数据类型，但只能同时存储其中的一种类型。也就是说，结构可以同时存储int、long和double，共用体只能存储int、long或double。共用体的句法与结构相似，但含义不同。
+
+```C++
+union one4all{
+  	int int_val;
+  	long long_val;
+  	double double_val;
+};
+```
+
+可以使用one4all变量来存储int、long或double，条件是在不同的时间进行
+
+```C++
+one4all pail;
+pail.int_val=15;
+cout << pail.int_val;
+pail.double_val = 1.38;
+cout << pail.double_val;
+```
+
+因此，pail有时可以是int变量，而有时又可以是double变量。成员名称标识了变量的容量。由于共用体每次只能存储一个值，因此它必须有足够的空间来存储最大的成员，所以，共用体的长度为其最大成员的长度。
+
+​		共用体的用途之一是，当数据项使用两种或更多种格式（但不会同时使用）时，可节省空间。例如，假设管理一个小商品目录，其中有一些商品的ID为整数，而另一些的ID为字符串
+
+```C++
+struct widget{
+    char brand[20];
+    int type;
+    union id {
+        long id_num;
+        char id_char[20];
+    } id_val;
+};
+...
+widget prize;
+...
+if(prize.type==1)
+    cin >> prize.id_val.id_num;
+else
+    cin >> prize.id_val.id_char;
+```
+
+​		匿名共用体（anonymous union）没有名称，其成员将成为位于相同地址处的变量。显然，每次只有一个成员是当前的成员
+
+```C++
+struct widget{
+    char brand[20];
+    int type;
+    union {
+        long id_num;
+        char id_char[20];
+    };
+};
+...
+widget prize;
+...
+if(prize.type==1)
+    cin >> prize.id_num;
+else
+    cin >> prize.id_char;
+```
+
+由于共用体是匿名的，因此id_num和id_char被视为prize的两个成员，它们的地址相同，所以不需要中间标识符id_val。程序员负责确定当前哪个成员是活动的。
+
+​		共用体常用于（但并非只能用于）节省内存。当前，系统的内存多达数GB甚至数TB，好像没有必要节省内存，但并非所有的C++程序都是为这样的系统编写的。C++还用于嵌入式系统编程，如控制烤箱、MP3播放器或火星漫步者的处理器。对这些应用程序来说，内存可能非常宝贵。另外，共用体常用于操作系统数据结构或硬件数据结构。
+
+## 枚举
+
+​		C++的enum工具提供了另一种创建符号常量的方式，这种方式可以代替const。它还允许定义新类型，但必须按严格的限制进行。使用enum的句法与使用结构相似。
+
+```C++
+enum spectrum {red, orange, yellow, green, blue, violet, indigo, ultraviolet};
+```
+
+- 让spectrum成为新类型的名称；spectrum被称为枚举（enumeration），就像struct变量被称为结构一样。
+- 将red、orange、yellow等作为符号常量，它们对应整数值0～7。这些常量叫作枚举量（enumerator）。
+
+在默认情况下，将整数值赋给枚举量，第一个枚举量的值为0，第二个枚举量的值为1，依次类推。可以通过显式地指定整数值来覆盖默认值
+
+​		可以用枚举名来声明这种类型的变量
+
+```C++
+spectrum band;
+```
+
+枚举变量具有一些特殊的属性
+
+- **在不进行强制类型转换的情况下，只能将定义枚举时使用的枚举量赋给这种枚举的变量**
+
+  如果试图将一个非法值赋给它，则有些编译器将出现编译器错误，而另一些则发出警
+  告。为获得最大限度的可移植性，应将把非enum值赋给enum变量视为错误。
+
+- **对于枚举，只定义了赋值运算符。具体地说，没有为枚举定义算术运算**
+
+  然而，有些实现并没有这种限制，这有可能导致违反类型限制。例如，如果band的值为ultraviolet（7），则++band（如果有效的话）将把band增加到8，而对于spectrum类型来说，8是无效的。另外，为获得最大限度的可移植性，应采纳较严格的限制。
+
+- **枚举量是整型，可被提升为int类型，但int类型不能自动转换为枚举类型**
+
+  同样，有些实现方法没有这种限制。可以在算术表达式中同时使用枚举和常规整数，尽管并没有为枚举本身定义算术运算
+
+  ```C++
+  band = orange + red;
+  ```
+
+  非法的原因有些复杂。确实没有为枚举定义运算符+，但用于算术表达式中时，枚举将被转换为整数，因此表达式orange + red将被转换为1 + 0。这是一个合法的表达式，但其类型为int，不能将其赋给类型为spectrum的变量band。
+
+  如果int值是有效的，则可以通过强制类型转换，将它赋给枚举变量
+
+  ```C++
+  band = spectrum(3);
+  ```
+
+  如果试图对一个不适当的值进行强制类型转换，结果是不确定的，这意味着这样做不会出错，但不能依赖得到的结果
+
+  ```C++
+  band = spectrum(40003); // undefined
+  ```
+
+​		枚举的规则相当严格。实际上，枚举更常被用来定义相关的符号常量，而不是新类型。如，可以用枚举来定义switch语句中使用的符号常量，如果打算只使用常量，而不创建枚举类型的变量，则可以省略枚举类型的名称
+
+```C++
+enum {red, orange, yellow, green, blue, violet, indigo, ultraviolet};
+```
+
+### 设置枚举量的值
+
+​		可以使用赋值运算符来显式地设置枚举量的值
+
+```C++
+enum bits {one=1, two=2, four=4, eight=8};
+```
+
+指定的值必须是整数。也可以只显式地定义其中一些枚举量的值
+
+```C++
+enum bigstep{first=1, second=100, third};
+```
+
+这里，first在默认情况下为0。后面没有被初始化的枚举量的值将比其前面的枚举量大1。因此，third的值为101。
+
+​		可以创建多个值相同的枚举量
+
+```C++
+enum {zero, null=0, one, numero_uno=1};
+```
+
+其中，zero和null都为0，one和umero_uno都为1。在C++早期的版本中，只能将int值（或提升为int的值）赋给枚举量，但这种限制取消了，因此可以使用long甚至long long类型的值。
+
+### 枚举的取值范围
+
+​		最初，对于枚举来说，只有声明中指出的那些值是有效的。然而，C++现在通过强制类型转换，增加了可赋给枚举变量的合法值。每个枚举都有取值范围（range），通过强制类型转换，可以将取值范围中的任何整数值赋给枚举变量，即使这个值不是枚举值。
+
+```C++
+enum bits{one=1,two=2,four=4,eight=8};
+bits myflag;
+
+myflag=bits(6);  //  valid, because 6 is in bits range
+```
+
+其中6不是枚举值，但它位于枚举定义的取值范围内。
+
+​		取值范围的定义如下。首先，要找出上限，需要知道枚举量的最大值。找到大于这个最大值的、最小的2的幂，将它减去1，得到的便是取值范围的上限。例如，前面定义的bigstep的最大值枚举值是101。在2的幂中，比这个数大的最小值为128，因此取值范围的上限为127。要计算下限，需要知道枚举量的最小值。如果它不小于0，则取值范围的下限为0；否则，采用与寻找上限方式相同的方式，但加上负号。例如，如果最小的枚举量为−6，而比它小的、最大的2的幂是−8（加上负号），因此下限为−7。
+
+​		选择用多少空间来存储枚举由编译器决定。对于取值范围较小的枚举，使用一个字节或更少的空间；而对于包含long类型值的枚举，则使用4个字节。
+
+​		C++11扩展了枚举，增加了作用域内枚举（scoped enumeration）。
+
+## 指针和自由存储空间
+
+​		计算机程序在存储数据时必须跟踪的3种基本属性
+
+- 信息存储在何处；
+- 存储的值为多少；
+- 存储的信息是什么类型。
+
+​		使用过一种策略来达到上述目的：定义一个简单变量。声明语句指出了值的类型和符号名，还让程序为值分配内存，并在内部跟踪该内存单元。
+
+​		另一种策略，它在开发C++类时非常重要。这种策略以指针为基础，指针是一个变量，其存储的是值的地址，而不是值本身。先看一看如何找到常规变量的地址。只需对
+变量应用地址运算符（&），就可以获得它的位置
+
+```C++
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+
+    int donuts = 6;
+    double cups=4.5;
+
+    cout << "donuts value = " << donuts;
+    cout << " and donuts address = " << &donuts << endl;
+    // yoy may need to use unsigned (&donuts) and unsigned (&cups)
+    cout << "cups value = " << cups;
+    cout << " and cups address = " << &cups << endl;
+
+    return 0;
+}
+```
+
+显示地址时，该实现的cout使用十六进制表示法，因为这是常用于描述内存的表示法（有些实现可能使用十进制表示法）。在该实现中，donuts的存储位置比cups要低。两个地址的差为4。这是有意义的，因为donuts的类型为int，而这种类型使用4个字节。当然，不同系统给定的地址值可能不同。有些系统可能先存储cups，再存储donuts，这样两个地址值的差将为8个字节，因为cups的类型为double。另外，在有些系统中，可能不会将这两个变量存储在相邻的内存单元中。
+
+​		使用常规变量时，值是指定的量，而地址为派生量。下面来看看指针策略，它是C++内存管理编程理念的核心
+
+​		**指针与C++基本原理**：面向对象编程与传统的过程性编程的区别在于，OOP强调的是在运行阶段（而不是编译阶段）进行决策。运行阶段指的是程序正在运行时，编译阶段指的是编译器将程序组合起来时。运行阶段决策就好比度假时，选择参观哪些景点取决于天气和当时的心情；而编译阶段决策更像不管在什么条件下，都坚持预先设定的日程安排。
+
+​		运行阶段决策提供了灵活性，可以根据当时的情况进行调整。例如，考虑为数组分配内存的情况。传统的方法是声明一个数组。要在C++中声明数组，必须指定数组的长度。因此，数组长度在程序编译时就设定好了；这就是编译阶段决策。您可能认为，在80%的情况下，一个包含20个元素的数组足够了，但程序有时需要处理200个元素。为了安全起见，使用了一个包含200个元素的数组。这样，程序在大多数情况下都浪费了内存。OOP通过将这样的决策推迟到运行阶段进行，使程序更灵活。在程序运行后，可以这次告诉它只需要20个元素，而还可以下次告诉它需要205个元素。
+
+​		总之，使用OOP时，您可能在运行阶段确定数组的长度。为使用这种方法，语言必须允许在程序运行时创建数组。稍后您看会到，C++采用的方法是，使用关键字new请求正确数量的内存以及使用指针来跟踪新分配的内存的位置。
+
+​		在运行阶段做决策并非OOP独有的，但使用C++编写这样的代码比使用C语言简单。
+
+​		处理存储数据的新策略刚好相反，将地址视为指定的量，而将值视为派生量。一种特殊类型的变量—指针用于存储值的地址。因此，指针名表示的是地址。*运算符被称为间接值（indirect velue）或解除引用（dereferencing）运算符，将其应用于指针，可以得到该地址处存储的值（这和乘法使用的符号相同；C++根据上下文来确定所指的是乘法还
+是解除引用）
+
+```C++
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+
+    int updates = 6;
+    int *p_updates;
+    p_updates = &updates;
+
+    cout << "Values: updates = " << updates;
+    cout << ", *p_updates = " << p_updates << endl;
+
+    cout << "Addresses: &updates = " << &updates;
+    cout << ", p_updates = " << p_updates << endl;
+
+    *p_updates = *p_updates + 1;
+    cout << "Now updates = " << updates << endl;
+
+    return 0;
+}
+```
+
+从中可知，int变量updates和指针变量p_updates只不过是同一枚硬币的两面。变量updates表示值，并使用&运算符来获得地址；而变量p_updates表示地址，并使用`*`运算符来获得值。由于p_updates指向updates，因此`*p_updates`和updates完全等价。可以像使用int变量那样使用`*p_updates`。甚至可以将值赋给`*p_updates`。这样做将修改指向的值，即updates。
+
+### 声明和初始化指针
+
+```C++
+int *p_updates;
+```
+
+由于`*`运算符被用于指针，因此p_updates变量本身必须是指针。顺便说一句，`*`运算符两边的空格是可选的。
+
+​		在哪里添加空格对于编译器来说没有任何区别，甚至可以这样做
+
+```C++
+int*ptr;
+```
+
+在C++中，`int *`是一种复合类型，是指向int的指针。
+
+​		尽管都是指针，却是不同类型的指针。和数组一样，指针都是基于其他类型的。
+
+​		可以在声明语句中初始化指针。在这种情况下，被初始化的是指针，而不是它指向的值。
+
+```C++
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+
+    int higgens = 5;
+    int * pt=&higgens;
+
+    cout << "Value of higgens = " << higgens
+         << "; Address of higgens = " << &higgens << endl;
+    cout << "Value of *pt = " << *pt
+         << "; Value of pt = " << pt << endl;
+
+    return 0;
+}
+```
+
+### 指针的危险
+
+​		在C++中创建指针时，计算机将分配用来存储地址的内存，但不会分配用来存储指针所指向的数据的内存。为数据提供空间是一个独立的步骤，忽略这一步无疑是自找麻烦
+
+```C++
+long * fellow;  
+*fellow = 223323; // place a value in never-never land
+```
+
+fellow确实是一个指针，但它指向哪里呢？上述代码没有将地址赋给fellow。那么223323将被放在哪里呢？我们不知道。由于fellow没有被初始化，它可能有任何值。不管值是什么，程序都将它解释为存储223323的地址。如果fellow的值碰巧为1200，计算机将把数据放在地址1200上，即使这恰巧是程序代码的地址。fellow指向的地方很可能并不是所要存储223323的地方。这种错误可能会导致一些最隐匿、最难以跟踪的bug。
+
+​		一定要在对指针应用解除引用运算符（*）之前，将指针初始化为一个确定的、适当的地址。这是关于使用指针的金科玉律。
+
+### 指针和数字
+
+​		指针不是整型，虽然计算机通常把地址当作整数来处理。从概念上看，指针与整数是截然不同的类型。整数是可以执行加、减、除等运算的数字，而指针描述的是位置，将两个地址相乘没有任何意义。从可以对整数和指针执行的操作上看，它们也是彼此不同的。因此，不能简单地将整数赋给指针
+
+```C++
+int * pt;
+pt = 0xB8000000;  // type mismatch
+```
+
+左边是指向int的指针，因此可以把它赋给地址，但右边是一个整数。0xB8000000是老式计算机系统中视频内存的组合段偏移地址，但这条语句并没有告诉程序，这个数字就是一个地址。在C99标准发布之前，C语言允许这样赋值。但C++在类型一致方面的要求更严格，编译器将显示一条错误消息，通告类型不匹配。要将数字值作为地址来使用，应通过强制类型转换将数字转换为适当的地址类型
+
+```C++
+int * pt;
+pt = (int *) 0xB8000000;
+```
+
+pt是int值的地址并不意味着pt本身的类型是int。例如，在有些平台中，int类型是个2字节值，而地址是个4字节值。
+
+### 使用new来分配内存
+
+​		变量是在编译时分配的有名称的内存，而指针只是为可以通过名称直接访问的内存提供了一个别名。指针真正的用武之地在于，**在运行阶段分配未命名的内存以存储值**。在这种情况下，只能通过指针来访问内存。在C语言中，可以用库函数malloc( )来分配内存；在C++中仍然可以这样做，但C++还有更好的方法—new运算符。
+
+​		在运行阶段为一个int值分配未命名的内存，并使用指针来访问这个值。这里的关键所在是C++的new运算符。程序员要告诉new，需要为哪种数据类型分配内存；new将找到一个长度正确的内存块，并返回该内存块的地址。
+
+```C++
+int * pn = new int;
+```
+
+new int告诉程序，需要适合存储int的内存。new运算符根据类型来确定需要多少字节的内存。然后，它找到这样的内存，并返回其地址。接下来，将地址赋给pn，pn是被声明为指向int的指针。现在，pn是地址，而*pn是存储在那里的值。将这种方法与将变量的地址赋给指针进行比较
+
+```C++
+int higgens;
+int * pt= & higgens;
+```
+
+在这两种情况（pn和pt）下，都是将一个int变量的地址赋给了指针。在第二种情况下，可以通过名称higgens来访问该int，在第一种情况下，则只能通过该指针进行访问。
+
+​		这引出了一个问题：pn指向的内存没有名称，如何称呼。pn指向一个数据对象，这里的“对象”不是“面向对象编程”中的对象，而是一样“东西”。术语“数据对象”比“变量”更通用，它指的是为数据项分配的内存块。因此，变量也是数据对象，但pn指向的内存不是变量。乍一看，处理数据对象的指针方法可能不太好用，但它使程序在管理内存方面有更大的控制权。
+
+​		为一个数据对象（可以是结构，也可以是基本类型）获得并指定分配内存的通用格式如下
+
+```C++
+typeName * pointer_name = new typeName;
+```
+
+​		**需要在两个地方指定数据类型**：用来指定需要什么样的内存和用来声明合适的指针。当然，如果已经声明了相应类型的指针，则可以使用该指针，而不用再声明一个新的指针。
+
+```C++
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+
+    int nights = 1001;
+    int *pt = new int;
+    *pt = 1001;
+
+    cout << "nights value = ";
+    cout << nights << ": location " << &nights << endl;
+    cout << "int ";
+    cout << "value = " << *pt << ": location = " << pt << endl;
+
+    double *pd = new double;
+    *pd = 10000001.0;
+
+    cout << "double ";
+    cout << "value = " << *pd << ": location = " << pd << endl;
+    cout << "location of pointer pd: " << &pd << endl;
+    cout << "size of pt = " << sizeof(pt);
+    cout << ": size or *pt = " << sizeof(*pt) << endl;
+    cout << "size of pd = " << sizeof(pd);
+    cout << ": size or *pd = " << sizeof(*pd) << endl;
+
+    return 0;
+}
+```
+
+内存位置的准确值随系统而异。指向int的指针的长度与指向double的指针相同。它们都是地址
+
+​		new分配的内存块通常与常规变量声明分配的内存块不同。变量nights和pd的值都存储在被称为栈（stack）的内存区域中，而new从被称为堆（heap）或自由存储区（free
+store）的内存区域分配内存。
+
+​		**内存被耗尽**：计算机可能会由于没有足够的内存而无法满足new的请求。在这种情况下，new通常会引发异常。而在较老的实现中，new将返回0。在C++中，值为0的指针被称为空指针（null pointer）。C++确保空指针不会指向有效的数据，因此它常被用来表示运算符或函数失败（如果成功，它们将返回一个有用的指针）。C++提供了检测并处理
+内存分配失败的工具
+
+### 使用delete释放内存
+
+​		当需要内存时，可以使用new来请求，这只是C++内存管理数据包中有魅力的一个方面。另一个方面是delete运算符，它使得在使用完内存后，能够将其归还给内存池，这是通向最有效地使用内存的关键一步。归还或释放（free）的内存可供程序的其他部分使用。使用delete时，后面要加上指向内存块的指针（这些内存块最初是用new分配的）
+
+```C++
+int * ps= new int;
+...
+delete ps;
+```
+
+这将释放ps指向的内存，但不会删除指针ps本身。例如，可以将ps重新指向另一个新分配的内存块。一定要配对地使用new和delete；否则将发生内存泄漏（memory leak），也就是说，被分配的内存再也无法使用了。如果内存泄漏严重，则程序将由于不断寻找更多内存而终止。
+
+​		不要尝试释放已经释放的内存块，C++标准指出，这样做的结果将是不确定的，这意味着什么情况都可能发生。另外，不能使用delete来释放声明变量所获得的内存
+
+```C++
+int * ps = new int;
+delete ps;
+delete ps; // not ok
+int jugs=5;
+int * pi = &jugs;
+delete pi; // not allowed, memory not allocated by new
+```
+
+只能用delete来释放使用new分配的内存。然而，对空指针使用delete是安全的
+
+​		使用delete的关键在于，将它用于new分配的内存。这并不意味着要使用用于new的指针，而是用于new的地址
+
+```C++
+int * ps = new int;
+int * pq=ps;
+delete pq; // delete with second pointer
+```
+
+一般来说，不要创建两个指向同一个内存块的指针，因为这将增加错误地删除同一个内存块两次的可能性。但对于返回指针的函数，使用另一个指针确实有道理。
+
+### 使用new来创建动态数组
+
+​		如果程序只需要一个值，则可能会声明一个简单变量，因为对于管理一个小型数据对象来说，这样做比使用new和指针更简单，尽管给人留下的印象不那么深刻。通常，对于大型数据（如数组、字符串和结构），应使用new，这正是new的用武之地。
+
+​		假设要编写一个程序，它是否需要数组取决于运行时用户提供的信息。如果通过声明来创建数组，则在程序被编译时将为它分配内存空间。不管程序最终是否使用数组，数组都在那里，它占用了内存。在编译时给数组分配内存被称为静态联编（static binding），意味着数组是在编译时加入到程序中的。
+
+​		但使用new时，如果在运行阶段需要数组，则创建它；如果不需要，则不创建。还可以在程序运行时选择数组的长度。这被称为动态联编（dynamic binding），意味着数组是在程序运行时创建的。这种数组叫作动态数组（dynamic array）。
+
+​		**使用静态联编时，必须在编写程序时指定数组的长度；使用动态联编时，程序将在运行时确定数组的长度。**
+
+#### 使用new创建动态数组
+
+​		在C++中，创建动态数组很容易；只要将数组的元素类型和元素数目告诉new即可。必须在类型名后加上方括号，其中包含元素数目。new运算符返回第一个元素的地址。
+
+​		当程序使用完new分配的内存块时，应使用delete释放它们。然而，对于使用new创建的数组，应使用另一种格式的delete来释放
+
+```C++
+int * psome = new int [10];
+delete [] psome;
+```
+
+方括号告诉程序，应释放整个数组，而不仅仅是指针指向的元素。
+
+​		如果使用new时，不带方括号，则使用delete时，也不应带方括号。如果使用new时带方括号，则使用delete时也应带方括号。C++的早期版本无法识别方括号表示法。然而，对于ANSI/ISO标准来说，new与delete的格式不匹配导致的后果是不确定的，这意味着程序员不能依赖于某种特定的行为。
+
+```C++
+int * pt = new int;
+short * ps = new short [500];
+delete [] pt; // effect is undefined, don't do it
+delete ps; // effect is undefined, don't do it
+```
+
+​		使用new和delete时，应遵守以下规则
+
+- 不要使用delete来释放不是new分配的内存。
+- 不要使用delete释放同一个内存块两次。
+- 如果使用new [ ]为数组分配内存，则应使用delete [ ]来释放。
+- 如果使用new [ ]为一个实体分配内存，则应使用delete（没有方括号）来释放。
+- 对空指针应用delete是安全的。
+
+​		psome是指向一个int（数组第一个元素）的指针。您的责任是跟踪内存块中的元素个数。也就是说，由于编译器不能对psome是指向10个整数中的第1个这种情况进行跟踪，因此编写程序时，必须让程序跟踪元素的数目。
+
+​		实际上，程序确实跟踪了分配的内存量，以便以后使用delete [ ]运算符时能够正确地释放这些内存。但这种信息不是公用的，例如，不能使用sizeof运算符来确定动态分配的数组包含的字节数。
+
+#### 使用动态数组
+
+​		对于第1个元素，可以使用psome[0]，而不是*psome；对于第2个元素，可以使用psome[1]，依此类推。这样，使用指针来访问动态数组就非常简单了，虽然还不知道为何这种方法管用。可以这样做的原因是，C和C++内部都使用指针来处理数组。数组和指针基本等价是C和C++的优点之一（这在有时候也是个问题，但这是另一码事）。稍后将更详细地介绍这种等同性。
+
+```C++
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+
+    double *p3 = new double[3];
+    p3[0] = 0.2;
+    p3[1] = 0.5;
+    p3[2] = 0.8;
+    cout << "p3[1] is " << p3[1] << ".\n";
+    p3 = p3 + 1;
+    cout << "Now p3[0] is " << p3[0] << " and ";
+    cout << "p3[1] is " << p3[1] << ".\n";
+    p3 = p3 - 1;
+    delete[] p3;
+
+    return 0;
+}
+```
+
+相邻的int地址通常相差2个字节或4个字节，而将p3加1后，它将指向下一个元素的地址，这表明指针算术有一些特别的地方。情况确实如此。
+
+## 指针、数组和指针算术
+
+​		指针和数组基本等价的原因在于指针算术（pointer arithmetic）和C++内部处理数组的方式。将指针变量加1后，增加的量等于它指向的类型的字节数。
+
+```C++
+#include <iostream>
+
+int main()
+{
+    using namespace std;
+
+    double wages[3] = {10000.0, 20000.0, 30000.0};
+    short stacks[3] = {3, 2, 1};
+
+    double *pw = wages;
+    short *ps = &stacks[0];
+
+    cout << "pw = " << pw << ", *pw = " << *pw << endl;
+    pw = pw + 1;
+    cout << "add 1 to the pw pointer:\n";
+    cout << " pw = " << pw << ", *pw = " << *pw << "\n\n";
+
+    cout << "ps = " << ps << ", *ps = " << *ps << endl;
+    ps = ps + 1;
+    cout << "add 1 to the ps pointer:\n";
+    cout << " ps = " << ps << ", *ps = " << *ps << "\n\n";
+
+    cout << "access two elements with array notation\n";
+    cout << "stacks[0] = " << stacks[0] << ", stacks[1] = " << stacks[1] << endl;
+    cout << "access three elements with pointer notation\n";
+    cout << "*stack = " << *stacks << ", *(stacks+1) = " << *(stacks + 1) << endl;
+
+    cout << sizeof(wages) << " = size of wages array\n";
+    cout << sizeof(pw) << " = size of pw pointer\n";
+
+    return 0;
+}
+```
+
+C++将数组名解释为地址。将指针变量加1后，其增加的值等于指向的类型占用的字节数。
+
+​		通常，使用数组表示法时，C++都执行下面的转换
+
+```C++
+arrayname[i]
+// 转换为
+*(arrayname+1)
+```
+
+因此，在很多情况下，可以相同的方式使用指针名和数组名。对于它们，可以使用数组方括号表示法，也可以使用解除引用运算符（*）。在多数表达式中，它们都表示地址。区别之一是，**可以修改指针的值，而数组名是常量**
+
+```C++
+pointername = pointername +1; //valid
+arrayname = arrayname+1; // not allowed
+```
+
+另一个区别是，对数组应用sizeof运算符得到的是数组的长度，而对指针应用sizeof得到的是指针的长度，即使指针指向的是一个数组。这种情况下，C++不会将数组名解释为地址。
+
+​		**数组的地址**：对数组取地址时，数组名也不会被解释为其地址。等等，数组名难道不被解释为数组的地址吗？不完全如此：数组名被解释为其第一个元素的地址，而对数组名应用地址运算符时，得到的是整个数组的地址
+
+```C++
+short tell[10];
+cout << tell << endl; // display &tell[0]
+cout << &tell << endl; // diaplay address of whole array
+```
+
+从数字上说，这两个地址相同；但从概念上说，&tell[0]（即tell）是一个2字节内存块的
+地址，而&tell是一个20字节内存块的地址。因此，表达式tell + 1将地址值加2，而表达式&tell+2将地址加20。换句话说，tell是一个short指针（* short），而&tell是一个这样的指针，即指向包含20个元素的short数组（short (*) [20]）。
+
+​		前面有关&tell的类型描述是如何来的：可以这样声明和初始化这种指针
+
+```C++
+short (*pas)[20] = &tell; // pas points to array of 20 shorts
+```
+
+如果省略括号，优先级规则将使得pas先与[20]结合，导致pas是一个short指针数组，它包含20个元素，因此括号是必不可少的。其次，如果要描述变量的类型，可将声明中的变量名删除。因此，pas的类型为`short (*) [20]`。另外，由于pas被设置为&tell，因此`*pas`与tell等价，所以`(*pas) [0]`为tell数组的第一个元素。
+
+​		使用new来创建数组以及使用指针来访问不同的元素很简单。只要把指针当作数组名对待即可。然而，要理解为何可以这样做，将是一种挑战。要想真正了解数组和指针，应认真复习它们的相互关系。
+
+### 指针和字符串
+
+​		数组和指针的特殊关系可以扩展到C-风格字符串。
+
+```C++
+char flower[10] = "rose";
+cout << flower << "s are red\n";
+```
+
+数组名是第一个元素的地址，因此cout语句中的flower是包含字符r的char元素的地址。cout对象认为char的地址是字符串的地址，因此它打印该地址处的字符，然后继续打印后面的字符，直到遇到空字符（\0）为止。总之，如果给cout提供一个字符的地址，则它将从该字符开始打印，直到遇到空字符为止。
+
+​		这里的关键不在于flower是数组名，而在于flower是一个char的地址。这意味着可以将指向char的指针变量作为cout的参数，因为它也是char的地址。当然，该指针指向字符串的开头
+
+​		**前面的cout语句中最后一部分的情况如何**：如果flower是字符串第一个字符的地址，则表达式“s are red\n”是什么呢？为了与cout对字符串输出的处理保持一致，这个用引号括起的字符串也应当是一个地址。在C++中，用引号括起的字符串像数组名一样，也是第一个元素的地址。上述代码不会将整个字符串发送给cout，而只是发送该字符串的地址。这意味着对于数组中的字符串、用引号括起的字符串常量以及指针所描述的字符串，处理的方式是一样的，都将传递它们的地址。与逐个传递字符串中的所有字符相比，这样做的工作量确实要少。
+
+​		**在cout和多数C++表达式中，char数组名、char指针以及用引号括起的字符串常量都被解释为字符串第一个字符的地址。**
+
+```C++
+#include <iostream>
+#include <cstring>
+
+int main()
+{
+    using namespace std;
+
+    char animal[20] = "bear";
+    const char * bird = "wren";
+    char * ps;
+
+    cout << animal << " and ";
+    cout << bird << "\n";
+    // cout << ps << "\n";  // may display garbage, may cause a crash
+
+    cout << "Enter a kind of animal: ";
+    cin >> animal;
+    // cin >> ps;  Too horrible a blunder to try; ps doesn't point to allocated space
+    
+    ps= animal;
+    cout << ps << "!\n";
+    cout << "Before using strcpy():\n";
+    cout << animal << " at " << (int *) animal << endl;
+    cout << ps << " at " << (int *) ps << endl;
+
+    ps= new char[strlen(animal) + 1];
+    strcpy(ps, animal);
+
+    cout << "After using strcpy():\n";
+    cout << animal << " at " << (int *) animal << endl;
+    cout << ps << " at " << (int *) ps << endl;
+    delete [] ps;
+    
+    return 0;
+}
+```
+
+- “wren”实际表示的是字符串的地址，一般来说，编译器在内存留出一些空间，以存储程序源代码中所有用引号括起的字符串，并将每个被存储的字符串与其地址关联起来。
+
+- 字符串字面值是常量，这就是为什么代码在声明中使用关键字const的原因。以这种方式使用const意味着可以用bird来访问字符串，但不能修改它。
+
+- 对于输入，情况有点不同。只要输入比较短，能够被存储在数组中，则使用数组animal进行输入将是安全的。然而，使用bird来进行输入并不合适
+
+  - 有些编译器将字符串字面值视为只读常量，如果试图修改它们，将导致运行阶段错误。在C++中，字符串字面值都将被视为常量，但并不是所有的编译器都对以前的行为做了这样的修改。
+  - 有些编译器只使用字符串字面值的一个副本来表示程序中所有的该字面值。
+
+  C++不能保证字符串字面值被唯一地存储。也就是说，如果在程序中多次使用了字符串字面值“wren”，则编译器将可能存储该字符串的多个副本，也可能只存储一个副本。如果是后面一种情况，则将bird设置为指向一个“wren”，将使它只是指向该字符串的唯一一个副本。将值读入一个字符串可能会影响被认为是独立的、位于其他地方的字符串。无论如何，由于bird指针被声明为const，因此编译器将禁止改变bird指向的位置中的内容。
+
+- 试图将信息读入ps指向的位置将更糟。由于ps没有被初始化，因此并不知道信息将被存储在哪里，这甚至可能改写内存中的信息。幸运的是，要避免这种问题很容易—只要使用足够大的char数组来接收输入即可。请不要使用字符串常量或未被初始化的指针来接收输入。为避免这些问题，也可以使用std::string对象，而不是数组。
+
+​		在将字符串读入程序时，应使用已分配的内存地址。该地址可以是数组名，也可以是使用new初始化过的指针。
+
+​		一般来说，如果给cout提供一个指针，它将打印地址。但如果指针的类型为char *，则cout将显示指向的字符串。如果要显示的是字符串的地址，则必须将这种指针强制转换为另一种指针类型
+
+​		要获得字符串的副本，还需要做其他工作。首先，需要分配内存来存储该字符串，这可以通过声明另一个数组或使用new来完成。后一种方法使得能够根据字符串的长度来指定所需的空间
+
+```C++
+ps= new char[strlen(animal) + 1];
+```
+
+字符串“fox”不能填满整个animal数组，因此这样做浪费了空间。上述代码使用strlen( )来确定字符串的长度，并将它加1来获得包含空字符时该字符串的长度。随后，程序使用new来分配刚好足够存储该字符串的空间。
+
+​		接下来，需要将animal数组中的字符串复制到新分配的空间中。将animal赋给ps是不可行的，因为这样只能修改存储在ps中的地址，从而失去程序访问新分配内存的唯一途径。需要使用库函数strcpy( )。
+
+​		类似下面这样的代码可能导致问题，因为food数组比字符串小
+
+```C++
+strcpy(food, "a picnic basket filled with many goodoes");
+```
+
+在这种情况下，函数将字符串中剩余的部分复制到数组后面的内存字节中，这可能会覆盖程序正在使用的其他内存。要避免这种问题，请使用strncpy( )。该函数还接受第3个参数—要复制的最大字符数。然而，要注意的是，如果该函数在到达字符串结尾之前，目标内存已经用完，则它将不会添加空字符。因此，应该这样使用该函数
+
+```C++
+strncpy(food, "a picnic basket filled with many goodoes",19);
+food[19]='\0';
+```
+
+这样最多将19个字符复制到数组中，然后将最后一个元素设置成空字符。如果该字符串少于19个字符，则strncpy( )将在复制完该字符串之后加上空字符，以标记该字符串的结尾。
+
+​		**应使用strcpy( )或strncpy( )，而不是赋值运算符来将字符串赋给数组。**
+
+​		对使用C-风格字符串和cstring库的一些方面有了了解后，便可以理解为何使用C++ string类型更为简单了：您不用担心字符串会导致数组越界，并可以使用赋值运算符而不是函数strcpy( )和strncpy( )。
+
+### 使用new创建动态结构
+
+​		在运行时创建数组优于在编译时创建数组，对于结构也是如此。需要在程序运行时为结构分配所需的空间，这也可以使用new运算符来完成。通过使用new，可以创建动态结构。同样，“动态”意味着内存是在运行时，而不是编译时分配的。由于类与结构非常相似。
+
+​		将new用于结构由两步组成：创建结构和访问其成员。要创建结构，需要同时使用结构类型和new。如，要创建一个未命名的inflatable类型，并将其地址赋给一个指针
+
+```C++
+inflatable * ps = new inflatable;
+```
+
+这将把足以存储inflatable结构的一块可用内存的地址赋给ps。这种句法和C++的内置类型完全相同。
+
+​		比较棘手的一步是访问成员。创建动态结构时，不能将成员运算符句点用于结构名，因为这种结构没有名称，只是知道它的地址。C++专门为这种情况提供了一个运算符：箭头成员运算符（−>）。该运算符由连字符和大于号组成，可用于指向结构的指针，就像点运算符可用于结构名一样。
+
+​		如果ps指向一个inflatable结构，则ps−>price是被指向的结构的price成员
+
+​		C++新手在指定结构成员时，搞不清楚何时应使用句点运算符，何时应使用箭头运算符。规则非常简单。**如果结构标识符是结构名，则使用句点运算符；如果标识符是指向结构的指针，则使用箭头运算符。**
+
+​		另一种访问结构成员的方法是，如果ps是指向结构的指针，则`*ps`就是被指向的值—结构本身。由于`*ps`是一个结构，因此`(*ps).price`是该结构的price成员。C++的运算符优先规则要求使用括号。
+
+```C++
+#include <iostream>
+#include <cstring>
+
+struct inflatable{
+  char name[20];
+  float volume;
+  double price;  
+};
+int main()
+{
+    using namespace std;
+
+    inflatable * ps = new inflatable;
+    cout << "Enter name of inflatable item: ";
+    cin.get(ps->name,20);
+    cout << "Enter volume in cubic feet: ";
+    cin >> (*ps).volume;
+    cout << "Enter price: $";
+    cin >> ps->price;
+    cout << "Name: " << (*ps).name << endl;
+    cout << "Volume: " << ps->volume << " cubic feet\n";
+    cout << "Price: $" << ps->price << endl;
+    delete ps;
+     
+    return 0;
+}
+```
+
+#### 一个使用new和delete的示例
+
+​		下面介绍一个使用new和delete来存储通过键盘输入的字符串的示例。
+
+​		定义了一个函数getname( )，该函数返回一个指向输入字符串的指针。该函数将输入读入到一个大型的临时数组中，然后使用new [ ]创建一个刚好能够存储该输入字符串的内存块，并返回一个指向该内存块的指针。对于读取大量字符串的程序，这种方法可以节省大量内存（实际编写程序时，使用string类将更容易，因为这样可以使用内置的new和delete）。
+
+​		假设程序要读取100个字符串，其中最大的字符串包含79个字符，而大多数字符串都短得多。如果用char数组来存储这些字符串，则需要1000个数组，其中每个数组的长度为80个字符。这总共需要80000个字节，而其中的很多内存没有被使用。另一种方法是，创建一个数组，它包含1000个指向char的指针，然后使用new根据每个字符串的需要分配相应数量的内存。这将节省几万个字节。是根据输入来分配内存，而不是为每个字符串使用一个大型数组。另外，还可以使用new根据需要的指针数量来分配空间。就目前而言，这有点不切实际，即使是使用1000个指针的数组也是这样，不过程序还是演示了一些技巧。另外，为演示delete是如何工作的，该程序还用它来释放内存以便能够重新使用。
+
+```C++
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+char * getname(void);
+
+int main()
+{
+    char *name;
+    name=getname();
+    cout << name << " at " << (int *)name<< "\n";
+    delete [] name;
+
+    name=getname();
+    cout << name << " at " << (int *)name<< "\n";
+    delete [] name;   
+     
+    return 0;
+}
+
+char * getname(){
+    char temp[80];
+    cout << "Enter last name: ";
+    cin >> temp;
+    char * pn = new char[strlen(temp) + 1];
+    strcpy(pn, temp);
+
+    return pn;
+}
+```
+
+C++不保证新释放的内存就是下一次使用new时选择的内存
+
+### 自动存储、静态存储和动态存储
+
+​		根据用于分配内存的方法，C++有3种管理数据内存的方式：自动存储、静态存储和动态存储（有时也叫作自由存储空间或堆）。在存在时间的长短方面，以这3种方式分配的数据对象各不相同。
+
+​		**C++11新增了第四种类型—线程存储**
+
+#### 自动存储
+
+​		在函数内部定义的常规变量使用自动存储空间，被称为自动变量（automatic variable），这意味着它们在所属的函数被调用时自动产生，在该函数结束时消亡。程序中的temp数组仅当getname( )函数活动时存在。当程序控制权回到main( )时，temp使用的内存将自动被释放。如果getname( )返回temp的地址，则main( )中的name指针指向的内存将很快得到重新使用。这就是在getname( )中使用new的原因之一。
+
+​		实际上，自动变量是一个局部变量，其作用域为包含它的代码块。代码块是被包含在花括号中的一段代码。函数内也可以有代码块。如果在其中的某个代码块定义了一个变量，则该变量仅在程序执行该代码块中的代码时存在。
+
+​		自动变量通常存储在栈中。这意味着执行代码块时，其中的变量将依次加入到栈中，而在离开代码块时，将按相反的顺序释放这些变量，这被称为后进先出（LIFO）。因此，在程序执行过程中，栈将不断地增大和缩小。
+
+#### 静态存储
+
+​		静态存储是整个程序执行期间都存在的存储方式。使变量成为静态的方式有两种：一种是在函数外面定义它；另一种是在声明变量时使用关键字static
+
+​		在K&R C中，只能初始化静态数组和静态结构，而C++ Release2.0（及后续版本）和ANSI C中，也可以初始化自动数组和自动结构。然而，一些您可能已经发现，有些C++实现还不支持对自动数组和自动结构的初始化。
+
+​		自动存储和静态存储的关键在于：这些方法严格地限制了变量的寿命。变量可能存在于程序的整个生命周期（静态变量），也可能只是在特定函数被执行时存在（自动变量）。
+
+#### 动态存储
+
+​		new和delete运算符提供了一种比自动变量和静态变量更灵活的方法。它们管理了一个内存池，这在C++中被称为自由存储空间（free store）或堆（heap）。该内存池同用于静态变量和自动变量的内存是分开的。
+
+​		new和delete让您能够在一个函数中分配内存，而在另一个函数中释放它。因此，数据的生命周期不完全受程序或函数的生存时间控制。与使用常规变量相比，使用new和delete让程序员对程序如何使用内存有更大的控制权。然而，内存管理也更复杂了。在
+栈中，自动添加和删除机制使得占用的内存总是连续的，但new和delete的相互影响可能导致占用的自由存储区不连续，这使得跟踪新分配内存的位置更困难。
+
+​		**栈、堆和内存泄漏**：如果使用new运算符在自由存储空间（或堆）上创建变量后，没有调用delete，则即使包含指针的内存由于作用域规则和对象生命周期的原因而被释放，在自由存储空间上动态分配的变量或结构也将继续存在。实际上，将会无法访问自由存储空间中的结构，因为指向这些内存的指针无效。这将导致内存泄漏。被泄漏的内存将在程序的整个生命周期内都不可使用；这些内存被分配出去，但无法收回。极端情况（不过不常见）是，内存泄漏可能会非常严重，以致于应用程序可用的内存被耗尽，出现内存耗尽错误，导致程序崩溃。另外，这种泄漏还会给一些操作系统或在相同的内存空间中运行的应用程序带来负面影响，导致它们崩溃。
+
+​		即使是最好的程序员和软件公司，也可能导致内存泄漏。要避免内存泄漏，最好是养成这样一种习惯，即同时使用new和delete运算符，在自由存储空间上动态分配内存，随后便释放它。C++智能指针有助于自动完成这种任务
+
+​		指针是功能最强大的C++工具之一，但也最危险，因为它们允许执行对计算机不友好的操作，如使用未经初始化的指针来访问内存或者试图释放同一个内存块两次。另外，在通过实践习惯指针表示法和指针概念之前，指针是容易引起迷惑的。
+
+## 类型组合
+
+​		可以各种方式组合数组、结构和指针。
+
+```C++
+struct antarctica_years_end{
+    int year;
+}
+```
+
+​		可以创建这种类型的变量
+
+```C++
+antarctica_years_end s01,s02,s03;
+```
+
+然后使用成员运算符访问其成员
+
+```C++
+s01.year=1998;
+```
+
+​		可创建指向这种结构的指针
+
+```C++
+antarctica_years_end * pa=&s02;
+```
+
+将该指针设置为有效地址后，就可使用间接成员运算符来访问成员
+
+```C++
+pa->year=1999;
+```
+
+​		可创建结构数组
+
+```C++
+antarctica_years_end trio[3];
+```
+
+然后，可以使用成员运算符访问元素的成员
+
+```C++
+trio[0].year=2003;
+```
+
+其中trio是一个数组，trio[0]是一个结构，而trio[0].year是该结构的一个成员。由于数组名是一个指针，因此也可使用间接成员运算符
+
+```C++
+(trio+1)->year=2004;  // same as trio[1].year=2004;
+```
+
+​		可创建指针数组
+
+```C++
+const antarctica_years_end *arp[3]={&s01,&s02,&s03};
+```
+
+既然arp是一个指针数组，arp[1]就是一个指针，可将间接成员运算符应用于它，以访问成员
+
+```C++
+std::cout << arp[1]-> year << std::endl;
+```
+
+​		可创建指向上述数组的指针
+
+```C++
+const antarctica_years_end ** ppa=arp;
+```
+
+其中arp是一个数组的名称，因此它是第一个元素的地址。但其第一个元素为指针，因此ppa是一个指针，指向一个指向constantarctica_years_end的指针。这种声明很容易容错。例如，可能遗漏const，忘记*，搞错顺序或结构类型。下面的示例演示了C++11版本的auto提供的方便。编译器知道arp的类型，能够正确地推断出ppb的类型
+
+```C++
+auto ppb=arp;
+```
+
+在以前，编译器利用它推断的类型来指出声明错误，而现在，可利用它的这种推断能力。
+
+​		由于ppa是一个指向结构指针的指针，因此*ppa是一个结构指针，可将间接成员运算符应用于它
+
+```C++
+std::cout << (*ppa)->year << std::endl;
+std::cout << (*(ppb+1))->year << std::endl;
+```
+
+由于ppa指向arp的第一个元素，因此`*ppa`为第一个元素，即&s01。所以，`(*ppa)->year`为s01的year成员。在第二条语句中，ppb+1指向下一个元素arp[1]，即&s02。其中的括号必不可少，这样才能正确地结合。例如，`*ppa->year`试图将运算符`*`应用于ppa->year，这将导致错误，因为成员year不是指针。
+
+```C++
+#include <iostream>
+#include <cstring>
+
+struct antarctica_years_end
+{
+    int year;
+};
+
+int main()
+{
+    antarctica_years_end s01, s02, s03;
+    s01.year = 1998;
+    antarctica_years_end *pa = &s02;
+    pa->year = 1999;
+    antarctica_years_end trio[3];
+    trio[0].year = 2003;
+    std::cout << trio->year << std::endl;
+    const antarctica_years_end *arp[3] = {&s01, &s02, &s03};
+    std::cout << arp[1]->year << std::endl;
+    const antarctica_years_end **ppa = arp;
+    auto ppb = arp;
+    std::cout << (*ppa)->year << std::endl;
+    std::cout << (*(ppb + 1))->year << std::endl;
+
+    return 0;
+}
+```
+
+## 数组的替代品
+
+​		模板类vector和array是数组的替代品。
+
+### 模板类vector
+
+​		模板类vector类似于string类，也是一种动态数组。可以在运行阶段设置vector对象的长度，可在末尾附加新数据，还可在中间插入新数据。基本上，它是使用new创建动态数组的替代品。实际上，vector类确实使用new和delete来管理内存，但这种工作是自动完成的。
+
+​		要使用vector对象，必须包含头文件vector。其次，vector包含在名称空间std中，因此您可使用using编译指令、using声明或std::vector。第三，模板使用不同的语法来指出它存储的数据类型。第四，vector类使用不同的语法来指定元素数。
+
+```C++
+#include <vector>
+...
+using namespace std;
+vector<int> vi;  // create a zero-size array of int
+int n;
+cin >> n;
+vector<double> vd(n); // create an array of n doubles
+```
+
+vi是一个vector<int>对象，vd是一个vector<double>对象。由于vector对象在您插入或添加值时自动调整长度，因此可以将vi的初始长度设置为零。但要调整长度，需要使用vector包中的各种方法。
+
+​		一般而言，下面的声明创建一个名为vt的vector对象，它可存储n_elem个类型为typeName的元素
+
+```C++
+vector<typeName> vt(n_elem);
+```
+
+其中参数n_elem可以是整型常量，也可以是整型变量。
+
+### 模板类array（C++11）
+
+​		vector类的功能比数组强大，但付出的代价是效率稍低。如果需要的是长度固定的数组，使用数组是更佳的选择，但代价是不那么方便和安全。有鉴于此，C++11新增了模板类array，它也位于名称空间std中。与数组一样，array对象的长度也是固定的，也使用栈（静态内存分配），而不是自由存储区，因此其效率与数组相同，但更方便，更安全。要创建array对象，需要包含头文件array。
+
+```C++
+#include <array>
+...
+using namespace std;
+array<int, 5> ai;  // create array object of 5 ints
+array<double, 4> ad={1.2,2.1,3.43,4.3};
+```
+
+推而广之，下面的声明创建一个名为arr的array对象，它包含n_elem个类型为typename的元素
+
+```C++
+array<typeName, n_elem> arr;
+```
+
+与创建vector对象不同的是，n_elem不能是变量。
+
+​		在C++11中，可将列表初始化用于vector和array对象，但在C++98中，不能对vector对象这样做。
+
+### 比较数组、vector对象和array对象
+
+```C++
+#include <iostream>
+#include <vector>
+#include <array>
+
+int main()
+{
+
+    using namespace std;
+    double a1[4] = {1.2, 2.4, 3.6, 4.8};
+
+    vector<double> a2(4);
+    a2[0] = 1.0 / 3.0;
+    a2[1] = 1.0 / 5.0;
+    a2[2] = 1.0 / 7.0;
+    a2[3] = 1.0 / 9.0;
+
+    array<double, 4> a3 = {3.14, 2.72, 1.62, 1.41};
+    array<double, 4> a4;
+    a4 = a3;
+    cout << "a1[2]: " << a1[2] << " at " << &a1[2] << endl;
+    cout << "a2[2]: " << a2[2] << " at " << &a2[2] << endl;
+    cout << "a3[2]: " << a3[2] << " at " << &a3[2] << endl;
+    cout << "a4[2]: " << a4[2] << " at " << &a4[2] << endl;
+
+    a1[-2] = 20.2;
+    cout << "a1[-2]: " << a1[-2] << " at " << &a1[-2] << endl;
+    cout << "a3[2]: " << a3[2] << " at " << &a3[2] << endl;
+    cout << "a4[2]: " << a4[2] << " at " << &a4[2] << endl;
+
+    return 0;
+}
+```
+
+首先，注意到无论是数组、vector对象还是array对象，都可使用标准数组表示法来访问各个元素。其次，从地址可知，array对象和数组存储在相同的内存区域（即栈）中，而vector对象存储在另一个区域（自由存储区或堆）中。第三，注意到可以将一个array对象赋给另一个array对象；而对于数组，必须逐元素复制数据。
+
+​		索引-2是什么意思：
+
+```C++
+a1[-2] = 20.2;
+// 转换成
+*(a1-2)=20.2;
+```
+
+找到a1指向的地方，向前移两个double元素，并将20.2存储到目的地。也就是说，将信息存储到数组的外面。与C语言一样，C++也不检查这种超界错误。在这个示例中，这个位置位于array对象a3中。其他编译器可能将20.2放在a4中，甚至做出更糟糕的选择。这
+表明数组的行为是不安全的。
+
+​		**vector和array对象能够禁止这种行为**：如果您让它们禁止，它们就能禁止。也就是说，您仍可编写不安全的代码
+
+```C++
+a2[-2]=.5;
+a3[200]=1.4;
+```
+
+然而，您还有其他选择。一种选择是使用成员函数at()。就像可以使用cin对象的成员函数getline()一样，您也可以使用vector和array对象的成员函数at()
+
+```C++
+a2.at(1)=2.3; // assign 2.3 to a2[1]
+```
+
+中括号表示法和成员函数at()的差别在于，使用at()时，将在运行期间捕获非法索引，而程序默认将中断。这种额外检查的代价是运行时间更长，这就是C++让允许您使用任何一种表示法的原因所在。另外，这些类还让您能够降低意外超界错误的概率。例如，它们包含成员函数begin()和end()，让您能够确定边界，以免无意间超界。
+
+# 循环和关系表达式
+
+## for循环
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    int i;
+    for (i = 0; i < 5; i++)
+    {
+        cout << "C++ knows loops.\n";
+    }
+    cout << "C++ knows when to stop.\n";
+
+    return 0;
+}
+```
+
+这里使用了++运算符—递增运算符（increment operator），它将操作数的值加1。递增运算符并不仅限于用于for循环。
+
+### for循环的组成部分
+
+​		for循环为执行重复的操作提供了循序渐进的步骤。for循环的组成部分完成下面这些步骤。
+
+- 设置初始值。
+- 执行测试，看看循环是否应当继续进行。
+- 执行循环操作。
+- 更新用于测试的值。
+
+C++循环设计中包括了这些要素，很容易识别。初始化、测试和更新操作构成了控制部分，这些操作由括号括起。其中每部分都是一个表达式，彼此由分号隔开。控制部分后面的语句叫作循环体，只要测试表达式为true，它便被执行
+
+​		C++语法将整个for看作一条语句—虽然循环体可以包含一条或多条语句。（包含多条语句时，需要使用复合语句或代码块）
+
+​		循环只执行一次初始化。通常，程序使用该表达式将变量设置为起始值，然后用该变量计算循环周期。
+
+​		test-expression（测试表达式）决定循环体是否被执行。通常，这个表达式是关系表达式，即对两个值进行比较
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    cout << "Enter the starting countdown value: ";
+    int limit;
+    cin >> limit;
+    int i;
+    for (i = limit; i; i--)
+        cout << "i= " << i << "\n";
+    cout << "Done now that i = " << i << "\n";
+    return 0;
+}
+```
+
+C++添加了bool类型后，关系表达式就判定为bool字面值true和false，而不是1和0了。
+这种变化不会导致不兼容的问题，因为C++程序在需要整数值的地方将把true和false分别转换为1和0，而在需要bool值的地方将把0转换为false，非0转换为true。
+
+​		for循环是入口条件（entry-condition）循环。这意味着在每轮循环之前，都将计算测试表达式的值，当测试表达式为false时，将不会执行循环体。
+
+​		update-expression（更新表达式）在每轮循环结束时执行，此时循环体已经执行完毕。通常，它用来对跟踪循环轮次的变量的值进行增减。然而，它可以是任何有效的C++表达式，还可以是其他控制表达式。
+
+​		for语句看上去有些像函数调用，因为它使用一个后面跟一对括号的名称。然而，for是一个C++关键字，因此编译器不会将for视为一个函数，这还将防止将函数命名为for。C++常用的方式是，在for和括号之间加上一个空格，而省略函数名与括号之间的空格。对于其他控制语句（如if和while），处理方式与for相似。这样从视觉上强化了控制语句和函数调用之间的区别。另外，常见的做法是缩进for语句体，使它看上去比较显著。
+
+#### 表达式和语句
+
+​		for语句的控制部分使用3个表达式。由于其自身强加的句法限制，C++成为非常具有表现力的语言。任何值或任何有效的值和运算符的组合都是表达式。
+
+​		C++将赋值表达式的值定义为左侧成员的值，因此这个表达式的值为20。由于赋值表达式有值，因此可以编写下面这样的语句
+
+```C++
+maids = (cooks=4)+3;
+```
+
+表达式cooks = 4的值为4，因此maids的值为7。然而，C++虽然允许这样做，但并不意味着应鼓励这种做法。允许存在上述语句存在的原则也允许编写如下的语句
+
+```C++
+x=y=z=0;
+```
+
+这种方法可以快速地将若干个变量设置为相同的值。优先级表表明，赋值运算符是从右向左结合的，因此首先将0赋给z，然后将z = 0赋给y，依此类推。
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    int x;
+    cout << "The expression x=100 has the value ";
+    cout << (x = 100) << endl;
+    cout << "Now x = " << x << endl;
+    cout << "The expression x < 3 has the value ";
+    cout << (x < 3) << endl;
+    cout << "The expression x > 3 has the value ";
+    cout << (x > 3) << endl;
+    cout.setf(ios_base::boolalpha);
+    cout << "The expression x < 3 has the value ";
+    cout << (x < 3) << endl;
+    cout << "The expression x > 3 has the value ";
+    cout << (x > 3) << endl;
+
+    return 0;
+}
+```
+
+老式C++实现可能要求使用ios：boolalpha，而不是ios_base：：boolalpha来作为cout.setf( )的参数。有些老式实现甚至无法识别这两种形式。
+
+​		通常，cout在显示bool值之前将它们转换为int，但cout.setf（ios::boolalpha）函数调用设置了一个标记，该标记命令cout显示true和false，而不是1和0。
+
+​		**C++表达式是值或值与运算符的组合，每个C++表达式都有值。**
+
+​		为判定表达式x = 100，C++必须将100赋给x。当判定表达式的值这种操作改变了内存中数据的值时，我们说表达式有副作用（side effect）。因此，判定赋值表达式会带来这样的副作用，即修改被赋值者的值。有可能把赋值看作预期的效果，但从C++的构造方式这个角度来看，判定表达式才是主要作用。并不是所有的表达式都有副作用。例如，判定x + 15将计算出一个新的值，但不会修改x的值。然而，判定++x + 15就有副作用，因为它将x加1。
+
+​		**从表达式到语句的转变很容易，只要加分号即可。**更准确地说，这是一条表达式语句。只要加上分号，所有的表达式都可以成为语句，但不一定有编程意义。
+
+​		如果rodents是个变量，则下面就是一条有效的C++语句
+
+```C++
+rodents + 6;  // valid but useless
+```
+
+编译器允许这样的语句，但它没有完成任何有用的工作。程序仅仅是计算和，而没有使用得到的结果，然后便进入下一条语句。
+
+#### 非表达式和语句
+
+​		对任何表达式加上分号都可以成为语句，但是这句话反过来说就不对了。也就是说，从语句中删除分号，并不一定能将它转换为表达式。
+
+​		返回语句、声明语句和for语句都不满足“语句=表达式+分号”这种模式。同样，不能把for循环赋给变量。
+
+#### 修改规则
+
+​		C++在C循环的基础上添加了一项特性，要求对for循环句法做一些微妙的调整。
+
+​		可以在for循环的初始化部分中声明变量。这很方便，但并不适用于原来的句法，因为声明不是表达式。这种一度是非法的行为最初是通过定义一种新的表达式—声明语句表达式（declaration-statement expression）—来合法化的，声明语句表达式不带分号声明，只能出现在for语句中。然而，这种调整已经被取消了，代之以将for语句的句法修改成下面这样
+
+```C++
+for (for-init-statement condition; expression)
+    statement
+```
+
+乍一看很奇怪，因为这里只有一个分号（而不是两个分号）。但是这是允许的，因为for-init-statement被视为一条语句，而语句有自己的分号。对于for-init-statement来说，它既可以是表达式语句，也可以是声明。这种句法规则用语句替换了后面跟分号的表达式，语句本身有自己的分号。总之，C++程序员希望能够在for循环初始化部分中声明和初始
+化变量，他们会做C++句法需要和英语所允许的工作。
+
+> 注意，这里只是为了自洽导致说法变了，程序中使用仍然没变
+
+​		在for-init-statement中声明变量还有其实用的一面，这也是应该知道的。这种变量只存在于for语句中，也就是说，当程序离开循环后，这种变量将消失
+
+​		有些较老的C++实现遵循以前的规则，对于前面的循环，将把i视为是在循环之前声明的，因此在循环结束后，i仍可用。
+
+### 回到for循环
+
+```C++
+#include <iostream>
+
+const int ArSize=16;
+
+int main()
+{
+
+    using namespace std;
+
+    long long factorials[ArSize];
+    factorials[1]=factorials[0]=1LL;
+    for(int i=2 ;i<ArSize;i++)
+        factorials[i]=i*factorials[i-1];
+    for(int i=0;i<ArSize;i++)
+        cout << i << "! = " << factorials[i] << endl;
+
+    return 0;
+}
+```
+
+### 修改步长
+
+```C++
+#include <iostream>
+
+const int ArSize = 16;
+
+int main()
+{
+
+    using namespace std;
+
+    cout << "Enter an integer: ";
+    int by;
+    cin >> by;
+    cout << "Counting by " << by << "s:\n";
+    for (int i = 0; i < 100; i = i + by)
+        cout << i << endl;
+
+    return 0;
+}
+```
+
+检测不等通常比检测相等好。
+
+### 使用for循环访问字符串
+
+```C++
+#include <iostream>
+#include <cstring>
+
+int main()
+{
+
+    using namespace std;
+
+    cout << "Enter a word: ";
+    string word;
+    cin >> word;
+
+    for (int i = word.size() - 1; i >= 0; i--)
+        cout << word[i];
+    cout << "\nBye.\n";
+
+    return 0;
+}
+```
+
+### 递增运算符（++）和递减运算符（−−）
+
+​		递增运算符（++）（名称C++由此得到）和递减运算符（−−）。这两个运算符执行两种极其常见的循环操作：将循环计数加1或减1。
+
+​		这两个运算符都有两种变体。前缀（prefix）版本位于操作数前面，如++x；后缀（postfix）版本位于操作数后面，如x++。两个版本对操作数的影响是一样的，但是影响的时间不同。
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    int a= 20;
+    int b=20;
+
+    cout << "a   = " << a<< ";   b="<< b<< endl;
+    cout << "a++ = " << a++ << "; ++b = " << ++b << endl;
+    cout << "a   = " << a << ";   b = " << b << endl;
+
+    return 0;
+}
+```
+
+递增运算符和递减运算符都是漂亮的小型运算符，不过千万不要失去控制，在同一条语句对同一个值递增或递减多次。问题在于，规则“使用后修改”和“修改后使用”可能会变得模糊不清。也就是说，下面这条语句在不同的系统上将生成不同的结果
+
+```C++
+x=2 * x++ * (3- ++ x);
+```
+
+对这种语句，C++没有定义正确的行为。
+
+### 副作用和顺序点
+
+​		副作用（side effect）指的是在计算表达式时对某些东西（如存储在变量中的值）进行了修改；顺序点（sequence point）是程序执行过程中的一个点，在这里，进入下一步之前将确保对所有的副作用都进行了评估。在C++中，语句中的分号就是一个顺序点，这意味着程序处理下一条语句之前，赋值运算符、递增运算符和递减运算符执行的所有修改都必须完成。
+
+​		任何完整的表达式末尾都是一个顺序点。**完整表达式**：不是另一个更大表达式
+的子表达式。完整表达式的例子有：表达式语句中的表达式部分以及用作while循环中检测条件的表达式。
+
+​		顺序点有助于阐明后缀递增何时进行。
+
+```C++
+while (guests++ < 10)
+    cout << guests << endl;
+```
+
+表达式guests++ < 10是一个完整表达式，因为它是一个while循环的测试条件，因此该表达式的末尾是一个顺序点。所以，C++确保副作用（将guests加1）在程序进入cout之前完成。然而，通过使用后缀格式，可确保将guests同10进行比较后再将其值加1。
+
+```C++
+y=(4+x++)+(6+x++);
+```
+
+表达式4 + x++不是一个完整表达式，因此，C++不保证x的值在计算子表达式4 + x++后立刻增加1。在这个例子中，整条赋值语句是一个完整表达式，而分号标示了顺序点，因此C++只保证程序执行到下一条语句之前，x的值将被递增两次。C++没有规定是在计算每个子表达式之后将x的值递增，还是在整个表达式计算完毕后才将x的值递增，有鉴于此，您应避免使用这样的表达式。
+
+​		在C++11文档中，不再使用术语“顺序点”了，因为这个概念难以用于讨论多线程执行。相反，使用了术语“顺序”，它表示有些事件在其他事件前发生。这种描述方法并非要改变规则，而旨在更清晰地描述多线程编程。
+
+### 前缀格式和后缀格式
+
+​		如果变量被用于某些目的（如用作函数参数或给变量赋值），使用前缀格式和后缀格式的结果将不同。然而，如果递增表达式的值没有被使用，情况又如何
+
+```C++
+for(n=lim;n>0;--n)
+// and
+for(n=lim;n>0;n--)
+```
+
+从逻辑上说，在上述两种情形下，使用前缀格式和后缀格式没有任何区别。表达式的值未被使用，因此只存在副作用。在上面的例子中，使用这些运算符的表达式为完整表达式，因此将x加1和n减1的副作用将在程序进入下一步之前完成，**前缀格式和后缀格式的最终效果相同**。
+
+​		然而，虽然选择使用前缀格式还是后缀格式对程序的行为没有影响，但执行速度可能有细微的差别。对于内置类型和当代的编译器而言，这看似不是什么问题。然而，C++允许您针对类定义这些运算符，在这种情况下，用户这样定义前缀函数：将值加1，然后返回结果；但后缀版本首先复制一个副本，将其加1，然后将复制的副本返回。因此，对于类而言，**前缀版本的效率比后缀版本高**。
+
+​		总之，对于内置类型，采用哪种格式不会有差别；但对于用户定义的类型，如果有用户定义的递增和递减运算符，则前缀格式的效率更高。
+
+### 递增/递减运算符和指针
+
+​		可以将递增运算符用于指针和基本变量。将递增运算符用于指针时，将把指针的值增加其指向的数据类型占用的字节数，这种规则适用于对指针递增和递减
+
+​		也可以结合使用这些运算符和`*`运算符来修改指针指向的值。将`*`和++同时用于指针时提出了这样的问题：将什么解除引用，将什么递增。这取决于运算符的位置和优先级。前缀递增、前缀递减和解除引用运算符的优先级相同，以从右到左的方式进行结合。后缀递增和后缀递减的优先级相同，但比前缀运算符的优先级高，这两个运算符以从左到右的
+方式进行结合。
+
+​		前缀运算符的从右到到结合规则意味着`*++pt`的含义如下：先将++应用于pt（因为++位于`*`的右边），然后将`*`应用于被递增后的pt。
+
+​		`++*pt`意味着先取得pt指向的值，然后将这个值加1。后缀运算符++的优先级更高
+
+​		指针递增和递减遵循指针算术规则。因此，如果pt指向某个数组的第一个元素，++pt将修改pt，使之指向第二个元素。
+
+### 组合赋值运算符
+
+​		C++有一种合并了加法和赋值操作的运算符
+
+```C++
+i=i+by;
+i+=by;
+```
+
++=运算符将两个操作数相加，并将结果赋给左边的操作数。这意味着左边的操作数必须能够被赋值，如变量、数组元素、结构成员或通过对指针解除引用来标识的数据
+
+​		**组合赋值运算符**
+
+| 操作符 | 作用（L为左操作数，R为右操作数） |
+| :----: | :------------------------------: |
+|   +=   |            将L+R赋给L            |
+|   -=   |            将L-R赋给L            |
+|   *=   |            将L*R赋给L            |
+|   /=   |            将L/R赋给L            |
+|   %=   |            将L%R赋给L            |
+
+### 复合语句（语句块）
+
+​		编写C++for语句的格式（或句法）看上去可能比较严格，因为循环体必须是一条语句。如果要在循环体中包含多条语句，这将很不方便。所幸的是，C++提供了避开这种限制的方式，通过这种方式可以在循环体中包含任意多条语句。方法是用两个花括号来构造一条复合语句（代码块）。代码块由一对花括号和它们包含的语句组成，被视为一条语
+句，从而满足句法的要求。
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    cout << "The Amazing Accounto will sum and average ";
+    cout << "fove numbers for you.\n";
+    cout << "Please enter five values:\n";
+    double number;
+    double sum = 0.0;
+    for (int i = 1; i <= 5; i++)
+    {
+        cout << "Value " << i << ": ";
+        cin >> number;
+        sum += number;
+    }
+    cout << "Five exquisite choices indeed! ";
+    cout << "They sum to " << sum << endl;
+    cout << "and average to " << sum / 5 << ".\n";
+    cout << "The Amazing Accounto bids you adieu!\n";
+
+    return 0;
+}
+```
+
+​		复合语句还有一种有趣的特性。如果在语句块中定义一个新的变量，则仅当程序执行该语句块中的语句时，该变量才存在。执行完该语句块后，变量将被释放。
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    int x = 20;
+    {
+        int y = 100;
+        cout << x << endl;
+        cout << y << endl;
+    }
+    cout << x << endl;
+    cout << y << endl; // invalid,won't compile
+
+    return 0;
+}
+```
+
+如果在一个语句块中声明一个变量，而外部语句块中也有一个这种名称的变量，在声明位置到内部语句块结束的范围之内，新变量将隐藏旧变量；然后就变量再次可见
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    int x = 20;
+    {
+        cout << x << endl;
+        int x = 100;
+        cout << x << endl;
+    }
+    cout << x << endl;
+
+    return 0;
+}
+```
+
+### 逗号运算符
+
+​		语句块允许把两条或更多条语句放到按C++句法只能放一条语句的地方。逗号运算符对表达式完成同样的任务，允许将两个表达式放到C++句法只允许放一个表达式的地方。例如，假设有一个循环，每轮都将一个变量加1，而将另一个变量减1。在for循环控制部
+分的更新部分中完成这两项工作将非常方便，但循环句法只允许这里包含一个表达式。在这种情况下，可以使用逗号运算符将两个表达式合并为一个
+
+​		逗号并不总是逗号运算符。例如，声明中的逗号将变量列表中相邻的名称分开
+
+```C++
+#include <iostream>
+#include <cstring>
+int main()
+{
+
+    using namespace std;
+
+    cout << "Enter a word: ";
+    string word;
+    cin >> word;
+
+    char temp;
+    int i, j;
+    for (j = 0, i = word.size() - 1; j < i; --i, ++j)
+    {
+        temp = word[i];
+        word[i] = word[j];
+        word[j] = temp;
+    }
+    cout << word << "\nDone\n";
+
+    return 0;
+}
+```
+
+需要注意的另一点是，声明变量temp、i、j的位置。代码在循环之前声明i和j，因为不能用逗号运算符将两个声明组合起来。这是因为声明已经将逗号用于其他用途—分隔列表中的变量。也可以使用一个声明语句表达式来创建并初始化两个变量，但是这样看起来有些乱
+
+```C++
+int j=0, i=word.size()-1;
+```
+
+在这种情况下，逗号只是一个列表分隔符，而不是逗号运算符，因此该表达式对j和i进行声明和初始化。然而，看上去好像只声明了j。
+
+​		**逗号运算符花絮**：到目前为止，逗号运算符最常见的用途是将两个或更多的表达式放
+到一个for循环表达式中。不过C++还为这个运算符提供了另外两个特性。首先，它确保先计算第一个表达式，然后计算第二个表达式（换句话说，逗号运算符是一个顺序点）。
+
+​		如下所示的表达式是安全的
+
+```C++
+i = 20,j = 2 * i;
+```
+
+C++规定，逗号表达式的值是第二部分的值。
+
+​		在所有运算符中，逗号运算符的优先级是最低的。
+
+```C++
+cats = 17,240;
+// 被解释为
+(cats=17),240;
+```
+
+将cats设置为17，240不起作用。然而，由于括号的优先级最高，下面的表达式将把cats设置为240—逗号右侧的表达式值
+
+```C++
+cats=(17,240);
+```
+
+### 关系表达式
+
+​		计算机不只是机械的数字计数器。它能够对值进行比较，这种能力是计算机决策的基础。在C++中，关系运算符是这种能力的体现。C++提供了6种关系运算符来对数字进行比较。**由于字符用其ASCII码表示，因此也可以将这些运算符用于字符。不能将它们用于C-风格字符串，但可用于string类对象**。对于所有的关系表达式，如果比较结果为真，则其值将为true，否则为false，因此可将其用作循环测试表达式。（老式实现认为结果为true的关系表达式的值为1，而结果为false的关系表达式为0。）
+
+| 操作符 |   含义   |
+| :----: | :------: |
+|   <    |   小于   |
+|   <=   | 小于等于 |
+|   ==   |   等于   |
+|   >    |   大于   |
+|   >=   | 大于等于 |
+|   !=   |  不等于  |
+
+关系运算符的优先级比算术运算符低
+
+```C++
+x+3>y-2;
+// 意味着
+(x+3)>(y-2);
+```
+
+由于将bool值提升为int后，表达式(3>y)要么为1，要么为0，因此第二个和第三个表达式都是有效的。不过更希望第一个表达式等价于第二个表达式，而C++正是这样做的。
+
+### 赋值、比较和可能犯的错误
+
+​		不要混淆等于运算符（= =）与赋值运算符（=）。
+
+​		for循环的灵活设计让用户很容易出错。如果不小心遗漏了= =运算符中的一个等号，则for循环的测试部分将是一个赋值表达式，而不是关系表达式，此时代码仍是有效的。这是因为可以将任何有效的C++表达式用作for循环的测试条件。别忘了，非零值为true，零值为false。将4赋给musicians的表达式的值为4，因此被视为true。如果以前使用过用=判断是否相等的语言，如Pascal或BASIC，则尤其可能出现这样的错误。
+
+```C++
+#include <iostream>
+int main()
+{
+
+    using namespace std;
+
+    int quizscores[10] = {
+        20, 20, 20, 20, 20, 19, 20, 18, 20, 20};
+
+    cout << "Doing it right:\n";
+    int i;
+    for (i = 0; quizscores[i] == 20; i++)
+        cout << "quiz " << i << " is a 20\n";
+    cout << "Doing it dangerously wrong:\n";
+    for (i = 0; quizscores[i] = 20; i++)
+        cout << "quiz " << i << " is a 20\n";
+
+    return 0;
+}
+```
+
+​		该程序试图检查一个存储了测验成绩的数组，在遇到第一个不为20的成绩时停止。该程序首先演示了一个正确进行比较的循环，然后是一个在测试条件中错误地使用了赋值运算符的循环。该程序还有另一个重大的设计错误，稍后将介绍如何修复（
+
+​		发现这种错误的困难之处在于，代码在语法上是正确的，因此编译器不会将其视为错误（然而，由于C和C++程序员频繁地犯这种错误，因此很多编译器都会发出警告，询问这是否是设计者的真正意图）。
+
+​		和C语言一样，C++比起大多数编程语言来说，赋予程序员更大的自由。这种自由以程序员应付的更大责任为代价。只有良好的规划才能避免程序超出标准C++数组的边界。然而，对于C++类，可以设计一种保护数组类型来防止这种错误。另外，应在需要的时候在程序中加入保护措施。
+
+### C-风格字符串的比较
+
+​		假设要知道字符数组中的字符串是不是mate。如果word是数组名，下面的测试可能并不能像我们预想的那样工作
+
+```C++
+word == "mate";
+```
+
+请记住，数组名是数组的地址。同样，用引号括起的字符串常量也是其地址。因此，上面的关系表达式不是判断两个字符串是否相同，而是查看它们是否存储在相同的地址上。两个字符串的地址是否相同呢？答案是否定的，虽然它们包含相同的字符。
+
+​		由于C++将C-风格字符串视为地址，因此如果使用关系运算符来比较它们，将无法得到满意的结果。相反，应使用C-风格字符串库中的strcmp( )函数来比较。该函数接受两个字符串地址作为参数。这意味着参数可以是指针、字符串常量或字符数组名。如果两个字符串相同，该函数将返回零；如果第一个字符串按字母顺序排在第二个字符串之前，则strcmp( )将返回一个负数值；如果第一个字符串按字母顺序排在第二个字符串之后，则strcpm( )将返回一个正数值。实际上，“按系统排列顺序”比“按字母顺序”更准确。这意味着字符是根据字符的系统编码来进行比较的。例如，使用ASCII码时，所有大写字母的编码都比小写字母小，所以按排列顺序，大写字母将位于小写字母之前。因此，字符串“Zoo”在字符串“aviary”之前。根据编码进行比较还意味着大写字母和小写字母是不同的，因此字符串“FOO”和字符串“foo”不同。
+
+​		在有些语言（如BASIC和标准Pascal）中，存储在不同长度的数组中的字符串彼此不相等。但是C-风格字符串是通过结尾的空值字符定义的，而不是由其所在数组的长度定义的。这意味着两个字符串即使被存储在长度不同的数组中，也可能是相同的
+
+​		顺便说一句，虽然不能用关系运算符来比较字符串，但却可以用它们来比较字符，因为字符实际上是整型。
+
+```C++
+#include <iostream>
+#include <cstring>
+int main()
+{
+
+    using namespace std;
+
+    char word[5] = "?ate";
+    for (char ch = 'a'; strcmp(word, "mate"); ch++)
+    {
+        cout << word << endl;
+        word[0] = ch;
+    }
+    cout << "After loop ends, word is " << word << endl;
+
+    return 0;
+}
+```
+
+如果字符串不相等，则该语句的值为1（true），如果字符串相等，则该语句的值为0（false）。但使用strcmp（word，"mate"）本身将如何呢？如果字符串不相等，则它的值为非零（true）；如果字符串相等，则它的值为零（false）。实际上，如果字符串不同，该返回true，否则返回false。因此，可以只用这个函数，而不是整个关系表达式。这样得到的结果将相同，还可以少输入几个字符。另外，C和C++程序员传统上就是用这种方式使用strcmp( )的。
+
+​		**检测相等或排列顺序**：可以使用strcmp( )来测试C-风格字符串是否相等（排列顺序）。如果str1和str2相等，则下面的表达式为true
+
+```C++
+strcmp(str1,str2)==0
+```
+
+如果str1和str2不相等，则下面两个表达式都为true
+
+```C++
+strcmp(str1,str2!=0
+strcmp(str1,str2)
+```
+
+如果str1在str2的前面，则下面的表达式为true
+
+```C++
+strcmp(str1,str2)<0
+```
+
+如果str1在str2的后面，则下面的表达式为true
+
+```C++
+strcmp(str1,str2)>0
+```
+
+因此，根据要如何设置测试条件，strcmp( )可以扮演= =、!=、<和>运算符的角色。
+
+​		可以对字符变量使用递增运算符和递减运算符，因为char类型实际上是整型，因此这种操作实际上将修改存储在变量中的整数编码。另外，使用数组索引可使修改字符串中的字符更为简单。
+
+### 比较string类字符串
+
+​		如果使用string类字符串而不是C-风格字符串，比较起来将简单些，因为类设计让您能够使用关系运算符进行比较。这之所以可行，是因为类函数重载（重新定义）了这些运算符。
+
+```C++
+#include <iostream>
+int main()
+{
+
+    using namespace std;
+
+    string word = "?ate";
+    for (char ch = 'a'; word != "mate"; ch++)
+    {
+        cout << word << endl;
+        word[0] = ch;
+    }
+    cout << "After loop ends, word is " << word << endl;
+
+    return 0;
+}
+```
+
+string类重载运算符!=的方式让您能够在下述条件下使用它：至少有一个操作数为string对象，另一个操作数可以是string对象，也可以是C-风格字符串。
+
+## while循环
+
+​		while循环是没有初始化和更新部分的for循环，它只有测试条件和循环体
+
+```C++
+while(test-condition)
+    body
+```
+
+首先，程序计算圆括号内的测试条件（test-condition）表达式。如果该表达式为true，则执行循环体中的语句。与for循环一样，循环体也由一条语句或两个花括号定义的语句块组成。执行完循环体后，程序返回测试条件，对它进行重新评估。如果该条件为非零，则再次执行循环体。测试和执行将一直进行下去，直到测试条件为false为止
+
+​		如果希望循环最终能够结束，循环体中的代码必须完成某种影响测试条件表达式的操作。例如，循环可以将测试条件中使用的变量加1或从键盘输入读取一个新值。和for循环一样，while循环也是一种入口条件循环。因此，如果测试条件一开始便为false，则程序将不会执行循环体。
+
+```C++
+#include <iostream>
+
+const int ArSize = 20;
+int main()
+{
+
+    using namespace std;
+
+    char name[ArSize];
+    cout << "Your first name, please: ";
+    cin >> name;
+    cout << "Here is your name, verticalized and ASCIIized:\n";
+    int i = 0;
+    while (name[i] != '\0')
+    {
+        cout << name[i] << ": " << int(name[i]) << "\n";
+        i++;
+    }
+
+    return 0;
+}
+```
+
+可以这样修改while行
+
+```C++
+while(name[i])
+```
+
+经过这种修改后，程序的工作方式将不变。这是由于name[i]是常规字符，其值为该字符的编码—非零值或true。然而，当name[i]为空值字符时，其编码将为0或false。这种表示法更为简洁（也更常用）
+
+​		对于后一种情况，“笨拙”的编译器生成的代码的速度将更快，“聪明”的编译器对于这两个版本生成的代码将相同。
+
+​		要打印字符的ASCII码，必须通过强制类型转换将name[i]转换为整型。这样，cout将把值打印成整数，而不是将它解释为字符编码。
+
+​		不同于C-风格字符串，string对象不使用空字符来标记字符串末尾
+
+### for与while
+
+​		在C++中，for和while循环本质上是相同的。
+
+​		for循环需要3个表达式（从技术的角度说，它需要1条后面跟两个表达式的语句），不过它们可以是空表达式（语句），只有两个分号是必需的。另外，省略for循环中的测试表达式时，测试结果将为true
+
+​		由于for循环和while循环几乎是等效的，因此究竟使用哪一个只是风格上的问题。它们之间存在三个差别。首先，在for循环中省略了测试条件时，将认为条件为true；其次，在for循环中，可使用初始化语句声明一个局部变量，但在while循环中不能这样做；最后，如果循环体中包括continue语句，情况将稍有不同
+
+​		通常，程序员使用for循环来为循环计数，因为for循环格式允许将所有相关的信息—初始值、终止值和更新计数器的方法—放在同一个地方。在无法预先知道循环将执行的次数时，程序员常使用while循环。
+
+​		**在设计循环时，请记住下面几条指导原则**
+
+- 指定循环终止的条件。
+- 在首次测试之前初始化条件。
+- 在条件被再次测试之前更新条件。
+
+for循环的一个优点是，其结构提供了一个可实现上述3条指导原则的地方，因此有助于程
+序员记住应该这样做。但这些指导原则也适用于while循环。
+
+​		**错误的标点符号**：for循环和while循环都由用括号括起的表达式和后面的循环体（包含一条语句）组成。前面讲过，这条语句可以是语句块，其中包含多条语句。记住，语句块是由花括号，而不是由缩进定义的
+
+```C++
+i=0;
+while(name[i]!='\0')
+    cout << name[i] <<endl;
+	i++;
+cout << "Done\n";
+```
+
+缩进表明，该程序的作者希望i++；语句是循环体的组成部分。然而，由于没有花括号，因此编译器认为循环体仅由最前面的cout语句组成。因此，该循环将不断地打印数组的第一个字符。该程序不会执行i++；语句，因为它在循环的外面。
+
+​		下面的例子说明了另一个潜在的缺陷
+
+```C++
+i=0;
+while(name[i]!='\0');
+{
+    cout << name[i] <<endl;
+	i++;
+}
+cout << "Done\n";
+```
+
+这一次，代码正确地使用了花括号，但还插入了一个分号。记住，分号结束语句，因此该分号将结束while循环。换句话说，循环体为空语句，也就是说，分号后面没有任何内容。这样，花括号中所有的代码现在位于循环的后面，永远不会被执行。该循环不执行任何操作，是一个死循环。请注意这种分号。
+
+### 等待一段时间：编写延时循环
+
+​		有时候，让程序等待一段时间很有用。while循环可用于这种目的。一种用于个人计算机的早期技术是，让计算机进行计数，以等待一段时间
+
+```C++
+long wait=0;
+while(wait < 10000)
+    wait++;
+```
+
+这种方法的问题是，当计算机处理器的速度发生变化时，必须修改计数限制。例如，有些为IBM PC编写的游戏在速度更快的机器上运行时，其速度将快得无法控制；另外，有些编译器可能修改上述代码，将wait设置为10000，从而跳过该循环。更好的方法是让系统时钟来完成这种工作。
+
+​		ANSI C和C++库中有一个函数有助于完成这样的工作。这个函数名为clock( )，返回程序开始执行后所用的系统时间。这有两个复杂的问题：首先，clock( )返回时间的单位不一定是秒；其次，该函数的返回类型在某些系统上可能是long，在另一些系统上可能是unsigned long或其他类型。
+
+​		但头文件ctime（较早的实现中为time.h）提供了这些问题的解决方案。首先，它定义了一个符号常量—CLOCKS_PER_SEC，该常量等于每秒钟包含的系统时间单位数。因此，将系统时间除以这个值，可以得到秒数。或者将秒数乘以CLOCK_PER_SEC，可以得到以系统时间单位为单位的时间。其次，ctime将clock_t作为clock( )返回类型的别名，这意味着可以将变量声明为clock_t类型，编译器将把它转换为long、unsigned int或适合系统的其他类型。
+
+```C++
+#include <iostream>
+#include <ctime>
+int main()
+{
+
+    using namespace std;
+
+    cout << "Enter the delay time, in seconds: ";
+    float secs;
+    cin >> secs;
+    clock_t delay = secs * CLOCKS_PER_SEC;
+    cout << "starting\a\n";
+    clock_t start = clock();
+    while (clock() - start < delay)
+        ;
+    cout << "done\a\n";
+
+    return 0;
+}
+```
+
+​		**类型别名**：C++为类型建立别名的方式有两种。一种是使用预处理器
+
+```C++
+#define BYTE char
+```
+
+这样，预处理器将在编译程序时用char替换所有的BYTE，从而使BYTE成为char的别名。
+
+​		第二种方法是使用C++（和C）的关键字typedef来创建别名。
+
+```C++
+typedef char byte;
+```
+
+换句话说，如果要将aliasName作为某种类型的别名，可以声明aliasName，如同将aliasName声明为这种类型的变量那样，然后在声明的前面加上关键字typedef。例如，要让byte_pointer成为char指针的别名，可将byte_pointer声明为char指针，然后在前面加上typedef
+
+​		也可以使用#define，不过声明一系列变量时，这种方法不适用。
+
+```C++
+#define FLOAT_POINTER float *
+FLOAT_POINTER pa,pb;
+```
+
+预处理器置换将该声明转换为这样
+
+```C++
+float *pa,pb;//pa a pointer to float, pb just a float
+```
+
+typedef方法不会有这样的问题。它能够处理更复杂的类型别名，这使得与使用#define相
+比，使用typedef是一种更佳的选择—有时候，这也是唯一的选择。
+
+​		typedef不会创建新类型，而只是为已有的类型建立一个新名称。如果将word作为int的别名，则cout将把word类型的值视为int类型。
+
+## do while循环
+
+​		第3种C++循环是do while，它不同于另外两种循环，因为它是出口条件（exit condition）循环。这意味着这种循环将首先执行循环体，然后再判定测试表达式，决定是否应继续执行循环。如果条件为false，则循环终止；否则，进入新一轮的执行和测试。这样的循环通常至少执行一次，因为其程序流必须经过循环体后才能到达测试条件。
+
+```C++
+do
+    body
+while(text-expression)
+```
+
+通常，入口条件循环比出口条件循环好，因为入口条件循环在循环开始之前对条件进行检查。
+
+​		前面的示例使用do while而不是while，则循环将打印空值字符及其编码，然后才发现已到达字符串结尾。但是有时do while测试更合理。例如，请求用户输入时，程序必须先获得输入，然后对它进行测试。
+
+```C++
+#include <iostream>
+int main()
+{
+
+    using namespace std;
+
+    int n;
+    cout << "Enter numbers in the range 1-10 to find ";
+    cout << "my favorite number\n";
+    do
+    {
+        cin >> n;
+    } while (n != 7);
+    cout << "Yes, 7 is my favorite.\n";
+
+    return 0;
+}
+```
+
+​		**奇特的for循环**：虽然不是很常见，但有时出现下面这样的代码
+
+```C++
+int i=0;
+for(;;)  // sometimes called a "forever loop"
+{
+    i++;
+    //...
+    if(30 >= i) break;
+}
+```
+
+或另一种变体
+
+```C++
+int i=0;
+for(;;i++)  // sometimes called a "forever loop"
+{
+    if(30 >= i) break;
+    	//...
+}
+```
+
+上述代码基于这样一个事实：for循环中的空测试条件被视为true。这些例子既不易于阅
+读，也不能用作编写循环的通用模型。第一个例子的功能在do while循环中将表达得更清晰
+
+```C++
+int i=0;
+do{
+    i++;
+    //...
+}while(30>i);
+```
+
+同样，第二个例子使用while循环可以表达得更清晰
+
+```C++
+while(i<30){
+    //...
+    i++;
+}
+```
+
+通常，编写清晰、容易理解的代码比使用语言的晦涩特性来显示自己的能力更为有用。
+
+## 基于范围的for循环（C++11）
+
+​		C++11新增了一种循环：基于范围（range-based）的for循环。这简化了一种常见的循环任务：对数组（或容器类，如vector和array）的每个元素执行相同的操作
+
+```C++
+doubles prices[5]={4.99,10.99,6.87,7.99,8.49};
+for(double x: prices)
+    cout << x<< endl;
+```
+
+​		要修改数组的元素，需要使用不同的循环变量语法
+
+```C++
+for(double &x: prices)
+    x=x*0.80;
+```
+
+符号&表明x是一个引用变量。就这里而言，这种声明让接下来的代码能够修改数组的内容，而第一种语法不能。
+
+​		还可结合使用基于范围的for循环和初始化列表
+
+```C++
+for(int x: {3,5,2,8,6})
+    cout << x<< " ";
+cout << '\n';
+```
+
+​		这种循环主要用于各种模板容器类。
+
+## 循环和文本输入
+
+​		循环完成的一项最常见、最重要的任务：逐字符地读取来自文件或键盘的文本
+
+​		编写一个能够计算输入中的字符数、行数和字数的程序。传统上，C++和C语言一样，也使用while循环来完成这类任务。
+
+​		尽管C++中的while循环与C语言中的while循环一样，但C++的I/O工具不同，这使得
+C++循环看起来与C语言循环有些不同。事实上，cin对象支持3种不同模式的单字符输入，其用户接口各不相同。
+
+### 使用原始的cin进行输入
+
+​		如果程序要使用循环来读取来自键盘的文本输入，则必须有办法知道何时停止读取。如何知道这一点呢？一种方法是选择某个特殊字符—有时被称为哨兵字符（sentinel character），将其作为停止标记。
+
+```C++
+#include <iostream>
+int main()
+{
+
+    using namespace std;
+
+    char ch;
+    int count = 0;
+    cout << "Enter characters; enter # to quit:\n";
+    cin >> ch;
+    while (ch != '#')
+    {
+        cout << ch;
+        ++count;
+        cin >> ch;
+    }
+    cout << endl
+         << count << " characters read \n";
+
+    return 0;
+}
+```
+
+​		该程序计算读取的字符数，并回显这些字符，即在屏幕上显示读取的字符。按下键盘上的键不能自动将字符显示到屏幕上，程序必须通过回显输入字符来完成这项工作。通常，这种任务由操作系统处理。运行完毕后，该程序将报告处理的总字符数。
+
+​		为什么程序在输出时省略了空格：原因在cin。读取char值时，与读取其他基本类型一样，cin将忽略空格和换行符。因此输入中的空格没有被回显，也没有被包括在计数内。
+
+​		更为复杂的是，发送给cin的输入被缓冲。这意味着只有在用户按下回车键后，他输入的内容才会被发送给程序。这就是在运行该程序时，可以在#后面输入字符的原因。按下回车键后，整个字符序列将被发送给程序，但程序在遇到#字符后将结束对输入的处理。
+
+### 使用cin.get(char)进行补救
+
+​		通常，逐个字符读取输入的程序需要检查每个字符，包括空格、制表符和换行符。cin所属的istream类（在iostream中定义）中包含一个能够满足这种要求的成员函数。具体地说，成员函数cin.get(ch)读取输入中的下一个字符（即使它是空格），并将其赋给变量ch。使用这个函数调用替换cin>>ch
+
+```C++
+#include <iostream>
+int main()
+{
+
+    using namespace std;
+
+    char ch;
+    int count = 0;
+    cout << "Enter characters; enter # to quit:\n";
+    cin.get(ch);
+    while (ch != '#')
+    {
+        cout << ch;
+        ++count;
+        cin.get(ch);
+    }
+    cout << endl
+         << count << " characters read \n";
+
+    return 0;
+}
+```
+
+现在，该程序回显了每个字符，并将全部字符计算在内，其中包括空格。输入仍被缓冲，因此输入的字符个数仍可能比最终到达程序的要多。
+
+​		**如果熟悉C语言，可能以为这个程序存在严重的错误**：cin.get(ch)调用将一个值放在ch变量中，这意味着将修改该变量的值。在C语言中，要修改变量的值，必须将变量的地址传递给函数。但程序用cin.get( )时，传递的是ch，而不是&ch。在C语言中，这样的代码无效，但在C++中有效，只要函数将参数声明为引用即可。引用是C++在C语言的基础上新增的一种类型。头文件iostream将cin.get(ch)的参数声明为引用类型，因此该函数可以修改其参数的值。
+
+​		C语言行家可以松一口气了—通常，在C++中传递的参数的工作方式与在C语言中相同。然而，cin.get(ch)不是这样。
+
+### 使用哪一个cin.get( )
+
+​		cin.get( )的一个版本接受两个参数：数组名（字符串（`char*`类型）的地址）和ArSize（int类型的整数）。（记住，数组名是其第一个元素的地址，因此字符数组名的类型为`char*`。）接下来，程序使用了不接受任何参数的cin.get( )。
+
+​		在C语言中，如果函数接受char指针和int参数，则使用该函数时，不能只传递一个参数（类型不同）。但在C++中，可以这样做，因为该语言支持被称为函数重载的OOP特性。函数重载允许创建多个同名函数，条件是它们的参数列表不同。
+
+​		函数重载允许对多个相关的函数使用相同的名称，这些函数以不同方式或针对不同
+类型执行相文件尾条件的基本任务。
+
+### 文件尾条件
+
+​		使用诸如#等符号来表示输入结束很难令人满意，因为这样的符号可能就是合法输入的组成部分，其他符号（如@和%）也如此。如果输入来自于文件，则可以使用一种功能更强大的技术—检测文件尾（EOF）。C++输入工具和操作系统协同工作，来检测文件尾并将这种信息告知程序。
+
+​		乍一看，读取文件中的信息似乎同cin和键盘输入没什么关系，但其实存在两个相关的地方。首先，很多操作系统（包括Unix、Linux和Windows命令提示符模式）都支持重定向，允许用文件替换键盘输入。例如，假设在Windows中有一个名为gofish.exe的可执行程序和一个名为fishtale的文本文件，则可以在命令提示符模式下输入下面的命令
+
+```shell
+gosish < fishtale
+```
+
+这样，程序将从fishtale文件（而不是键盘）获取输入。<符号是Unix和Windows命令提示符模式的重定向运算符。
+
+​		其次，很多操作系统都允许通过键盘来模拟文件尾条件。在Unix中，可以在行首按下Ctrl+D来实现；在Windows命令提示符模式下，可以在任意位置按Ctrl+Z和Enter。有些C++实现支持类似的行为，即使底层操作系统并不支持。键盘输入的EOF概念实际上是命令行环境遗留下来的。然而，用于Mac的Symantec C++模拟了UNIX，将Ctrl+D视为仿真的EOF。Metrowerks Codewarrior能够在Macintosh和Windows环境下识别Ctrl+Z。用于PC的Microsoft Visual C++、Borland C++ 5.5和GNU C++ 都能够识别行首的Ctrl + Z，但用户必须随后按下回车键。总之，很多PC编程环境都将Ctrl+Z视为模拟的EOF，但具体细节（必须在行首还是可以在任何位置，是否必须按下回车键等）各不相同。
+
+​		如果编程环境能够检测EOF，可以在类似于程序清单的程序中使用重定向的文件，也可以使用键盘输入，并在键盘输入中模拟EOF。
+
+​		检测到EOF后，cin将两位（eofbit和failbit）都设置为1。可以通过成员函数eof( )来查看eofbit是否被设置；如果检测到EOF，则cin.eof( )将返回bool值true，否则返回false。同样，如果eofbit或failbit被设置为1，则fail( )成员函数返回true，否则返回false。注意，eof( )和fail( )方法报告最近读取的结果；也就是说，它们在事后报告，而不是预先报告。因此应将cin.eof( )或cin.fail( )测试放在读取后
+
+```C++
+#include <iostream>
+int main()
+{
+
+    using namespace std;
+
+    char ch;
+    int count = 0;
+    cin.get(ch);
+    while (cin.fail() == false)
+    {
+        cout << ch;
+        ++count;
+        cin.get(ch);
+    }
+    cout << endl
+         << count << " characters read \n";
+
+    return 0;
+}
+```
+
+它使用的是fail( )，而不是eof( )，因为前者可用于更多的实现中。
+
+​		有些系统不支持来自键盘的模拟EOF；有些系统对其支持不完善。cin.get( )可以用来锁住屏幕，直到可以读取为止，但是这种方法在这里并不适用，因为检测EOF时将关闭对输入的进一步读取。然而，可以使用计时循环来使屏幕在一段时间内是可见的。也可使用cin.clear( )来重置输入流
+
+​		这里在Windows 7系统上运行该程序，因此可以按下Ctrl+Z和回车键来模拟EOF条件。请注意，在Unix和类Unix（包括Linux和Cygwin）系统中，用户应按Ctrl+Z组合键将程序挂起，而命令fg恢复执行程序。
+
+​		通过使用重定向，可以用该程序来显示文本文件，并报告它包含的字符数。下面，我们在Unix系统运行该程序，并对一个两行的文件进行读取、回显和计算字数
+
+```shell
+program < stuff
+```
+
+#### EOF结束输入
+
+​		前面指出过，cin方法检测到EOF时，将设置cin对象中一个指示EOF条件的标记。设置这个标记后，cin将不读取输入，再次调用cin也不管用。对于文件输入，这是有道理的，因为程序不应读取超出文件尾的内容。然而，对于键盘输入，有可能使用模拟EOF来结束循环，但稍后要读取其他输入。cin.clear( )方法可能清除EOF标记，使输入继续进行。
+
+​		有些系统中，按Ctrl+Z实际上将结束输入和输出，而cin.clear( )将无法恢复输入和输出。
+
+#### 常见的字符输入做法
+
+​		每次读取一个字符，直到遇到EOF的输入循环的基本设计如下
+
+```C++
+cin.get(ch);
+while (cin.fail() == false)
+{
+    ...
+    cin.get(ch);
+}
+```
+
+可以在上述代码中使用一些简捷方式。!运算符可以将true切换为false或将false切换为true。可以使用此运算符将上述while测试改写成这样
+
+```C++
+cin.get(ch);
+while (!cin.fail())
+{
+    ...
+    cin.get(ch);
+}
+```
+
+方法cin.get(char)的返回值是一个cin对象。然而，istream类提供了一个可以将istream对象（如cin）转换为bool值的函数；当cin出现在需要bool值的地方（如在while循环的测试条件中）时，该转换函数将被调用。另外，如果最后一次读取成功了，则转换得到的bool值为true；否则为false。这意味着可以将上述while测试改写为这样
+
+```C++
+cin.get(ch);
+while (cin)
+{
+    ...
+    cin.get(ch);
+}
+```
+
+这比! cin.fail( )或!cin.eof( )更通用，因为它可以检测到其他失败原因，如磁盘故障。
+
+​		由于cin.get(char)的返回值为cin，因此可以将循环精简成这种格式
+
+```C++
+while (cin.get(ch))
+{
+    ...
+}
+```
+
+这样，cin.get(char)只被调用一次，而不是两次：循环前一次、循环结束后一次。为判断循环测试条件，程序必须首先调用cin.get(ch)。如果成功，则将值放入ch中。然后，程序获得函数调用的返回值，即cin。接下来，程序对cin进行bool转换，如果输入成功，则结果为true，否则为false。三条指导原则（确定结束条件、对条件进行初始化以及更新条
+件）全部被放在循环测试条件中。
+
+### 另一个cin.get( )版本
+
+​		“怀旧”的C语言用户可能喜欢C语言中的字符I/O函数—getchar( )和putchar( )，它们仍然适用，只要像在C语言中那样包含头文件stdio.h（或新的cstdio）即可。也可以使用istream和ostream类中类似功能的成员函数
+
+​		不接受任何参数的cin.get( )成员函数返回输入中的下一个字符。也就是说，可以这样使用它
+
+```C++
+ch = cin.get();
+```
+
+该函数的工作方式与C语言中的getchar( )相似，将字符编码作为int值返回；而cin.get(ch)返回一个对象，而不是读取的字符。同样，可以使用cout.put( )函数来显示字符
+
+```C++
+cout.put(ch);
+```
+
+该函数的工作方式类似C语言中的putchar( )，只不过其参数类型为char，而不是int。
+
+​		最初，put( )成员只有一个原型—put(char)。可以传递一个int参数给它，该参数将被强制转换为char。C++标准还要求只有一个原型。然而，有些C++实现都提供了3个原型：put(char)、put(signed char)和put(unsigned char)。在这些实现中，给put( )传递一个int参数将导致错误消息，因为转换int的方式不止一种。使用显式强制类型转换的原型（如cin.put(char(ch))）可使用int参数。
+
+​		为成功地使用cin.get( )，需要知道其如何处理EOF条件。当该函数到达EOF时，将没有可返回的字符。相反，cin.get( )将返回一个用符号常量EOF表示的特殊值。该常量是在头文件iostream中定义的。EOF值必须不同于任何有效的字符值，以便程序不会将EOF与常规字符混淆。通常，EOF被定义为值−1，因为没有ASCII码为−1的字符，但并不需要知道实际的值，而只需在程序中使用EOF即可。
+
+```C++
+char ch;
+cin.get(ch);
+while(cin.fail()==false){
+    cout << ch;
+    ++count;
+    cin.get(ch);
+}
+```
+
+可以使用int ch，并用cin.get( )代替cin.get(char)，用cout.put( )代替cout，用EOF测试代替cin.fail( )测试
+
+```C++
+int ch;
+ch = cin.get();
+while(ch!=EOF){
+	cout.put(ch);
+    ++count;
+	ch = cin.get();
+}
+```
+
+如果ch是一个字符，则循环将显示它。如果ch为EOF，则循环将结束。需要知道的是，EOF不表示输入中的字符，而是指出没有字符。
+
+​		除了当前所做的修改外，关于使用cin.get( )还有一个微妙而重要的问题。由于EOF表示的不是有效字符编码，因此可能不与char类型兼容。例如，在有些系统中，char类型是没有符号的，因此char变量不可能为EOF值（−1）。由于这种原因，如果使用cin.get( )（没有参数）并测试EOF，则必须将返回值赋给int变量，而不是char变量。另外，如果
+将ch的类型声明为int，而不是char，则必须在显示ch时将其强制转换为char类型。
+
+```C++
+#include <iostream>
+int main()
+{
+
+    using namespace std;
+
+    int ch;
+    int count = 0;
+
+    while ((ch = cin.get()) != EOF)
+    {
+        cout.put(ch);
+        ++count;
+    }
+    cout << endl
+         << count << " characters read \n";
+
+    return 0;
+}
+```
+
+通过将字符输入与while循环测试合并在一起，使代码更为简洁。
+
+​		子表达式ch=cin.get( )两端的括号导致程序首先计算该表达式。为此，程序必须首先调用cin.get( )函数，然后将该函数的返回值赋给ch。由于赋值语句的值为左操作数的值，因此整个子表达式变为ch的值。如果这个值是EOF，则循环将结束，否则继续。该测试条件中所有的括号都是必不可少的。如果省略其中的一些括号
+
+```C++
+while (ch = cin.get() != EOF)
+```
+
+由于!=运算符的优先级高于=，因此程序将首先对cin.get( )的返回值和EOF进行比较。比较的结果为false或true，而这些bool值将被转换为0或1，并本质赋给ch。
+
+​		另一方面，使用cin.get(ch)（有一个参数）进行输入时，将不会导致任何类型方面的问题。前面讲过，cin.get(char)函数在到达EOF时，不会将一个特殊值赋给ch。事实上，在这种情况下，它不会将任何值赋给ch。ch不会被用来存储非char值
+
+​		下表总结了cin.get(char)和cin.get( )之间的差别。
+
+​		**cin.get(ch)与cin.get( )**
+
+|            属性            |             cin.get(ch)              |    ch=cin.get()    |
+| :------------------------: | :----------------------------------: | :----------------: |
+|     传递输入字符的方式     |              赋给参数ch              | 将函数返回值赋给ch |
+| 用于字符输入时函数的返回值 | istream对象（执行bool转换后为true）  | int类型的字符编码  |
+|   到达EOF时函数的返回值    | istream对象（执行bool转换后为false） |        EOF         |
+
+​		**应使用cin.get( )还是cin.get(char)**：使用字符参数的版本更符合对象方式，因为其返回值是istream对象。这意味着可以将它们拼接起来。例如，下面的代码将输入中的下一个字符读入到ch1中，并将接下来的一个字符读入到ch2中
+
+```C++
+cin.get(ch1).get(ch2);
+```
+
+这是可行的，因为函数调用cin.get(ch1)返回一个cin对象，然后便可以通过该对象调用get(ch2)。
+
+​		get( )的主要用途是能够将stdio.h的getchar( )和putchar( )函数转换为iostream的cin.get( )和cout.put( )方法。只要用头文件iostream替换stdio.h，并用作用相似的方法替换所有的getchar( )和putchar( )即可。（如果旧的代码使用int变量进行输入，而所用的实现包含put( )的多个原型，则必须做进一步的调整。）
+
+## 嵌套循环和二维数组
+
+​		C++没有提供二维数组类型，但用户可以创建每个元素本身都是数组的数组。
+
+### 初始化二维数组
+
+​		创建二维数组时，可以初始化其所有元素。这项技术建立在一维数组初始化技术的基础之上：提供由逗号分隔的用花括号括起的值列表
+
+​		对于二维数组来说，由于每个元素本身就是一个数组，因此可以使用与上述代码类似的格式来初始化每一个元素。因此，初始化由一系列逗号分隔的一维数组初始化（用花括号括起）组成
+
+### 使用二维数组
+
+​		循环的顺序相反，将列循环（城市索引）放在外面，将行循环（年份索引）放在内面。另外，它还采用了C++常用的做法，将一个指针数组初始化为一组字符串常量。也就是说，将cities声明为一个char指针数组。这使得每个元素（如cities [0]）都是一个char指针，可被初始化为一个字符串的地址。程序将cities [0]初始化为字符串“Gribble City”的地址，等等。因此，该指针数组的行为与字符串数组类似。
+
+```C++
+#include <iostream>
+
+const int Cities = 5;
+const int Years = 4;
+int main()
+{
+
+    using namespace std;
+
+    const char *cities[Cities] = {
+        "Gribble City",
+        "Gribble town",
+        "New Gribble",
+        "San Gribble",
+        "Gribble Vista"};
+
+    int maxtemps[Years][Cities] = {
+        {96, 100, 87, 101, 105},
+        {96, 98, 91, 107, 104},
+        {97, 101, 93, 108, 107},
+        {98, 103, 95, 109, 108}};
+
+    cout << "Maxmimum temperatures for 2008 -2011 \n\n";
+    for (int city = 0; city < Cities; ++city)
+    {
+        cout << cities[city] << ":\t";
+        for (int year = 0; year < Years; ++year)
+        {
+            cout << maxtemps[year][city] << "\t";
+        }
+        cout << endl;
+    }
+
+    return 0;
+}
+```
+
+​		在这个例子中，可以使用char数组的数组，而不是字符串指针数组。在这种情况下，声明如下
+
+```C++
+char cities[Cities][25] = {
+        "Gribble City",
+        "Gribble town",
+        "New Gribble",
+        "San Gribble",
+        "Gribble Vista"};
+```
+
+上述方法将全部5个字符串的最大长度限制为24个字符。指针数组存储5个字符串的地址，而使用char数组的数组时，将5个字符串分别复制到5个包含25个元素的char数组中。因此，从存储空间的角度说，使用指针数组更为经济；然而，如果要修改其中的任何一个字符串，则二维数组是更好的选择。令人惊讶的是，这两种方法使用相同的初始化列
+表，显示字符串的for循环代码页相同。
+
+​		另外，还可以使用string对象数组，而不是字符串指针数组。在这种情况下，声明如下
+
+```C++
+const string cities[Cities] = {
+        "Gribble City",
+        "Gribble town",
+        "New Gribble",
+        "San Gribble",
+        "Gribble Vista"};
+```
+
+如果希望字符串是可修改的，则应省略限定符const。使用string对象数组时，初始化列表和用于显示字符串的for循环代码与前两种方法中相同。在希望字符串是可修改的情况下，string类自动调整大小的特性将使这种方法比使用二维数组更为方便。
+
+# 分支语句和逻辑运算符
+
+## if语句
+
+​		当C++程序必须决定是否执行某个操作时，通常使用if语句来实现选择。if有两种格式：if和if else。
+
+​		if语句的语法与while相似
+
+```C++
+if(test-condition)
+    statement
+```
+
+如果test-condition（测试条件）为true，则程序将执行statement（语句），后者既可以是一条语句，也可以是语句块。如果测试条件为false，则程序将跳过语句。和循环测试条件一样，if测试条件也将被强制转换为bool值，因此0将被转换为false，非零为true。整个if语句被视为一条语句。
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    char ch;
+    int spaces = 0;
+    int total = 0;
+    cin.get(ch);
+    while (ch != '.')
+    {
+        if (ch == ' ')
+            ++spaces;
+        ++total;
+        cin.get(ch);
+    }
+    cout << spaces << "spaces, " << total;
+    cout << " characters total in sentence\n";
+
+    return 0;
+}
+```
+
+因为语句++total;位于if语句的外面，因此在每轮循环中都将被执行。注意，字符总数中包括按回车键生成的换行符。
+
+### if else语句
+
+​		if语句让程序决定是否执行特定的语句或语句块，而if else语句则让程序决定执行两条语句或语句块中的哪一条，这种语句对于选择其中一种操作很有用。
+
+```C++
+if(test-condition)
+    statement1
+else 
+    statement2
+```
+
+如果测试条件为true或非零，则程序将执行statement1，跳过statement2；如果测试条件为false或0，则程序将跳过statement1，执行statement2。每条语句都既可以是一条语句，也可以是用大括号括起的语句块
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    char ch;
+
+    cout << "Type, and I shall repeat.\n";
+    cin.get(ch);
+    while (ch != '.')
+    {
+        if (ch == '\n')
+            cout << ch;
+        else
+            cout << ++ch;
+        cin.get(ch);
+    }
+    cout << "\nPlease eexcuse the slight confusion.\n";
+
+    return 0;
+}
+```
+
+将++ch改为ch+1将产生一种有趣的效果。试验一下，然后看看是否可以解释发生的情况（提示：想一想cout是如何处理不同的类型的）。
+
+### 格式化if else语句
+
+​		if else中的两种操作都必须是一条语句。如果需要多条语句，需要用大括号将它们括起来，组成一个块语句。和有些语言（如BASIC和FORTRAN）不同的是，由于C++不会自动将if和else之间的所有代码视为一个代码块，因此必须使用大括号将这些语句组合成一个语句块。
+
+​		由于C++是自由格式语言，因此只要使用大括号将语句括起，对大括号的位置没有任何限制。
+
+### if else if else结构
+
+​		与实际生活中发生的情况类似，计算机程序也可能提供两个以上的选择。可以将C++的if else语句进行扩展来满足这种需求。正如读者知道的，else之后应是一条语句，也可以是语句块。由于if else语句本身是一条语句，所以可以放在else的后面
+
+​		这看上去像是一个新的控制结构——if else if else结构。但实际上，它只是一个if else被包含在另一个if else中。修订后的格式更为清晰，使程序员通过浏览代码便能确定不同的选择。整个构造仍被视为一条语句。
+
+```C++
+#include <iostream>
+
+const int Fave = 27;
+int main()
+{
+
+    using namespace std;
+
+    int n;
+
+    cout << "Enter a number in the range 1-100 to find ";
+    cout << "my favorite number: ";
+    do
+    {
+        cin >> n;
+        if (n < Fave)
+            cout << "Too low -- guess again: ";
+        else if (n > Fave)
+            cout << "Too high -- guess again: ";
+        else
+            cout << Fave << " is right!\n";
+    } while (n != Fave);
+
+    return 0;
+}
+```
+
+​		**条件运算符和错误防范**：许多程序员将更直观的表达式variable = =value反转为value = =variable，以此来捕获将相等运算符误写为赋值运算符的错误。
+
+```C++
+if(3==myNumber)
+```
+
+但如果错误地使用下面的条件，编译器将生成错误消息，因为它以为程序员试图将一个
+值赋给一个字面值（3总是等于3，而不能将另一个值赋给它）
+
+```C++
+if(3=myNumber)
+```
+
+假设犯了类似的错误，但使用的是前一种表示方法
+
+```C++
+if(myNumber=3)
+```
+
+编译器将只是把3赋给myNumber，而if中的语句块将包含非常常见的、而又非常难以发现的错误（然而，很多编译器会发出警告，因此注意警告是明智的）。一般来说，编写让编译器能够发现错误的代码，比找出导致难以理解的错误的原因要容易得多。
+
+## 逻辑表达式
+
+​		C++提供了3种逻辑运算符，来组合或修改已有的表达式。这些运算符分别是逻辑OR（||）、逻辑AND（&&）和逻辑NOT（!）
+
+### 逻辑OR运算符：||
+
+​		C++可以采用逻辑OR运算符（||），将两个表达式组合在一起。如果原来表达式中的任何一个或全部都为true（或非零），则得到的表达式的值为true；否则，表达式的值为false。由于||的优先级比关系运算符低，因此不需要在这些表达式中使用括号。
+
+​		C++规定，||运算符是个顺序点（sequence point）。也是说，先修改左侧的值，再对右侧的值进行判定（C++11的说法是，运算符左边的子表达式先于右边的子表达式）。
+
+```C++
+i++ &lt; 6 || i == j
+```
+
+假设i原来的值为10，则在对i和j进行比较时，i的值将为11。另外，如果左侧的表达式为true，则C++将不会去判定右侧的表达式，因为只要一个表达式为true，则整个逻辑表达式为true（读者可能还记得，冒号和逗号运算符也是顺序点）。
+
+|              | expr1\|\|expr2 的值 |              |
+| :----------: | :-----------------: | :----------: |
+|              |     expr1==true     | expr1==false |
+| expr2==true  |        true         |     true     |
+| expr2==false |        true         |    false     |
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    cout << "This program may reformat your hard disk\n"
+            "and destroy all your data.\n"
+            " Do you wish to continue?<y/n> ";
+
+    char ch;
+    cin >> ch;
+    if (ch == 'y' || ch == 'Y')
+        cout << "You were warned!\a\a\n";
+    else if (ch == 'n' || ch == 'N')
+        cout << "A wise choice ... bye\n";
+    else
+        cout << "That wasn't a y or n! Apparently you "
+                "can't follow\ninstructions, so "
+                "I'll trash your disk anyway.\a\a\a\n";
+
+    return 0;
+}
+```
+
+由于程序只读取一个字符，因此只读取响应的第一个字符。这意味着用户可以用NO!（而不是N）进行回答，程序将只读取N。然而，如果程序后面再读取输入时，将从O开始读取。
+
+### 逻辑AND运算符：&&
+
+​		逻辑AND运算符（&&），也是将两个表达式组合成一个表达式。仅当原来的两个表达式都为true时，得到的表达式的值才为true。
+
+​		由于&&的优先级低于关系运算符，因此不必在这些表达式中使用括号。和||运算符一样，&&运算符也是顺序点，因此将首先判定左侧，并且在右侧被判定之前产生所有的副作用。如果左侧为false，则整个逻辑表达式必定为false，在这种情况下，C++将不会再对右侧进行判定。
+
+|              | expr1\|\|expr2 的值 |              |
+| :----------: | :-----------------: | :----------: |
+|              |     expr1==true     | expr1==false |
+| expr2==true  |        true         |    false     |
+| expr2==false |        false        |    false     |
+
+```C++
+#include <iostream>
+
+const int ArSize = 6;
+
+int main()
+{
+
+    using namespace std;
+
+    float naaq[ArSize];
+    cout << "Enter the NAAQs (New Age Awareness Quotients) "
+         << "of\nyour neighbors. Program terminates "
+         << "when you make\n " << ArSize << " entries "
+         << "or enter a negative value.\n";
+
+    int i = 0;
+    float temp;
+    cout << "First value: ";
+    cin >> temp;
+    while (i < ArSize && temp >= 0)
+    {
+        naaq[i] = temp;
+        ++i;
+        if (i < ArSize)
+        {
+            cout << "Next value: ";
+            cin >> temp;
+        }
+    }
+    if (i == 0)
+        cout << "No data--bye\n";
+    else
+    {
+        cout << "Enter your NAAQ: ";
+        float you;
+        cin >> you;
+        int count = 0;
+        for (int j = 0; j < i; j++)
+            if (naaq[j] > you)
+                ++count;
+        cout << count;
+        cout << " of your neighbors have greater awareness of\n"
+             << "the New Age than you do.\n";
+    }
+
+    return 0;
+}
+```
+
+### 用&&来设置取值范围
+
+​		&&运算符还允许建立一系列if else if else语句，其中每种选择都对应于一个特定的取值范围。
+
+​		演示了一种用于处理一系列消息的技术。与char指针变量可以通过指向一个字符串的开始位置来标识该字符串一样，char指针数组也可以标识一系列字符串，只要将每一个字符串的地址赋给各个数组元素即可。
+
+​		使用qualify数组来存储4个字符串的地址，例如，qualify [1]存储字符串“mud tug-of-war\n”的地址。然后，程序便能够将cout、strlen( )或strcmp( )用于qualify [1]，就像用于其他字符串指针一样。使用const限定符可以避免无意间修改这些字符串。
+
+```C++
+#include <iostream>
+
+const char *qualify[4] = {
+    "10,000-meter race.\n",
+    "mud tug-of-war.\n",
+    "masters canoe jousting.\n",
+    "pie-throwing festival.\n"};
+
+int main()
+{
+
+    using namespace std;
+
+    int age;
+    cout << "Enter your age in years: ";
+    cin >> age;
+    int index;
+
+    if (age > 17 && age < 35)
+        index = 0;
+    else if (age >= 35 && age < 50)
+        index = 1;
+    else if (age >= 50 && age < 65)
+        index = 2;
+    else
+        index = 3;
+
+    cout << "You qualify for the " << qualify[index];
+
+    return 0;
+}
+```
+
+if else语句用来选择数组索引，而索引则标识特定的字符串。
+
+​		**取值范围测试的每一部分都使用AND运算符将两个完整的关系表达式组合起来**
+
+```C++
+if (age > 17 && age < 35)  // OK
+// 不要使用数学符号将其表示为
+if(17<age<35)
+```
+
+编译器不会捕获这种错误，因为它仍然是有效的C++语法。<运算符从左向右结合，因此
+上述表达式的含义如下
+
+```C++
+if((17<age)<35)
+```
+
+但17 < age的值要么为true（1），要么为false（0）。不管是哪种情况，表达式17 < age的值都小于35，因此整个测试的结果总是true
+
+### 逻辑NOT运算符：!
+
+​		!运算符将它后面的表达式的真值取反。也是说，如果expression为true，则!expression是false；如果expression为false，则!expression是true。更准确地说，如果expression为true或非零，则!expression为false。
+
+​		通常，不使用这个运算符可以更清楚地表示关系
+
+```C++
+if(!(x>5))  // if(x<=5) is clearer
+```
+
+然而，!运算符对于返回true-false值或可以被解释为true-false值的函数来说很有用。例如，如果C-风格字符串s1和s2不同，则strcmp(s1, s2)将返回非零（true）值，否则返回0。这意味着如果这两个字符串相同，则!strcmp(s1, s2)为true。
+
+```C++
+#include <iostream>
+#include <climits>
+
+bool int is_int(double);
+int main()
+{
+
+    using namespace std;
+
+    double num;
+
+    cout << "Yo, dude! Enter an integer value: ";
+    cin >> num;
+    while (!is_int(num))
+    {
+        cout << "Out of range -- please try again: ";
+        cin >> num;
+    }
+    int val = int(num);
+    cout << "You've entered the integer " << val << "\nBye\n";
+
+    return 0;
+}
+
+bool is_int(double x)
+{
+    if (x <= INT_MAX && x >= INT_MIN)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+```
+
+布尔函数is_int( )使用了climits文件中定义的两个符号常量（INT_MAX和INT_MIN）来确定其参数是否位于适当的范围内。如果是，该函数将返回true，否则返回false。
+
+​		main( )程序使用while循环来拒绝无效输入，直到用户输入有效的值为止。可以在输入超出取值范围时显示int的界限，这样程序将更为友好。确认输入有效后，程序将其赋给一个int变量。
+
+### 逻辑运算符细节
+
+​		C++逻辑OR和逻辑AND运算符的优先级都低于关系运算符。另一方面，!运算符的优先级高于所有的关系运算符和算术运算符。因此，要对表达式求反，必须用括号将其括起；逻辑AND运算符的优先级高于逻辑OR运算符
+
+​		虽然C++运算符的优先级规则常可能不使用括号便可以编写复合比较的语句，但最简单的方法还是用括号将测试进行分组，而不管是否需要括号。这样代码容易阅读，避免读者查看不常使用的优先级规则，并减少由于没有准确记住所使用的规则而出错的可能性。
+
+​		C++确保程序从左向右进行计算逻辑表达式，并在知道答案后立刻停止。例如，假设有下面的条件
+
+```C++
+x!=0 && 1.0 /x > 100.0
+```
+
+如果第一个条件为false，则整个表达式肯定为false。这是因为要使整个表达式为true，每个条件都必须为true。知道第一个条件为false后，程序将不判定第二个条件。这个例子非常幸运，因为计算第二个条件将导致被0除，这是计算机没有定义的操作。
+
+### 其他表示方式
+
+​		并不是所有的键盘都提供了用作逻辑运算符的符号，因此C++标准提供了另一种表示方式。标识符and、or和not都是C++保留字，这意味着不能将它们用作变量名等。它们不是关键字，因为它们都是已有语言特性的另一种表示方式。另外，它们并不是C语言中的保留字，但C语言程序可以将它们用作运算符，只要在程序中包含了头文件iso646.h。C++不要求使用头文件。
+
+| 运算符 | 另一种表示方式 |
+| :----: | :------------: |
+|   &&   |      and       |
+|  \|\|  |       or       |
+|   !    |      not       |
+
+## 字符函数库cctype
+
+​		C++从C语言继承了一个与字符相关的、非常方便的函数软件包，它可以简化诸如确定字符是否为大写字母、数字、标点符号等工作，这些函数的原型是在头文件cctype（老式的风格中为ctype.h）中定义的。
+
+​		使用这些函数比使用AND和OR运算符更方便。
+
+```C++
+if((ch >='a' && ch<='z')|| (ch >='A'&& ch<='Z'))
+```
+
+```C++
+if(isalpha(ch))
+```
+
+isalpha( )不仅更容易使用，而且更通用。AND/OR格式假设A-Z的字符编码是连续的，其他字符的编码不在这个范围内。这种假设对于ASCII码来说是成立的，但通常并非总是如此。
+
+```C++
+#include <iostream>
+#include <cctype>
+
+int main()
+{
+
+    using namespace std;
+
+    cout << "Enter text for analysis, and type @"
+            " to terminate input.\n";
+
+    char ch;
+    int whitespace = 0;
+    int chars = 0;
+    int digits = 0;
+    int punct = 0;
+    int others = 0;
+
+    cin.get(ch);
+    while (ch != '@')
+    {
+        if (isalpha(ch))
+            chars++;
+        else if (isdigit(ch))
+            digits++;
+        else if (isspace(ch))
+            whitespace++;
+        else if (ispunct(ch))
+            punct++;
+        else
+            others++;
+        cin.get(ch);
+    }
+
+    cout << chars << " letters, "
+         << whitespace << " whitespace, "
+         << digits << " digits, "
+         << punct << " punctuations, "
+         << others << " others" << endl;
+
+    return 0;
+}
+```
+
+​		**cctype中的字符函数**
+
+|  函数名称  |                            返回值                            |
+| :--------: | :----------------------------------------------------------: |
+| isalnum()  |       如果参数是字母数字，即字母或数字，该函数返回true       |
+| isalpha()  |                如果参数是字母，该函数返回true                |
+| iscntrl()  |              如果参数是控制字符，该函数返回true              |
+| isdigit()  |            如果参数是数字（0～9），该函数返回true            |
+| isgraph()  |        如果参数是除空格之外的打印字符，该函数返回true        |
+| islower()  |              如果参数是小写字母，该函数返回true              |
+| isprint()  |        如果参数是打印字符（包括空格），该函数返回true        |
+| ispunct()  |              如果参数是标点符号，该函数返回true              |
+| isspace()  | 如果参数是标准空白字符，如空格、进纸、换行符、回车、水平制表符或者垂直制表符，该函数返回true |
+| isupper()  |              如果参数是大写字母，该函数返回true              |
+| isxdigit() |  如果参数是十六进制数字，即0～9、a～f或A～F，该函数返回true  |
+| tolower()  |       如果参数是大写字符，则返回其小写，否则返回该参数       |
+| toupper()  |       如果参数是小写字符，则返回其大写，否则返回该参数       |
+
+## ?:运算符
+
+​		C++有一个常被用来代替if else语句的运算符，这个运算符被称为条件运算符（?:），它是C++中唯一一个需要3个操作数的运算符。
+
+```C++
+expression ? expression2: expression3
+```
+
+如果expression1为true，则整个条件表达式的值为expression2的值；否则，整个表达式的值为expression3的值。
+
+```C++
+#include <iostream>
+
+int main()
+{
+
+    using namespace std;
+
+    int a, b;
+    cout << "Enter two integers: ";
+    cin >> a >> b;
+    cout << "The larger of " << a << " and " << b;
+    int c = a > b ? a : b;
+    cout << " is " << c << endl;
+
+    return 0;
+}
+```
+
+与if else序列相比，条件运算符更简洁，但第一次遇到时不那么容易理解。这两种方法之间的区别是，条件运算符生成一个表达式，因此是一个值，可以将其赋给变量或将其放到一个更大的表达式中。
+
+​		条件运算符格式简洁、语法奇特、外观与众不同，因此在欣赏这些特点的程序员中广受欢迎。其中一个技巧（它完成一个应被谴责的任务——隐藏代码）是将条件表达式嵌套在另一个条件表达式中
+
+```C++
+const char x[2][20]={"Jason ", "at your service\n"};
+const char * y ="Quillstone ";
+
+for(int i=0;i<3;i++)
+    cout << ((i<2)?:!i?x[i]:y:x[1]);
+```
+
+这是一种费解的方式（但绝不是最难理解的）。从可读性来说，条件运算符最适合于简单关系和简单表达式的值，当代码变得更复杂时，使用if else语句来表达可能更为清晰。
+
+## switch语句
+
+​		C++的switch语句能够更容易地从大型列表中进行选择
+
+```C++
+switch (integer-expression){
+    case label1: statement(s)
+    case label2: statement(s)
+    ...
+    default : statement(s)
+}
+```
+
+C++的switch语句就像指路牌，告诉计算机接下来应执行哪行代码。执行到switch语句时，程序将跳到使用integer-expression的值标记的那一行。
+
+​		integer-expression必须是一个结果为整数值的表达式。另外，每个标签都必须是整数常量表达式。最常见的标签是int或char常量（如1或'q'），也可以是枚举量。如果integer-expression不与任何标签匹配，则程序将跳到标签为default的那一行。Default标签是可选的，如果被省略，而又没有匹配的标签，则程序将跳到switch后面的语句处执行
+
+​		switch语句与Pascal等语言中类似的语句之间存在重大的差别。C++中的case标签只是行标签，而不是选项之间的界线。也是说，程序跳到switch中特定代码行后，将依次执行之后的所有语句，除非有明确的其他指示。程序不会在执行到下一个case处自动停止，要让程序执行完一组特定语句后停止，必须使用break语句。这将导致程序跳到switch后面的语句处执行。
+
+```C++
+#include <iostream>
+using namespace std;
+
+void showmenu();
+void report();
+void comfort();
+
+int main()
+{
+    showmenu();
+    int choice;
+    cin >> choice;
+    while (choice != 5)
+    {
+        switch (choice)
+        {
+        case 1:
+            cout << "\a\n";
+            break;
+        case 2:
+            report();
+            break;
+        case 3:
+            cout << "The boss was in all day.\n";
+            break;
+        case 4:
+            comfort();
+            break;
+        default:
+            cout << "That's not a choice.\n";
+        }
+        showmenu();
+        cin >> choice;
+    }
+    cout << "Bye!" << endl;
+
+    return 0;
+}
+
+void showmenu()
+{
+    cout << "Please enter 1,2,3,4,or 5:\n"
+            "1) alarm               2) report\n"
+            "3) alibi               4) comfort\n"
+            "5) quit\n";
+}
+
+void report()
+{
+    cout << "It's been an excellent week for business.\n"
+            "Sales are up 120%. Expenses are down 35%.\n"
+}
+
+void comfort()
+{
+    cout << "Your employees think you are the finest CEO\n"
+            "in the industry. The board of directors think\n"
+            "you are the finest CEO in the industry.\n"
+}
+
+```
+
+```C++
+char choice;
+cin>> choice;
+while(choice !='Q' && choice !='q'){
+    switch(choice){
+        case 'a':
+        case 'A': cout << "\a\n"; break;
+        case 'r':
+        case 'R': report(); break;
+        case 'l':
+        case 'L': cout << "The boss was in all day.\n"; break;
+        case 'c':
+        case 'C': comfort(); break;
+        default: cout << "That's not a choice.\n";
+    }
+}
+```
+
+### 将枚举量用作标签
+
+​		通常，cin无法识别枚举类型（它不知道程序员是如何定义它们的），因此该程序要求用户选择选项时输入一个整数。当switch语句将int值和枚举量标签进行比较时，将枚举量提升为int。另外，在while循环测试条件中，也会将枚举量提升为int类型。
+
+```C++
+#include <iostream>
+
+enum
+{
+    red,
+    orange,
+    yellow,
+    green,
+    blue,
+    violet,
+    indigo
+};
+
+int main()
+{
+    using namespace std;
+
+    cout << "Enter cplor code (0-6): ";
+    int code;
+    cin >> code;
+    while (code >= red && code <= indigo)
+    {
+        switch (code)
+        {
+        case red:
+            cout << "Her lips were red." << endl;
+            break;
+        case orange:
+            cout << "Here hair was orange." << endl;
+            break;
+        case yellow:
+            cout << "Here shoes was yellow." << endl;
+            break;
+        case green:
+            cout << "Here nails was green." << endl;
+            break;
+        case blue:
+            cout << "Here sweatsuit was blue." << endl;
+            break;
+        case violet:
+            cout << "Here eyes was violet." << endl;
+            break;
+        case indigo:
+            cout << "Here mood was indigo." << endl;
+            break;
+        }
+        cout << "Enter color code (0-6): ";
+        cin >> code;
+    }
+    cout >> "Bye\n";
+
+    return 0;
+}
+
+```
+
+### switch和if else
+
+​		switch语句和if else语句都允许程序从选项中进行选择。相比之下，if else更通用。例如，它可以处理取值范围
+
+​		然而，switch并不是为处理取值范围而设计的。switch语句中的每一个case标签都必须是一个单独的值。另外，这个值必须是整数（包括char），因此switch无法处理浮点测试。另外case标签值还必须是常量。如果选项涉及取值范围、浮点测试或两个变量的比较，则应使用if else语句。
+
+​		然而，如果所有的选项都可以使用整数常量来标识，则可以使用switch语句或if else语句。由于switch语句是专门为这种情况设计的，因此，如果选项超过两个，则就代码长度和执行速度而言，switch语句的效率更高。
+
+​		**如果既可以使用if else if语句，也可以使用switch语句，则当选项不少于3个时，应使用switch语句。**
+
+## break和continue语句
+
+​		break和continue语句都使程序能够跳过部分代码。可以在switch语句或任何循环中使用break语句，使程序跳到switch或循环后面的语句处执行。continue语句用于循环中，让程序跳过循环体中余下的代码，并开始新一轮循环
+
+```C++
+#include <iostream>
+
+const int ArSize = 80;
+
+int main()
+{
+    using namespace std;
+
+    chat line[ArSize];
+    int spaces = 0;
+
+    cout << "Enter a line of text:\n";
+    cin.get(line, ArSize);
+    cout << "Complete line:\n"
+         << line << endl;
+    cout << "Line through first period:\n";
+    for (int i = 0; line[i] != '\0'; i++)
+    {
+        cout << line[i];
+        if (line[i] == '.')
+            break;
+        if (line[i] == ' ')
+            continue;
+        spaces++;
+    }
+    cout << "\n"
+         << spaces << " spaces\n";
+    cout << "Done.\n";
+
+    return 0;
+}
+```
+
+虽然continue语句导致该程序跳过循环体的剩余部分，但不会跳过循环的更新表达式。在for循环中，continue语句使程序直接跳到更新表达式处，然后跳到测试表达式处。然而，对于while循环来说，continue将使程序直接跳到测试表达式处，因此while循环体中位于continue之后的更新表达式都将被跳过。在某些情况下，这可能是一个问题。
+
+​		该程序可以不使用continue语句，而使用下面的代码
+
+```C++
+if (line[i] == ' ')
+	spaces++;
+```
+
+然而，当continue之后有多条语句时，continue语句可以提高程序的可读性。这样，就不必将所有这些语句放在if语句中。
+
+​		和C语言一样，C++也有goto语句。下面的语句将跳到使用`paris:`作为标签的位置
+
+​		在大多数情况下（有些人认为，在任何情况下），使用goto语句不好，而应使用结构化控制语句（如if else、switch、continue等）来控制程序的流程。
+
+## 读取数字的循环
+
+​		假设要编写一个将一系列数字读入到数组中的程序，并允许用户在数组填满之前结束输入。一种方法是利用cin。
+
+```C++
+int n;
+cin >> n;
+```
+
+如果用户输入一个单词，而不是一个数字。发生这种类型不匹配的情况时，将发生4种情况
+
+- n的值保持不变；
+- 不匹配的输入将被留在输入队列中；
+- cin对象中的一个错误标记被设置；
+- 对cin方法的调用将返回false（如果被转换为bool类型）。
+
+方法返回false意味着可以用非数字输入来结束读取数字的循环。非数字输入设置错误标记意味着必须重置该标记，程序才能继续读取输入。clear( )方法重置错误输入标记，同时也重置文件尾（EOF条件）。输入错误和EOF都将导致cin返回false
+
+```C++
+#include <iostream>
+
+const int Max = 5;
+
+int main()
+{
+    using namespace std;
+
+    double fish[Max];
+    cout << "Please enter the weights of your fish.\n";
+    cout << "You may enter up to " << Max
+         << " fish < q to terminate.\n";
+    cout << "fish #1: ";
+    int i = 0;
+    while (i < Max && cin >> fish[i])
+    {
+        if (++i < Max)
+            cout << "fish #" << i + i << ": ";
+    }
+    double total = 0.0;
+    for (int j = 0; j < i; j++)
+        total += fish[j];
+    if (i == 0)
+        cout << "No fish\n";
+    else
+        cout << total / i << " = average weight of "
+             << i << " fish\n";
+    cout << "Done.\n";
+
+    return 0;
+}
+
+```
+
+在有些执行环境中，为让窗口打开以便能够看到输出，需要添加额外的代码。在这个示例中，由于输入‘q’结束输入，处理起来更复杂些
+
+```C++
+if(!cin){
+    cin.clear();
+    cin.get();
+}
+cin.get();
+cin.get();
+```
+
+```C++
+while (i < Max && cin >> fish[i])
+```
+
+如果逻辑AND表达式的左侧为false，则C++将不会判断右侧的表达式。在这里，对右侧的表达式进行判定意味着用cin将输入放到数组中。如果i等于Max，则循环将结束，而不会将一个值读入到数组后面的位置中。
+
+​		当用户输入的不是数字时，该程序将不再读取输入。下面来看一个继续读取的例子。假设程序要求用户提供5个高尔夫得分，以计算平均成绩。如果用户输入非数字输入，程序将拒绝，并要求用户继续输入数字。可以看到，可以使用cin输入表达式的值来检测输入是不是数字。程序发现用户输入了错误内容时，应采取3个步骤
+
+1. 重置cin以接受新的输入。
+2. 删除错误输入。
+3. 提示用户再输入。
+
+程序必须先重置cin，然后才能删除错误输入。
+
+```C++
+#include <iostream>
+
+const int Max = 5;
+
+int main()
+{
+    using namespace std;
+
+    dint golf[Max];
+    cout << "Please enter your golf scores.\n";
+    cout << "You must enter  " << Max << " rounds.\n";
+    int i;
+    for (i = 0; i < Max; i++)
+    {
+        cout << "round #" << i + 1 << ": ";
+        while (!(cin >> golf[i]))
+        {
+            cin.clear();
+            while (cin.get() != '\n')
+                continue;
+            cout << "Please enter a number: ";
+        }
+    }
+    double total = 0.0;
+    for (i = 0; i < Max; i++)
+        total += golf[i];
+    cout << total / Max << " = average score "
+         << Max << " rounds\n";
+
+    return 0;
+}
+
+```
+
+## 简单文件输入/输出
+
+​		C++使得将读取键盘输入和在屏幕上显示输出（统称为控制台输入/输出）的技巧用于文件输入/输出（文件I/O）非常简单
+
+### 文本I/O和文本文件
+
+​		使用cin进行输入时，程序将输入视为一系列的字节，其中每个字节都被解释为字符编码。不管目标数据类型是什么，输入一开始都是字符数据——文本数据。然后，cin对象负责将文本转换为其他类型。为说明这是如何完成的，来看一些处理同一个输入行的代码
+
+​		假设有如下示例输入行
+
+```
+38.5 19.2
+```
+
+看一下使用不同数据类型的变量来存储时，cin是如何处理该输入行的。首先，来看使用char数据类型的情况
+
+```C++
+char ch;
+cin >> ch;
+```
+
+输入行中的第一个字符被赋给ch。在这里，第一个字符是数字3，其字符编码（二进制）被存储在变量ch中。输入和目标变量都是字符，因此不需要进行转换。注意，这里存储的数值3，而是字符3的编码。执行上述输入语句后，输入队列中的下一个字符为字符8，下一个输入操作将对其进行处理。
+
+​		接下来看看int类型
+
+```C++
+int n;
+cin >> n;
+```
+
+在这种情况下，cin将不断读取，直到遇到非数字字符。也就是说，它将读取3和8，这样句点将成为输入队列中的下一个字符。cin通过计算发现，这两个字符对应数值38，因此将38的二进制编码复制到变量n中。
+
+​		接下来看看double类型
+
+```C++
+double x;
+cin >> x;
+```
+
+在这种情况下，cin将不断读取，直到遇到第一个不属于浮点数的字符。也就是说，cin读取3、8、句点和5，使得空格成为输入队列中的下一个字符。cin通过计算发现，这四个字符对应于数值38.5，因此将38.5的二进制编码（浮点格式）复制到变量x中。
+
+​		接下来看看char数组的情况
+
+```C++
+char word[50];
+cin >> word;
+```
+
+在这种情况下，cin将不断读取，直到遇到空白字符。也就是说，它读取3、8、句点和5，使得空格成为输入队列中的下一个字符。然后，cin将这4个字符的字符编码存储到数组word中，并在末尾加上一个空字符。这里不需要进行任何转换。
+
+​		最后，来看一下另一种使用char数组来存储输入的情况
+
+```C++
+char word[50];
+cin.getline(word, 50);
+```
+
+在这种情况下，cin将不断读取，直到遇到换行符（示例输入行少于50个字符）。所有字符都将被存储到数组word中，并在末尾加上一个空字符。换行符被丢弃，输入队列中的下一个字符是下一行中的第一个字符。这里不需要进行任何转换。
+
+​		对于输入，将执行相反的转换。即整数被转换为数字字符序列，浮点数被转换为数字字符和其他字符组成的字符序列（如284.53或−1.58E+06）。字符数据不需要做任何转换。
+
+​		这里的要点是，输入一开始为文本。因此，控制台输入的文件版本是文本文件，即每个字节都存储了一个字符编码的文件。并非所有的文件都是文本文件，例如，数据库和电子表格以数值格式（即二进制整数或浮点格式）来存储数值数据。另外，字处理文件中可能包含文本信息，但也可能包含用于描述格式、字体、打印机等的非文本数据。
+
+​		本章讨论的文件I/O相当于控制台I/O，因此仅适用于文本文件。要创建文本文件，用于提供输入，可使用文本编译器，如DOS中的EDIT、Windows中的“记事本”和UNIX/Linux系统中的vi或emacs。也可以使用字处理程序来创建，但必须将文件保存为文本格式。IDE中的源代码编辑器生成的也是文本文件，事实上，源代码文件就属于文本文件。同样，可以使用文本编辑器来查看通过文本输出创建的文件。
+
+### 写入到文本文件中
+
+​		对于文件输入，C++使用类似于cout的东西。下面来复习一些有关将cout用于控制台输出的基本事实，为文件输出做准备。
+
+- 必须包含头文件iostream。
+- 头文件iostream定义了一个用处理输出的ostream类。
+- 头文件iostream声明了一个名为cout的ostream变量（对象）。
+- 必须指明名称空间std；例如，为引用元素cout和endl，必须使用编译指令using或前缀std::。
+- 可以结合使用cout和运算符<<来显示各种类型的数据。
+
+​		文件输出与此极其相似。
+
+- 必须包含头文件fstream。
+- 头文件fstream定义了一个用于处理输出的ofstream类。
+- 需要声明一个或多个ofstream变量（对象），并以自己喜欢的方式对其进行命名，条件是遵守常用的命名规则。
+- 必须指明名称空间std；例如，为引用元素ofstream，必须使用编译指令using或前缀std::。
+- 需要将ofstream对象与文件关联起来。为此，方法之一是使用open()方法。
+- 使用完文件后，应使用方法close( )将其关闭。
+- 可结合使用ofstream对象和运算符<<来输出各种类型的数据。
+
+​		注意，虽然头文件iostream提供了一个预先定义好的名为cout的ostream对象，但您必须声明自己的ofstream对象，为其命名，并将其同文件关联起来。
+
+```C++
+ofstream outFile;
+ofstream fout;
+```
+
+​		下面演示了如何将这种对象与特定的文件关联起来
+
+```C++
+outFile.open("fish.txt");
+char filename[50];
+cin >> filename;
+fout.open(filename);
+```
+
+方法open( )接受一个C-风格字符串作为参数，这可以是一个字面字符串，也可以是存储在数组中的字符串。下面演示了如何使用这种对象
+
+```C++
+double wt = 125.8;
+outFile << wt;
+char line[81] = "Objects are closer than they appear.";
+fout << line << endl;
+```
+
+声明一个ofstream对象并将其同文件关联起来后，便可以像使用cout那样使用它。所有可用于cout的操作和方法（如<<、endl和setf( )）都可用于ofstream对象（如前述示例中的outFile和fout）。
+
+​		总之，使用文件输出的主要步骤如下
+
+1. 包含头文件fstream。
+2. 创建一个ofstream对象。
+3. 将该ofstream对象同一个文件关联起来。
+4. 就像使用cout那样使用该ofstream对象。
+
+```C++
+#include <iostream>
+#include <fstream>
+
+int main()
+{
+    using namespace std;
+
+    char automobile[50];
+    int year;
+    double a_price;
+    double d_price;
+
+    ofstream outFile;
+    outFile.open("carinfo.txt");
+
+    cout << "Enter the make and model of automobile: ";
+    cin.getline(automobile, 50);
+    cout << "Enter the model year: ";
+    cin >> year;
+    cout << "Enter the original asking price: ";
+    cin >> a_price;
+    d_price = 0.913 * a_price;
+
+    cout << fixed;
+    cout.precision(2);
+    cout.setf(ios_base::showpoint);
+    cout << "Make and model: " << automobile << endl;
+    cout << "Year: " << year << endl;
+    cout << "Was asking $" << a_price << endl;
+    cout << "Now asking $" << d_price << endl;
+
+    outFile << fixed;
+    outFile.precision(2);
+    outFile.setf(ios_base::showpoint);
+    outFile << "Make and model: " << automobile << endl;
+    outFile << "Year: " << year << endl;
+    outFile << "Was asking $" << a_price << endl;
+    outFile << "Now asking $" << d_price << endl;
+
+    outFile.close();
+
+    return 0;
+}
+
+```
+
+该程序的最后一部分与cout部分相同，只是将cout替换为outFile而已。
+
+​		声明一个ofstream对象后，便可以使用方法open( )将该对象特定文件关联起来；程序使用完该文件后，应该将其关闭。
+
+​	outFile可使用cout可使用的任何方法。它不但能够使用运算符<<，还可以使用各种格式化方法，如setf( )和precision( )。这些方法只影响调用它们的对象。例如，对于不同的对象，可以提供不同的值
+
+​		创建好ofstream对象（如outFile）后，便可以像使用cout那样使用它
+
+​		该程序运行之前，文件carinfo.txt并不存在。在这种情况下，方法open( )将新建一个名为carinfo.txt的文件。如果在此运行该程序，文件carinfo.txt将存在，默认情况下，open( )将首先截断该文件，即将其长度截短到零——丢其原有的内容，然后将新的输出加入到该文件中
+
+​		打开文件用于接受输入时可能失败。例如，指定的文件可能已经存在，但禁止对其进行访问。因此细心的程序员将检查打开文件的操作是否成功
+
+### 读取文本文件
+
+​		接下来介绍文本文件输入，它是基于控制台输入的。控制台输入涉及多个方面，下面首先总结这些方面。
+
+- 必须包含头文件iostream。
+- 头文件iostream定义了一个用处理输入的istream类。
+- 头文件iostream声明了一个名为cin的istream变量（对象）。
+- 必须指明名称空间std；例如，为引用元素cin，必须使用编译指令using或前缀std::。
+- 可以结合使用cin和运算符>>来读取各种类型的数据。
+- 可以使用cin和get( )方法来读取一个字符，使用cin和getline( )来读取一行字符。
+- 可以结合使用cin和eof( )、fail( )方法来判断输入是否成功。
+- 对象cin本身被用作测试条件时，如果最后一个读取操作成功，它将被转换为布尔值true，否则被转换为false。
+
+​		文件输出与此极其相似
+
+- 必须包含头文件fstream。
+- 头文件fstream定义了一个用于处理输入的ifstream类。
+- 需要声明一个或多个ifstream变量（对象），并以自己喜欢的方式对其进行命名，条件是遵守常用的命名规则。
+- 必须指明名称空间std；例如，为引用元素ifstream，必须使用编译指令using或前缀std::。
+- 需要将ifstream对象与文件关联起来。为此，方法之一是使用open( )方法。
+- 使用完文件后，应使用close( )方法将其关闭。
+- 可结合使用ifstream对象和运算符>>来读取各种类型的数据。
+- 可以使用ifstream对象和get( )方法来读取一个字符，使用ifstream对象和getline( )来读取一行字符。
+- 可以结合使用ifstream和eof( )、fail( )等方法来判断输入是否成功。
+- ifstream对象本身被用作测试条件时，如果最后一个读取操作成功，它将被转换为布尔值true，否则被转换为false。
+
+​		注意，虽然头文件iostream提供了一个预先定义好的名为cin的istream对象，但您必须声明自己的ifstream对象，为其命名，并将其同文件关联起来。
+
+```C++
+ifstream inFile;
+ifstream fin;
+```
+
+下面演示了如何将这种对象与特定的文件关联起来
+
+```C++
+inFile.open("bowling.txt");
+char filename[50];
+cin >> filename;
+fin.open(filename);
+```
+
+注意，方法open( )接受一个C-风格字符串作为参数，这可以是一个字面字符串，也可以是存储在数组中的字符串。
+
+​		下面演示了如何使用这种对象
+
+```C++
+double wt;
+inFile >> wt;
+char line[81];
+fin.getline(line, 81);
+```
+
+重要的是，声明一个ifstream对象并将其同文件关联起来后，便可以像使用cin那样使用它。所有可用于cin的操作和方法都可用于ifstream对象（如前述示例中的inFile和fin）。
+
+​		如果试图打开一个不存在的文件用于输入，这种错误将导致后面使用ifstream对象进行输入时失败。检查文件是否被成功打开的首先方法是使用方法is_open( )
+
+```C++
+inFile.open("bowling.txt");
+if(!inFile.is_open()){
+    exit(EXIT_FAILURE);
+}
+```
+
+如果文件被成功地打开，方法is_open( )将返回true；因此如果文件没有被打开，表达式!inFile.isopen( )将为true。函数exit( )的原型是在头文件cstdlib中定义的，在该头文件中，还定义了一个用于同操作系统通信的参数值EXIT_FAILURE。函数exit( )终止程序。
+
+​		方法is_open( )是C++中相对较新的内容。如果读者的编译器不支持它，可使用较老的方法good( )来代替。方法good( )在检查可能存在的问题方面，没有is_open( )那么广泛。
+
+```C++
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+
+const int SIZE = 60;
+
+int main()
+{
+    using namespace std;
+
+    char filename[SIZE];
+    ifstream inFile;
+    cout << "Enter name of data file: ";
+    cin.getline(filename, SIZE);
+    inFile.open(filename);
+    if (!inFile.is_open())
+    {
+        cout << "Could not open the file " << filename << endl;
+        cout << "Program terminating.\n";
+        exit(EXIT_FAILURE);
+    }
+    double value;
+    double sum = 0.0;
+    int count = 0;
+
+    inFile >> value;
+    while (inFile.good())
+    {
+        ++count;
+        sum += value;
+        inFile >> value;
+    }
+    if (inFile.eof())
+        cout << "End of file reached.\n";
+    else if (inFile.fail())
+        cout << "Input terminated by data mismatch.\n";
+    else
+        cout << "Input terminated for unknown reason.\n";
+    if (count == 0)
+        cout << "No data processed.\n";
+    else
+    {
+        cout << "Items read: " << count << "\n";
+        cout << "Sum: " << sum << "\n";
+        cout << "Average: " << sum / count << "\n";
+    }
+    inFile.close();
+
+    return 0;
+}
+
+```
+
+首先必须创建一个包含数字的文本文件。为此，可以使用文本编辑器（如用于编写源代码的文本编辑器）。程序还必须能够找到这个文件。通常，除非在输入的文件名中包含路径，否则程序将在可执行文件所属的文件夹中查找。
+
+​		Windows文本文件的每行都以回车字符和换行符结尾；通常情况下，C++在读取文件时将这两个字符转换为换行符，并在写入文件时执行相反的转换。有些文本编辑器（如Metrowerks CodeWarrior IDE编辑器），不会自动在最后一行末尾加上换行符。因此，如果读者使用的是这种编辑器，请在输入最后的文本后按下回车键，然后再保存文件。
+
+​		检查文件是否被成功打开至关重要。下面是一些可能出问题的地方：指定的文件可能不存在；文件可能位于另一个目录（文件夹）中；访问可能被拒绝；用户可能输错了文件名或省略了文件扩展名。很多初学者花了大量的时间检查文件读取循环的哪里出了问题后，最终却发现问题在于程序没有打开文件。检查文件是否被成功打开可避免将这种将精力放在错误地方的情况发生。
+
+​		读者需要特别注意的是文件读取循环的正确设计。读取文件时，有几点需要检查。首先，程序读取文件时不应超过EOF。如果最后一次读取数据时遇到EOF，方法eof( )将返回true。其次，程序可能遇到类型不匹配的情况。期望文件中只包含数字。如果最后一
+次读取操作中发生了类型不匹配的情况，方法fail( )将返回true（如果遇到了EOF，该方法也将返回true）。最后，可能出现意外的问题，如文件受损或硬件故障。如果最后一次读取文件时发生了这样的问题，方法bad( )将返回true。不要分别检查这些情况，一种更简单的方法是使用good( )方法，该方法在没有发生任何错误时返回true
+
+```C++
+while(inFile.good()){  // while input good and not at EOF
+    ...
+}
+```
+
+然后，如果愿意，可以使用其他方法来确定循环终止的真正原因
+
+```C++
+if(inFile.eof())
+    cout << "End of file reached.\n";
+else if(inFile.fail())
+    cout << "Input terminated by data mismatch.\n";
+else
+    cout << "Input terminated for unknown reason.\n";
+```
+
+​		这些代码紧跟在循环的后面，用于判断循环为何终止。由于eof( )只能判断是否到达EOF，而fail( )可用于检查EOF和类型不匹配，因此上述代码首先判断是否到达EOF。这样，如果执行到了else if测试，便可排除EOF，因此，如果fail( )返回true，便可断定导致循环终止的原因是类型不匹配。
+
+​		方法good( )指出最后一次读取输入的操作是否成功，这一点至关重要。这意味着应该在执行读取输入的操作后，立刻应用这种测试。为此，一种标准方法是，在循环之前（首次执行循环测试前）放置一条输入语句，并在循环的末尾（下次执行循环测试之前）放置另一条输入语句
+
+```C++
+inFile >> value;
+while(inFile.good()){
+    inFile >> value;
+}
+```
+
+鉴于以下事实，可以对上述代码进行精简：表达式inFile >> value的结果为inFile，而在需要一个bool值的情况下，inFile的结果为inFile.good( )，即true或false。
+
+​		因此，可以将两条输入语句用一条用作循环测试的输入语句代替。也就是说，可以将上述循环结构替换为如下循环结构
+
+```C++
+while(inFile>>value){
+    ...
+}
+```
+
+这种设计仍然遵循了在测试之前进行读取的规则，因为要计算表达式inFile >> value的值，程序必须首先试图将一个数字读取到value中。
+
+# 函数-C++的编程模块
+
+​		C++自带了一个包含函数的大型库（标准ANSI库加上多个C++类），但真正的编程
+乐趣在于编写自己的函数；另一方面，要提高编程效率，可更深入地学习STL和BOOST C++提供的功能。
+
+## 复习函数的基本知识
+
+​		要使用C++函数，必须完成如下工作
+
+- 提供函数定义；
+- 提供函数原型；
+- 调用函数。
+
+​		库函数是已经定义和编译好的函数，同时可以使用标准库头文件提供其原型，因此只需正确地调用这种函数即可。然而，创建自己的函数时，必须自行处理这3个方面——定义、提供原型和调用。
+
+```C++
+#include <iostream>
+
+void simple();
+
+int main()
+{
+    using namespace std;
+
+    cout << "main() will call the simple() function:\n";
+    simple();
+    cout << "main() is finished with the simple() function.\n";
+
+    return 0;
+}
+
+void simple()
+{
+    using namespace std;
+    cout << "I'm but a simple function.\n";
+}
+
+```
+
+### 定义函数
+
+​		可以将函数分成两类：没有返回值的函数和有返回值的函数。没有返回值的函数被称为void函数，其通用格式如下
+
+```C++
+void functionName(parameterList){
+    statement(s);
+    return;  // optional
+}
+```
+
+parameterList指定了传递给函数的参数类型和数量；可选的返回语句标记了函数的结尾；否则，函数将在右花括号处结束。
+
+​		有返回值的函数将生成一个值，并将它返回给调用函数。
+
+```C++
+typeName functionName(parameterList){
+    statement(s);
+    return value;  // optional
+}
+```
+
+对于有返回值的函数，必须使用返回语句，以便将值返回给调用函数。值本身可以是常量、变量，也可以是表达式，只是其结果的类型必须为typeName类型或可以被转换为typeName（例如，如果声明的返回类型为double，而函数返回一个int表达式，则该int值将被强制转换为double类型）。然后，函数将最终的值返回给调用函数。
+
+​		**C++对于返回值的类型有一定的限制**：不能是数组，但可以是其他任何类型——整
+数、浮点数、指针，甚至可以是结构和对象。虽然C++函数不能直接返回数组，但可以将数组作为结构或对象组成部分来返回。
+
+​		作为一名程序员，并不需要知道函数是如何返回值的，但是对这个问题有所了解将有助于澄清概念。通常，函数通过将返回值复制到指定的CPU寄存器或内存单元中来将其返回。随后，调用程序将查看该内存单元。返回函数和调用函数必须就该内存单元中存储的数据的类型达成一致。函数原型将返回值类型告知调用程序，而函数定义命令被调用函数应返回什么类型的数据。在原型中提供与定义中相同的信息似乎有些多余，但这样做确实有道理。
+
+​		函数在执行返回语句后结束。如果函数包含多条返回语句（例如，它们位于不同的if else选项中），则函数在执行遇到的第一条返回语句后结束。如果函数包含多条返回语句，通常认为它会令人迷惑，有些编译器将针对这一点发出警告。
+
+​		有返回值的函数与Pascal、FORTRAN和BASIC中的函数相似，它们向调用程序返回一个值，然后调用程序可以将其赋给变量、显示或将其用于别的用途。
+
+### 函数原型和函数调用
+
+```C++
+#include <iostream>
+
+void cheers(int);
+double cube(double x);
+
+int main()
+{
+    using namespace std;
+
+    cheers(5);
+    cout << "Give me a number: ";
+    double side;
+    cin >> side;
+    double volume = cube(side);
+    cout << "A " << side << "-foot cube has a volume of ";
+    cout << volume << " cubic feet.\n";
+    cheers(cube(2));
+
+    return 0;
+}
+
+void cheers(int)
+{
+    using namespace std;
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Cheers! ";
+    }
+    cout << endl;
+}
+
+double cube(double x)
+{
+    return x * x * x;
+}
+
+```
+
+​		需要知道C++要求提供原型的原因。其次，由于C++要求提供原型，因此还应知道正确的语法。最后，应当感谢原型所做的一切。
+
+#### 为什么需要原型
+
+​		原型描述了函数到编译器的接口，也就是说，它将函数返回值的类型（如果有的话）以及参数的类型和数量告诉编译器。
+
+```C++
+double volume = cube(side);
+```
+
+首先，原型告诉编译器，cube( )有一个double参数。如果程序没有提供这样的参数，原型将让编译器能够捕获这种错误。其次，cube( )函数完成计算后，将把返回值放置在指定的位置——可能是CPU寄存器，也可能是内存中。然后调用函数（这里为main( )）将从这个位置取得返回值。由于原型指出了cube( )的类型为double，因此编译器知道应检索多少个字节以及如何解释它们。如果没有这些信息，编译器将只能进行猜测，而编译器是不会这样做的。
+
+​		为何编译器需要原型，难道它就不能在文件中进一步查找，以了解函数是如何定义的吗：这种方法的一个问题是效率不高。编译器在搜索文件的剩余部分时将必须停止对main( )的编译。一个更严重的问题是，函数甚至可能并不在文件中。C++允许将一个程序放在多个文件中，单独编译这些文件，然后再将它们组合起来。在这种情况下，编译器在编译main( )时，可能无权访问函数代码。如果函数位于库中，情况也将如此。避免使用函数原型的唯一方法是，在首次使用函数之前定义它，但这并不总是可行的。另外，C++的编程风格是将main()放在最前面，因为它通常提供了程序的整体结构。
+
+#### 原型的语法
+
+​		函数原型是一条语句，因此必须以分号结束。获得原型最简单的方法是，复制函数定义中的函数头，并添加分号。然而，函数原型不要求提供变量名，有类型列表就足够了。
+
+​		通常，在原型的参数列表中，可以包括变量名，也可以不包括。原型中的变量名相当于占位符，因此不必与函数定义中的变量名相同。
+
+​		**C++原型与ANSI原型**：ANSI C借鉴了C++中的原型，但这两种语言还是有区别的。其中最重要的区别是，为与基本C兼容，ANSI C中的原型是可选的，但在C++中，原型是必不可少的。
+
+​		在C++中，括号为空与在括号中使用关键字void是等效的——意味着函数没有参数。在ANSI C中，括号为空意味着不指出参数——这意味着将在后面定义参数列表。在C++中，不指定参数列表时应使用省略号。通常，仅当与接受可变参数的C函数（如printf( )）交互时才需要这样做。
+
+#### 原型的功能
+
+​		原型可以帮助编译器完成许多工作。对程序员，它们可以极大地降低程序出错的几率。具体来说，原型确保以下几点：
+
+- 编译器正确处理函数返回值；
+- 编译器检查使用的参数数目是否正确；
+- 编译器检查使用的参数类型是否正确。如果不正确，则转换为正确的类型（如果可能的话）。
+
+​		看一看参数数目不对时将发生的情况。例如，假设进行了如下调用
+
+```C++
+double z= cube();
+```
+
+如果没有函数原型，编译器将允许它通过。当函数被调用时，它将找到cube( )调用存放值的位置，并使用这里的值。这正是ANSIC从C++借鉴原型之前，C语言的工作方式。由于对于ANSI C来说，原型是可选的，因此有些C语言程序正是这样工作的。但在C++中，原型不是可选的，因此可以确保不会发生这类错误。
+
+​		接下来，假设提供了一个参数，但其类型不正确。在C语言中，这将造成奇怪的错误。例如，如果函数需要一个int值（假设占16位），而程序员传递了一个double值（假设占64位），则函数将只检查64位中的前16位，并试图将它们解释为一个int值。但C++自动将传递的值转换为原型中指定的类型，条件是两者都是算术类型。
+
+​		通常，原型自动将被传递的参数强制转换为期望的类型。（但函数重载可能导致二义性，因此不允许某些自动强制类型转换。）
+
+​		自动类型转换并不能避免所有可能的错误。例如，如果将8.33E27传递给期望一个int值的函数，则这样大的值将不能被正确转换为int值。当较大的类型被自动转换为较小的类型时，有些编译器将发出警告，指出这可能会丢失数据。
+
+​		**仅当有意义时，原型化才会导致类型转换。**
+
+​		在编译阶段进行的原型化被称为静态类型检查（static type checking）。可以看出，静态类型检查可捕获许多在运行阶段非常难以捕获的错误。
+
+## 函数参数和按值传递
+
+​		C++通常按值传递参数，这意味着将数值参数传递给函数，而后者将其赋给一个新的变量。
+
+​		用于接收传递值的变量被称为形参。传递给函数的值被称为实参。出于简化的目的，C++标准使用参数（argument）来表示实参，使用参量（parameter）来表示形参，因此参数传递将参量赋给参数
+
+​		在函数中声明的变量（包括参数）是该函数私有的。在函数被调用时，计算机将为这些变量分配内存；在函数结束时，计算机将释放这些变量使用的内存（有些C++文献将分配和释放内存称为创建和毁坏变量，这样似乎更激动人心）。这样的变量被称为局部变量，因为它们被限制在函数中。前面提到过，这样做有助于确保数据的完整性。这还意
+味着，如果在main( )中声明了一个名为x的变量，同时在另一个函数中也声明了一个名为x的变量，则它们将是两个完全不同的、毫无关系的变量。这样的变量也被称为自动变量，因为它们是在程序执行过程中自动被分配和释放的。
+
+### 多个参数
+
+​		函数可以有多个参数。在调用函数时，只需使用逗号将这些参数分开即可。同样，在定义函数时，也在函数头中使用由逗号分隔的参数声明列表
+
+​		如果函数的两个参数的类型相同，则必须分别指定每个参数的类型，而不能像声明常规变量那样，将声明组合在一起
+
+​		和其他函数一样，只需添加分号就可以得到该函数的原型。和一个参数的情况一样，原型中的变量名不必与定义中的变量名相同，而且可以省略
+
+​		然而，提供变量名将使原型更容易理解，尤其是两个参数的类型相同时。这样，变量名可以提醒参量和参数间的对应关系
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+void n_chars(char, int);
+int main()
+{
+    int times;
+    char ch;
+
+    cout << "Enter a character: ";
+    cin >> ch;
+    while (ch != 'q')
+    {
+        cout << "Enter an integer: ";
+        cin >> times;
+        n_chars(ch, times);
+        cout << "\nEnter another character or press the"
+                " q-key to quit: ";
+        cin >> ch;
+    }
+    cout << "The value of times is " << tiimes << ".\n";
+    cout << "Bye\n";
+    return 0;
+}
+
+void n_chars(char c, int n)
+{
+    while (n-- > 0)
+        cout << c;
+}
+
+```
+
+main( )函数使用一个while循环提供重复输入（并让读者温习使用循环的技巧），它使用cin>>ch，而不是cin.get（ch）或ch =cin.get( )来读取一个字符。这样做是有原因的。前面讲过，这两个cin.get( )函数读取所有的输入字符，包括空格和换行符，而cin>>跳过空
+格和换行符。当用户对程序提示作出响应时，必须在每行的最后按Enter键，以生成换行符。cin>>ch方法可以轻松地跳过这些换行符，但当输入的下一个字符为数字时，cin.get( )将读取后面的换行符。可以通过编程来避开这种麻烦，但比较简便的方法是像该程序那样使用cin。
+
+### 另外一个接受两个参数的函数
+
+​		下面创建另一个功能更强大的函数，它执行重要的计算任务。另外，该函数将演示局部变量的用法，而不是形参的用法。
+
+​		有些C++实现不支持long double类型，如果所用的C++实现是这样的，请使用double类型。
+
+```C++
+#include <iostream>
+
+long double probability(unsigned numbers, unsigned picks);
+int main()
+{
+    using namespace std;
+    double total, choices;
+    cout << "Enter the total number of choices on the game card and\n"
+            "the number of picks allowed:\n";
+    while ((cin >> total >> choices) && choices <= total)
+    {
+        cout << "You have one chance in ";
+        cout << probability(total, choices);
+        cout << " of winning.\n";
+        cout << "Next two numbers (q to quit): ";
+    }
+    cout << "bye\n";
+
+    return 0;
+}
+
+long double probability(unsigned numbers, unsigned picks)
+{
+    long double result = 1.0;
+    long double n;
+    unsigned p;
+    for (n = numbers, p = picks; p > 0; n--, p--)
+        result = result * n / p;
+    return result;
+}
+
+```
+
+## 函数和数组
+
+​		函数是处理更复杂的类型（如数组和结构）的关键。函数需要知道要对哪个数组进行累计，因此需要将数组名作为参数传递给它。为使函数通用，而不限于特定长度的数组，还需要传递数组长度。这里唯一的新内容是，需要将一个形参声明为数组名。
+
+```C++
+int sum_arr(int arr[], int n)
+```
+
+这看起来似乎合理。方括号指出arr是一个数组，而方括号为空则表明，可以将任何长度的数组传递给该函数。但实际情况并非如此：arr实际上并不是数组，而是一个指针。在编写函数的其余部分时，可以将arr看作是数组。
+
+```C++
+#include <iostream>
+
+const int ArSize = 8;
+int sum_arr(int arr[], int n);
+int main()
+{
+    using namespace std;
+
+    int cookies[ArSize] = {1, 2, 4, 8, 16, 32, 64, 128};
+    int sum = sum_arr(cookies, ArSize);
+    cout << "Total cookies eaten: " << sum << endl;
+
+    return 0;
+}
+
+int sum_arr(int arr[], int n)
+{
+    int total = 0;
+    for (int i = 0; i < n; i++)
+        total += arr[i];
+    return total;
+}
+
+```
+
+### 函数如何使用指针来处理数组
+
+​		在大多数情况下，C++和C语言一样，也将数组名视为指针。C++将数组名解释为其第一个元素的地址
+
+```C++
+cookies == &cookies[0]
+```
+
+该规则有一些例外。首先，数组声明使用数组名来标记存储位置；其次，对数组名使用sizeof将得到整个数组的长度（以字节为单位）；将地址运算符&用于数组名时，将返回整个数组的地址，例如&cookies将返回一个32字节内存块的地址（如果int长4字节）。
+
+```C++
+int sum = sum_arr(cookies, ArSize);
+```
+
+其中，cookies是数组名，而根据C++规则，cookies是其第一个元素的地址，因此函数传递的是地址。由于数组的元素的类型为int，因此cookies的类型必须是int指针，即int *。这表明，正确的函数头应该是这样的
+
+```C++
+int sum_arr(int * arr, int n);
+```
+
+其中用int * arr替换了int arr [ ]。这证明这两个函数头都是正确的，因为在C++中，当（且仅当）用于函数头或函数原型中，int *arr和int arr[ ]的含义才是相同的。它们都意味着arr是一个int指针。然而，数组表示法（int arr[ ]）提醒用户，arr不仅指向int，还指向int数组的第一个int。当指针指向数组的第一个元素时，本书使用数组表示法；而当指针指向一个独立的值时，使用指针表示法。别忘了，在其他的上下文中，int * arr和int arr [ ]的含义并不相同。例如，不能在函数体中使用int tip[ ]来声明指针。
+
+​		鉴于变量arr实际上就是一个指针，函数的其余部分是合理的。同数组名或指针一样，也可以用方括号数组表示法来访问数组元素。无论arr是指针还是数组名，表达式arr [3]都指的是数组的第4个元素。就目前而言，提请读者记住下面两个恒等式，将不会有任何坏处：
+
+```C++
+arr[i]==*(ar+i);  // values in two notations
+&arr[i]==ar+i;  // addresses in two notations
+```
+
+记住，将指针（包括数组名）加1，实际上是加上了一个与指针指向的类型的长度（以字节为单位）相等的值。对于遍历数组而言，使用指针加法和数组下标时等效的。
+
+### 将数组作为参数意味着什么
+
+​		传递常规变量时，函数将使用该变量的拷贝；但传递数组时，函数将使用原来的数组。实际上，这种区别并不违反C++按值传递的方法，sum_arr( )函数仍传递了一个值，这个值被赋给一个新变量，但这个值是一个地址，而不是数组的内容。
+
+​		**数组名与指针对应是好事吗**：确实是一件好事。将数组地址作为参数可以节省复制整个数组所需的时间和内存。如果数组很大，则使用拷贝的系统开销将非常大；程序不仅需要更多的计算机内存，还需要花费时间来复制大块的数据。另一方面，使用原始数据增加了破坏数据的风险。在经典的C语言中，这确实是一个问题，但ANSI C和C++中的const限定符提供了解决这种问题的办法。
+
+```C++
+#include <iostream>
+
+const int ArSize = 8;
+int sum_arr(int arr[], int n);
+int main()
+{
+    int cookies[ArSize] = {1, 2, 4, 8, 16, 32, 64, 128};
+    std::cout << cookies << " = array address, ";
+    std::cout << sizeof cookies << " = sizeof cookies\n";
+    int sum = sum_arr(cookies, ArSize);
+    std::cout << "Total cookies eaten: " << sum << std::endl;
+    sum = sum_arr(cookies, 3);
+    std::cout << "First three eaters ate " << sum << " cookies.\n";
+    sum = sum_arr(cookies + 4, 4);
+    std::cout << "Last four eaters ate " << sum << " cookies.\n";
+
+    return 0;
+}
+
+int sum_arr(int arr[], int n)
+{
+    int total = 0;
+    std::cout << arr << " =arr, ";
+    // some systems require a type cast: unsigned (arr)
+    std::cout << sizeof arr << " = sizeof arr\n";
+    for (int i = 0; i < n; i++)
+        total += arr[i];
+    return total;
+}
+
+```
+
+地址值和数组的长度随系统而异。另外，有些C++实现以十进制而不是十六进制格式显示地址，还有些编译器以十六进制显示地址时，会加上前缀0x。
+
+​		cookies和arr指向同一个地址。但sizeof cookies的值为32，而sizeof arr为4。这是由于sizeof cookies是整个数组的长度，而sizeof arr只是指针变量的长度（上述程序运行结果是从一个使用4字节地址的系统中获得的）。顺便说一句，这也是必须显式传递数组长度，而不能在sum_arr( )中使用sizeof arr的原因；指针本身并没有指出数组的长度。
+
+​		由于sum_arr( )只能通过第二个参数获知数组中的元素数量，因此可以对函数“说谎”。
+
+​		可以将&cookies[4]，而不是cookies + 4作为参数；它们的含义是相同的。为将数组类型和元素数量告诉数组处理函数，请通过两个不同的参数来传递它们，而不要试图使用方括号表示法来传递数组长度。
+
+```C++
+void fillArray(int arr[size]); // NO
+```
+
+### 更多数组函数示例
+
+​		选择使用数组来表示数据时，实际上是在进行一次设计方面的决策。但设计决策不仅仅是确定数据的存储方式，还涉及到如何使用数据。程序员常会发现，编写特定的函数来处理特定的数据操作是有好处的（这里讲的好处指的是程序的可靠性更高、修改和调试更为方便）。另外，构思程序时将存储属性与操作结合起来，便是朝OOP思想迈进了重要的一步；以后将证明这是很有好处的。
+
+```C++
+#include <iostream>
+
+const int Max = 5;
+
+int fill_array(double ar[], int limit);
+void show_array(const double ar[], int n); // don't change data
+void revalue(double r, double ar[], int n);
+int main()
+{
+
+    using namespace std;
+    double properties[Max];
+
+    int size = fill_array(properties, Max);
+    show_array(properties, size);
+    if (size > 0)
+    {
+        cout << "Enter revalution factor: ";
+        double factor;
+        while (!(cin >> factor))
+        { // bad input
+            cin.clear();
+            while (cin.get() != '\n')
+            {
+                continue;
+            }
+            cout << "Bad input; Please enter a number: ";
+        }
+        revalue(factor, properties, size);
+        show_array(properties, size);
+    }
+    cout << "Done.\n";
+    cin.get();
+    cin.get();
+
+    return 0;
+}
+
+int fill_array(double ar[], int limit)
+{
+    using namespace std;
+    double temp;
+    int i;
+    for (i = 0; i < limit; i++)
+    {
+        cout << "Enter value #" << (i + 1) << ": ";
+        cin >> temp;
+        if (!cin)
+        { // bad input
+            cin.clear();
+            while (cin.get() != '\n')
+                continue;
+            cout << "Bad input; input process terminated.\n";
+            break;
+        }
+        else if (temp < 0)
+            break;
+        ar[i] = temp;
+    }
+    return i;
+}
+
+void show_array(const double ar[], int n)
+{
+    using namespace std;
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Property #" << (i + 1) << ": $";
+        cout << ar[i] << "\n";
+    }
+}
+
+void revalue(double r, double ar[], int n)
+{
+    for (int i = 0; i < n; i++)
+        ar[i] *= r;
+}
+
+```
+
+首先考虑的是通过数据类型和设计适当的函数来处理数据，然后将这些函数组合成一个程序。有时也称为自下而上的程序设计（bottom-up programming），因为设计过程从组件到整体进行。这种方法非常适合于OOP——它首先强调的是数据表示和操纵。而传统的过程性编程倾向于从上而下的程序设计（top-down programming），首先指定模块化设计方案，然后再研究细节。这两种方法都很有用，最终的产品都是模块化程序。
+
+#### 数组处理函数的常用编写方式
+
+​		假设要编写一个处理double数组的函数。如果该函数要修改数组，其原型可能类似于下面这样
+
+```C++
+void f_modify(double ar[], int n);
+```
+
+如果函数不修改数组，其原型可能类似于下面这样
+
+```C++
+void f_modify(const double ar[], int n);
+```
+
+当然，在函数原型中可以省略变量名，也可将返回类型指定为类型。这里的要点是，ar实际上是一个指针，指向传入的数组的第一个元素；另外，由于通过参数传递了元素数，这两个函数都可使用任何长度的数组，只要数组的类型为double
+
+​		这种做法是通过传递两个数字（数组地址和元素数）实现的。正如您看到的，函数缺少一些有关原始数组的知识；例如，它不能使用sizeof来获悉原始数组的长度，而必须依赖于程序员传入正确的元素数。
+
+### 使用数组区间的函数
+
+​		对于处理数组的C++函数，必须将数组中的数据种类、数组的起始位置和数组中元素数量提交给它；传统的C/C++方法是，将指向数组起始处的指针作为一个参数，将数组长度作为第二个参数（指针指出数组的位置和数据类型），这样便给函数提供了找到所有数据所需的信息。
+
+​		还有另一种给函数提供所需信息的方法，即指定元素区间（range），这可以通过传递两个指针来完成：一个指针标识数组的开头，另一个指针标识数组的尾部。例如，C++标准模板库将区间方法广义化了。STL方法使用“超尾”概念来指定区间。也就是说，对于数组而言，标识数组结尾的参数将是指向最后一个元素后面的指针。
+
+```C++
+double elbuod[20];
+```
+
+则指针elboud和elboud + 20定义了区间。首先，数组名elboub指向第一个元素。表达式elboud + 19指向最后一个元素（即elboud[19]），因此，elboud + 20指向数组结尾后面的一个位置。将区间传递给函数将告诉函数应处理哪些元素。
+
+```C++
+#include <iostream>
+
+const int ArSize = 8;
+int sum_arr(const int *begin, const int *end);
+int main()
+{
+    using namespace std;
+    int cookies[ArSize] = {1, 2, 4, 8, 16, 32, 64, 128};
+
+    int sum = sum_arr(cookies, cookies + ArSize);
+    cout << "Total cookies eaten: " << sum << endl;
+    sum = sum_arr(cookies, cookies + 3);
+    cout << "First three eaters ate " << sum << " cookies.\n";
+    sum = sum_arr(cookies + 4, cookies + 8);
+    cout << "Last four eaters ate " << sum << " cookies.\n";
+
+    return 0;
+}
+
+int sum_arr(const int *begin, const int *end)
+{
+    const int *pt;
+    int total = 0;
+    for (pt = begin; pt != end; ++pt)
+        total += *pt;
+    return total;
+}
+
+```
+
+必须按正确的顺序传递指针，因为这里的代码假定begin在前面，end在后面。
+
+### 指针和const
+
+​		将const用于指针有一些很微妙的地方（指针看起来总是很微妙），来详细探讨一下。可以用两种不同的方式将const关键字用于指针。第一种方法是让指针指向一个常量对象，这样可以防止使用该指针来修改所指向的值，第二种方法是将指针本身声明为常量，这样可以防止改变指针指向的位置。
+
+​		首先，声明一个指向常量的指针pt
+
+```C++
+int age = 39;
+const int * pt = &age;
+```
+
+该声明指出，pt指向一个const int（这里为39），因此不能使用pt来修改这个值。换句话来说，*pt的值为const，不能被修改
+
+​		pt的声明并不意味着它指向的值实际上就是一个常量，而只是意味着对pt而言，这个值是常量。如，pt指向age，而age不是const。可以直接通过age变量来修改age的值，但不能使用pt指针来修改它
+
+​		以前我们将常规变量的地址赋给常规指针，而这里将常规变量的地址赋给指向const的指针。因此还有两种可能：将const变量的地址赋给指向const的指针、将const的地址赋给常规指针。第一种可行，但第二种不可行：
+
+```C++
+const float g_earth = 9.80;
+const float * pe = &g_earth;  // VALID
+
+const float g_moon = 1.63;
+float * pm =&g_moon;  //INVALID
+```
+
+对于第一种情况来说，既不能使用g_earth来修改值9.80，也不能使用pe来修改。C++禁止第二种情况的原因很简单——如果将g_moon的地址赋给pm，则可以使用pm来修改g_moon的值，这使得g_moon的const状态很荒谬，因此C++禁止将const的地址赋给非const指针。如果读者非要这样做，可以使用强制类型转换来突破这种限制。参阅对运算符const_cast的讨论。
+
+​		如果将指针指向指针，则情况将更复杂。前面讲过，假如涉及的是一级间接关系，则将非const指针赋给const指针是可以的
+
+```C++
+int age=39;
+int * pd= &age;
+const int * pt =pd;// invalid
+```
+
+然而，进入两级间接关系时，与一级间接关系一样将const和非const混合的指针赋值方式将不再安全。如果允许这样做，则可以编写这样的代码
+
+```C++
+const int **pp2;
+int *p1;
+const int n=13;
+pp2=&p1;  // not allowed, but suppose it were
+*pp2=&n;  // valid, both const, but sets p1 to point at n
+*p1=10;   // valid, but changes const n
+```
+
+上述代码将非const地址（&pl）赋给了const指针（pp2），因此可以使用pl来修改const数据。**因此，仅当只有一层间接关系（如指针指向基本数据类型）时，才可以将非const地址或指针赋给const指针。**
+
+​		如果数据类型本身并不是指针，则可以将const数据或非const数据的地址赋给指向const的指针，但只能将非const数据的地址赋给非const指针。
+
+​		假设有一个由const数据组成的数组
+
+```C++
+const int months[12]={31,28,31,30,31,30,31,31,30,31,30,31};
+```
+
+则禁止将常量数组的地址赋给非常量指针将意味着不能将数组名作为参数传递给使用非常量形参的函数
+
+```C++
+int sum(int arr[], int n);
+...
+int j=sum(months,12); // not allowed
+```
+
+上述函数调用试图将const指针（months）赋给非const指针（arr），编译器将禁止这种函数调用。
+
+​		**尽可能使用const**：将指针参数声明为指向常量数据的指针有两条理由
+
+- 这样可以避免由于无意间修改数据而导致的编程错误；
+- 使用const使得函数能够处理const和非const实参，否则将只能接受非const数据。
+
+如果条件允许，则应将指针形参声明为指向const的指针。
+
+​		为说明另一个微妙之处，请看下面的声明
+
+```C++
+int age =39;
+const int * pt = &age;
+```
+
+第二个声明中的const只能防止修改pt指向的值（这里为39），而不能防止修改pt的值。也就是说，可以将一个新地址赋给pt
+
+```C++
+int sage=80;
+pt=&sage; // okay to point to another location
+```
+
+但仍然不能使用pt来修改它指向的值（现在为80）。
+
+​			第二种使用const的方式使得无法修改指针的值
+
+```C++
+int sloth = 3;
+const int * ps =&sloth;  // a pointer to const int
+int * const finger = &sloth;  // a const pointer to int
+```
+
+在最后一个声明中，关键字const的位置与以前不同。这种声明格式使得finger只能指向sloth，但允许使用finger来修改sloth的值。中间的声明不允许使用ps来修改sloth的值，但允许将ps指向另一个位置。简而言之，finger和`*ps`都是const，而`*finger`和ps不是
+
+​		如果愿意，还可以声明指向const对象的const指针
+
+```C++
+double trouble = 2.0E30;
+const double * const stick = & trouble;
+```
+
+其中，stick 只能指向 trouble，而 stick 不能用来修改 trouble 的值。简而言之，stick 和*stick 都是const。
+
+​		**通常，将指针作为函数参数来传递时，可以使用指向const的指针来保护数据。**
+
+## 函数和二维数组
+
+​		为编写将二维数组作为参数的函数，必须牢记，数组名被视为其地址，因此，相应的形参是一个指针，就像一维数组一样。比较难处理的是如何正确地声明指针。
+
+```C++
+int data[3][4]={{1,2,3,4},{9,8,7,6},{2,4,6,8}};
+int total = sum(data,3);
+```
+
+函数为何将行数（3）作为参数，而不将列数（4）作为参数呢？
+
+​		Data是一个数组名，该数组有3个元素。第一个元素本身是一个数组，有4个int值组成。因此data的类型是指向由4个int组成的数组的指针，因此正确的原型如下
+
+```C++
+int sum(int (*ar2)[4], int size);
+```
+
+其中的括号是必不可少的，因为下面的声明将声明一个由4个指向int的指针组成的数组，而不是由一个指向由4个int组成的数组的指针；另外，函数参数不能是数组
+
+```C++
+int *ar2[4]
+```
+
+还有另外一种格式，这种格式与上述原型的含义完全相同，但可读性更强
+
+```C++
+int sum(int ar2[][4], int size);
+```
+
+上述两个原型都指出，ar2是指针而不是数组。还需注意的是，指针类型指出，它指向由4个int组成的数组。因此，指针类型指定了列数，这就是没有将列数作为独立的函数参数进行传递的原因。
+
+​		由于指针类型指定了列数，因此sum( )函数只能接受由4列组成的数组。但长度变量指定了行数，因此sum( )对数组的行数没有限制
+
+​		由于参数ar2是指向数组的指针，那么我们如何在函数定义中使用它呢？最简单的方法是将ar2看作是一个二维数组的名称。
+
+```C++
+int sum(int ar2[][4], int size){
+    int total;
+    for(int r=0;r<size;r++)
+        for(int c=0;c<4;c++)
+            total+=ar2[r][c];
+    return total;
+}
+```
+
+同样，行数被传递给size参数，但无论是参数ar2的声明或是内部for循环中，列数都是固定的——4列。
+
+​		可以使用数组表示法的原因如下。由于ar2指向数组（它的元素是由4个int组成的数组）的第一个元素（元素0），因此表达式ar2 + r指向编号为r的元素。因此ar2[r]是编号为r的元素。由于该元素本身就是一个由4个int组成的数组，因此ar2[r]是由4个int组成的数组的名称。将下标用于数组名将得到一个数组元素，因此ar2[r][c]是由4个int组成的数组中
+的一个元素，是一个int值。必须对指针ar2执行两次解除引用，才能得到数据。最简单的方法是使用方括号两次：`ar2[r][c]`。然而，如果不考虑难看的话，也可以使用运算符*两次
+
+```C++
+ar2[r][c]== *(*(ar2+r)+c)
+```
+
+sum( )的代码在声明参数ar2时，没有使用const，因为这种技术只能用于指向基本类型的指针，而ar2是指向指针的指针。
+
+```C++
+ar2   			// pointer to first row of an array of 4 int
+ar2+r			// pointer to row r (an array of 4 int)
+*(ar2+r)		// row r (an array of 4 int, hence the name of an arry). thus a pointer to the first int in the row, i.e., ar2[r]
+*(ar2+r)+c		// pointer int number c in row r, i.e., ar2[r]+c
+*(*(ar2+r)+c)	// value of int number c in row r, i.e. ar2[r][c]
+```
+
+## 函数和C-风格字符串
+
+​		C-风格字符串由一系列字符组成，以空值字符结尾。例如，将字符串作为参数时意味着传递的是地址，但可以使用const来禁止对字符串参数进行修改。
+
+### 将C-风格字符串作为参数的函数
+
+​		假设要将字符串作为参数传递给函数，则表示字符串的方式有三种
+
+- char数组；
+- 用引号括起的字符串常量（也称字符串字面值）；
+- 被设置为字符串的地址的char指针。
+
+但上述3种选择的类型都是char指针（准确地说是char*），因此可以将其作为字符串处理函数的参数
+
+```C++
+char ghost[15]="galloping";
+char * str ="galumphing";
+int n1=strlen(ghost);  // ghost is &ghost[0]
+int n1=strlen(str);		// pointer to char
+int n1=strlen("gamboling");	// address of string
+```
+
+可以说是将字符串作为参数来传递，但实际传递的是字符串第一个字符的地址。这意味着字符串函数原型应将其表示字符串的形参声明为char *类型。
+
+​		C-风格字符串与常规char数组之间的一个重要区别是，字符串有内置的结束字符（前面讲过，包含字符，但不以空值字符结尾的char数组只是数组，而不是字符串）。这意味着不必将字符串长度作为参数传递给函数，而函数可以使用循环依次检查字符串中的每个字符，直到遇到结尾的空值字符为止。
+
+```C++
+#include <iostream>
+
+unsigned int c_in_str(const char *str, char ch);
+int main()
+{
+    using namespace std;
+
+    char mm[15] = "minimum";
+    const char *wail = "ululate";
+
+    unsigned int ms = c_in_str(mm, 'm');
+    unsigned int us = c_in_str(wail, 'u');
+    cout << ms << " m characters in " << mm << endl;
+    cout << us << " u characters in " << wail << endl;
+
+    return 0;
+}
+
+unsigned int c_in_str(const char *str, char ch)
+{
+    unsigned int count = 0;
+    while (*str)
+    {
+        if (*str == ch)
+            count++;
+        str++;
+    }
+    return count;
+}
+
+```
+
+c_int_str( )函数不应修改原始字符串，因此它在声明形参str时使用了限定符const。这样，如果错误地址函数修改了字符串的内容，编译器将捕获这种错误。当然，可以在函数头中使用数组表示法，而不声明str
+
+```C++
+unsigned int c_in_str(const char str[], char ch);
+```
+
+然而，使用指针表示法提醒读者注意，参数不一定必须是数组名，也可以是其他形式的指针。
+
+### 返回C-风格字符串的函数
+
+​		现在，假设要编写一个返回字符串的函数。是的，函数无法返回一个字符串，但可以返回字符串的地址，这样做的效率更高。
+
+```C++
+#include <iostream>
+
+char *buildstr(char c, int n);
+int main()
+{
+    using namespace std;
+
+    int times;
+    char ch;
+
+    cout << "Enter a character: ";
+    cin >> ch;
+    cout << "Enter an integer: ";
+    cin >> times;
+    char *ps = buildstr(ch, times);
+    cout << ps << endl;
+    delete[] ps;
+    ps = buildstr('+', 20);
+    cout << ps << "-DONE-" << ps << endl;
+    delete[] ps;
+
+    return 0;
+}
+
+char *buildstr(char c, int n)
+{
+    char *pstr = new char[n + 1];
+    pstr[n] = '\0';
+    while (n-- > 0)
+        pstr[n] = c;
+    return pstr;
+}
+
+```
+
+当该字符串不再需要时程序使用delete释放该字符串占用的内存。然后，将ps指向为下一个字符串分配的内存块，然后释放它们。这种设计（**让函数返回一个指针，该指针指向new分配的内存**）的缺点是，程序员必须记住使用delete。
+
+## 函数和结构
+
+​		为结构编写函数比为数组编写函数要简单得多。虽然结构变量和数组一样，都可以存储多个数据项，但在涉及到函数时，结构变量的行为更接近于基本的单值变量。也就是说，与数组不同，结构将其数据组合成单个实体或数据对象，该实体被视为一个整体。
+
+​		可以将一个结构赋给另外一个结构。同样，也可以按值传递结构，就像普通变量那样。在这种情况下，函数将使用原始结构的副本。另外，函数也可以返回结构。与数组名就是数组第一个元素的地址不同的是，结构名只是结构的名称，要获得结构的地址，必须
+使用地址运算符&。在C语言和C++中，都使用符号&来表示地址运算符；另外，C++还使用该运算符来表示引用变量，
+
+​		使用结构编程时，最直接的方式是像处理基本类型那样来处理结构；也就是说，将结构作为参数传递，并在需要时将结构用作返回值使用。然而，按值传递结构有一个缺点。如果结构非常大，则复制结构将增加内存要求，降低系统运行的速度。出于这些原因（同时由于最初C语言不允许按值传递结构），许多C程序员倾向于传递结构的地址，然后使用指针来访问结构的内容。C++提供了第三种选择——按引用传递
+
+### 传递和返回结构
+
+​		当结构比较小时，按值传递结构最合理
+
+```C++
+#include <iostream>
+
+struct travel_time
+{
+    int hours;
+    int mins;
+};
+
+const int Mins_per_hr = 60;
+
+travel_time sum(travel_time t1, travel_time t2);
+void show_time(travel_time t);
+
+int main()
+{
+    using namespace std;
+
+    travel_time day1 = {5, 45};
+    travel_time day2 = {4, 55};
+
+    travel_time trip = sum(day1, day2);
+    cout << "Two-day total: ";
+    show_time(trip);
+    travel_time day3 = {4, 32};
+    cout << "Three-day total: ";
+    show_time(sum(trip, day3));
+
+    return 0;
+}
+
+travel_time sum(travel_time t1, travel_time t2)
+{
+    travel_time total;
+    total.mins = (t1.mins + t2.mins) % Mins_per_hr;
+    total.hours = (t1.hours + t2.hours) + (t1.mins + t2.mins) / Mins_per_hr;
+    return total;
+}
+
+void show_time(travel_time t)
+{
+    using namespace std;
+    cout << t.hours << " hours, "
+         << t.mins << " minutes" << endl;
+}
+
+```
+
+### 另一个处理结构的函数示例
+
+​		假设要描述屏幕上某点的位置，或地图上某点相对于原点的位置，则一种方法是指出该点相对于原点的水平偏移量和垂直偏移量。传统上，数学家使用x表示水平偏移量，使用y表示垂直偏移量。x和y一起构成了直角坐标（rectangular coordinates）。可以定义由两个坐标组成的结构来表示位置
+
+​		另一种描述点的位置的方法是，指出它偏离原点的距离和方向（例如，东偏北40度）。传统上，数学家从正水平轴开始按逆时针方向度量角度。距离和角度一起构成了极坐标（polar coordinates）。可以定义另一个结构来表示这种位置
+
+​		C++库（从C语言借鉴而来）中的数学函数假设角度的单位为弧度，因此应以弧度为单位来测量角度。但为了便于显示，我们将弧度值转换为角度值。这意味着需要将弧度值乘以180/——约为57.29577951
+
+```C++
+#include <iostream>
+#include <cmath>
+
+struct polar
+{
+    double distance;
+    double angle;
+};
+struct rect
+{
+    double x;
+    double y;
+};
+
+polar rect_to_polar(rect xypos);
+void show_polar(polar dapos);
+int main()
+{
+    using namespace std;
+
+    rect rplace;
+    polar pplace;
+
+    cout << "Enter the x and y values: ";
+    while (cin >> rplace.x >> rplace.y)
+    {
+        pplace = rect_to_polar(rplace);
+        show_polar(pplace);
+        cout << "Next two numbers (q to quit): ";
+    }
+    cout << "Done.\n";
+
+    return 0;
+}
+
+polar rect_to_polar(rect xypos)
+{
+    using namespace std;
+    polar answer;
+
+    answer.distance = sqrt(xypos.x * xypos.x + xypos.y * xypos.y);
+    answer.angle = atan2(xypos.x, xypos.y);
+    return answer;
+}
+
+void show_polar(polar dapos)
+{
+    using namespace std;
+    const double Rad_to_deg = 57.29577951;
+    cout << "distance = " << dapos.distance;
+    cout << ", angle = " << dapos.angle * Rad_to_deg;
+    cout << " degrees\n";
+}
+
+```
+
+cin是istream类的一个对象。抽取运算符（>>）被设计成使得cin>>rplace.x也是一个istream对象。类运算符是使用函数实现的。使用cin>>rplace.x时，程序将调用一个函数，该函数返回一个istream值。将抽取运算符用于cin>>rplace.x对象（就像cin>>rplace.x>>rplace.y这样），也将获得一个istream对象。因此，整个while循环的测试表达式的最终结果为cin，而cin被用于测试表达式中时，将根据输入是否成功，被转换为bool值true或false。例如，在程序循环中，cin期望用户输入两个数字，如果用户输入了q（前面的输出示例就是这样做的），cin>>将知道q不是数字，从而将q留在输入队列中，并返回一个将被转换为fasle的值，导致循环结束。
+
+​		请将这种读取数字的方法与下面更为简单的方法进行比较
+
+```C++
+for(int i=0;i<;limit;i++){
+    cout << "Enter value #" << (i+1) << ": ";
+    cin >> temp;
+    if(temp< 0)
+        break;
+    ar[i]=temp;
+}
+```
+
+要提早结束该循环，可以输入一个负值。这将输入限制为非负值。这种限制符合某些程序的需要，但通常需要一种不会将某些数值排除在外的、终止循环的方式。将cin>>用作测试条件消除了这种限制，因为它接受任何有效的数字输入。在需要使用循环来输入数字时，别忘了考虑使用这种方式。另外请记住，非数字输入将设置一个错误条件，禁止
+进一步读取输入。如果程序在输入循环后还需要进行输入，则必须使用cin.clear( )重置输入，然后还可能需要通过读取不合法的输入来丢弃它们。
+
+### 传递结构的地址
+
+​		假设要传递结构的地址而不是整个结构以节省时间和空间，则需要重新编写前面的函数，使用指向结构的指针。首先来看一看如何重新编写show_polar( )函数。需要修改三个地方
+
+- 调用函数时，将结构的地址（&pplace）而不是结构本身（pplace）传递给它；
+- 将形参声明为指向polar的指针，即polar *类型。由于函数不应该修改结构，因此使用了const修饰符；
+- 由于形参是指针而不是结构，因此应间接成员运算符（->），而不是成员运算符（句点）。
+
+```C++
+void show_polar(const polar *pda)
+{
+    using namespace std;
+    const double Rad_to_deg = 57.29577951;
+    cout << "distance = " << pda->distance;
+    cout << ", angle = " << pda->angle * Rad_to_deg;
+    cout << " degrees\n";
+}
+```
+
+​		接下来对rect_to_polar进行修改。由于原来的rect_to_polar函数返回一个结构，因此修改工作更复杂些。为了充分利用指针的效率，应使用指针，而不是返回值。为此，需要将两个指针传递给该函数。第一个指针指向要转换的结构，第二个指针指向存储转换结果的结构。函数不返回一个新的结构，而是修改调用函数中已有的结构。因此，虽然第一个参数是const指针，但第二个参数却不是。也可以像修改函数show_polar() 修改这个函数
+
+```C++
+#include <iostream>
+#include <cmath>
+
+struct polar
+{
+    double distance;
+    double angle;
+};
+struct rect
+{
+    double x;
+    double y;
+};
+
+void rect_to_polar(const rect *pxy, polar *pda);
+void show_polar(const polar *pda);
+int main()
+{
+    using namespace std;
+
+    rect rplace;
+    polar pplace;
+
+    cout << "Enter the x and y values: ";
+    while (cin >> rplace.x >> rplace.y)
+    {
+        rect_to_polar(&rplace, &pplace);
+        show_polar(&pplace);
+        cout << "Next two numbers (q to quit): ";
+    }
+    cout << "Done.\n";
+
+    return 0;
+}
+
+void rect_to_polar(const rect *pxy, polar *pda)
+{
+    using namespace std;
+
+    pda->distance = sqrt(pxy->x * pxy->x + pxy->y * pxy->y);
+    pda->angle = atan2(pxy->x, pxy->y);
+}
+
+void show_polar(const polar *pda)
+{
+    using namespace std;
+    const double Rad_to_deg = 57.29577951;
+    cout << "distance = " << pda->distance;
+    cout << ", angle = " << pda->angle * Rad_to_deg;
+    cout << " degrees\n";
+}
+
+```
+
+有些编译器需要明确指示，才会搜索数学库。例如，较早的g++版本使用下面这样的命令行
+
+```shell
+g++ xxx.cpp -lm
+```
+
+## 函数和string对象
+
+​		虽然C-风格字符串和string对象的用途几乎相同，但与数组相比，string对象与结构的更相似。例如，可以将一个结构赋给另一个结构，也可以将一个对象赋给另一个对象。可以将结构作为完整的实体传递给函数，也可以将对象作为完整的实体进行传递。如果需要多个字符串，可以声明一个string对象数组，而不是二维char数组。
+
+```C++
+#include <iostream>
+#include <cstring>
+
+using namespace std;
+
+const innt SIZE = 5;
+
+void display(const string sa[], int n);
+
+int main()
+{
+
+    string list[SIZE];
+    cout << "Enter your " << SIZE << " favorite astronomical sights:\n";
+    for (int i = 0; i < SIZE; i++)
+    {
+        cout << i + 1 << ": ";
+        getline(cin, list[i]);
+    }
+    cout << "Your list:\n";
+    display(list, SIZE);
+
+    return 0;
+}
+
+void display(const string sa[], int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << i + 1 << ": " << sa[i] << endl;
+    }
+}
+```
+
+## 函数与array对象
+
+​		在C++中，类对象是基于结构的，因此结构编程方面的有些考虑因素也适用于类。例如，可按值将对象传递给函数，在这种情况下，函数处理的是原始对象的副本。另外，也可传递指向对象的指针，这让函数能够操作原始对象。
+
+```C++
+#include <iostream>
+#include <string>
+#include <array>
+
+using namespace std;
+
+const int Seasons = 4;
+const array<string, Seasons> Snames = {"Spring", "Summer", "Fall", "Winter"};
+
+void fill(array<double, Seasons> *pa);
+void show(array<double, Seasons> da);
+
+int main()
+{
+
+    array<double, Seasons> expenses;
+    fill(&expenses);
+    show(expenses);
+
+    return 0;
+}
+
+void fill(array<double, Seasons> *pa)
+{
+    for (int i = 0; i < Seasons; i++)
+    {
+        cout << "Enter " << Snames[i] << " expense: ";
+        cin >> (*pa)[i];
+    }
+}
+
+void show(array<double, Seasons> da)
+{
+    double total = 0.0;
+    cout << "\nEXPENSES\n";
+    for (int i = 0; i < Seasons; i++)
+    {
+        cout << Snames[i] << ": $" << da[i] << "\n";
+        total += da[i];
+    }
+    dout << "Total Expenses: $" << total << "\n";
+}
+
+```
+
+由于const array对象Snames是在所有函数之前声明的，因此可后面的任何函数定义中使用它。与const Seasons一样，Snames也有整个源代码文件共享。这个程序没有使用编译指令using，因此必须使用std::限定array和string。为简化程序，并将重点放在函数可如何使用对象上，函数fill()没有检查输入是否有效。
+
+​		函数fill()和show()都有缺点。函数show()存在的问题是，expenses存储了四个double值，而创建一个新对象并将expenses的值复制到其中的效率太低。如果修改该程序，使其处理每月甚至每日的开支，这种问题将更严重。
+
+​		函数fill()使用指针来直接处理原始对象，这避免了上述效率低下的问题，但代价是代码看起来更复杂
+
+​		(*pa) [i]是该对象的一个元素。由于运算符优先级的影响，其中的括号必不可少。这里的逻辑很简单，但增加了犯错的机会。
+
+## 递归
+
+​		C++函数有一种有趣的特点——可以调用自己（然而，与C语言不同的是，C++不允许main( )调用自己），这种功能被称为递归。
+
+### 包含一个递归调用的递归
+
+​		如果递归函数调用自己，则被调用的函数也将调用自己，这将无限循环下去，除非代码中包含终止调用链的内容。通常的方法将递归调用放在if语句中。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+void countdown(int n);
+
+int main()
+{
+    countdown(4);
+    return 0;
+}
+
+void countdown(int n)
+{
+    cout << "Counting down ... " << n << endl;
+    if (n > 0)
+        countdown(n - 1);
+    cout << n << ": Kaboom!\n";
+}
+
+```
+
+### 包含多个递归调用的递归
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+const int Len = 66;
+const int Divs = 6;
+
+void subdivide(char ar[], int low, int high, int level);
+
+int main()
+{
+    char ruler[Len];
+    int i;
+    for (i = 0; i < Len - 2; i++)
+        ruler[i] = ' ';
+    ruler[Len - 1] = '\0';
+    int max = Len - 2;
+    int min = 0;
+    ruler[min] = ruler[max] = '|';
+    cout << ruler << endl;
+    for (i = 1; i <= Divs; i++)
+    {
+        subdivide(ruler, min, max, i);
+        cout << ruler << endl;
+        for (int j = 1; j < Len - 2; j++)
+            ruler[j] = ' ';
+    }
+    return 0;
+}
+
+void subdivide(char ar[], int low, int high, int level)
+{
+    if (level == 0)
+        return;
+    int mid = (high + low) / 2;
+    ar[mid] = '|';
+    subdivide(ar, low, mid, level - 1);
+    subdivide(ar, mid, high, level - 1);
+}
+
+```
+
+## 函数指针
+
+​		与数据项相似，函数也有地址。函数的地址是存储其机器语言代码的内存的开始地址。通常，这些地址对用户而言，既不重要，也没有什么用处，但对程序而言，却很有用。
+
+​		例如，可以编写将另一个函数的地址作为参数的函数。这样第一个函数将能够找到第二个函数，并运行它。与直接调用另一个函数相比，这种方法很笨拙，但它允许在不同的时间传递不同函数的地址，这意味着可以在不同的时间使用不同的函数。
+
+### 函数指针的基础知识
+
+- **获取函数的地址**：只要使用函数名（后面不跟参数）即可
+
+- **声明一个函数指针**：声明指向某种数据类型的指针时，必须指定指针指向的类型。同样，声明指向函数的指针时，也必须指定指针指向的函数类型。这意味着声明应指定函数的返回类型以及函数的特征标（参数列表）。也就是说，声明应像函数原型那样指出有关函数的信息。
+
+  ```C++
+  double pam(int); // prototype
+  double (*pf)(int); // pf points to a function that takes one int int argument and that returns type double
+  ```
+
+  通常，要声明指向特定类型的函数的指针，可以首先编写这种函数的原型，然后用（*pf）替换函数名。这样pf就是这类函数的指针。
+
+  为提供正确的运算符优先级，必须在声明中使用括号将`*pf`括起。括号的优先级比`*`运算符高，因此`*pf（int）`意味着pf( )是一个返回指针的函数，而`（*pf）（int）`意味着pf是一个指向函数的指针
+
+- **使用函数指针来调用函数**：线索来自指针声明。前面讲过，`（*pf）`扮演的角色与函数名相同，因此使用`（*pf）`时，只需将它看作函数名即可
+
+  实际上，C++也允许像使用函数名那样使用
+
+  ```C++
+  double pam(int);
+  double (*pf)(int);
+  pf=pam;
+  double x=pam(4);
+  double y=(*pf)(5);
+  double z=pf(5);
+  ```
+
+​		**历史与逻辑**：为何pf和`（*pf）`等价呢？一种学派认为，由于pf是函数指针，而`*pf`是函数，因此应将（*pf）( )用作函数调用。另一种学派认为，由于函数名是指向该函数的指针，指向函数的指针的行为应与函数名相似，因此应将pf( )用作函数调用使用。C++进行了折衷——这2种方式都是正确的，或者至少是允许的，虽然它们在逻辑上是互相冲突的。在认为这种折衷粗糙之前，应该想到，容忍逻辑上无法自圆其说的观点正是人类思维活动的特点。
+
+### 函数指针示例
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+double betsy(int);
+double pam(int);
+
+void estimate(int lines, double (*pf)(int));
+int main()
+{
+    int code;
+    cout << "How many lines of code do you need? ";
+    cin >> code;
+    cout << "Here's Betsy's estimate: \n";
+    estimate(code, betsy);
+    cout << "Here's Pam's estimate: \n";
+    estimate(code, pam);
+    return 0;
+}
+
+double betsy(int lns)
+{
+    return 0.05 * lns;
+}
+
+double pam(int lns)
+{
+    return 0.03 * lns + 0.0004 * lns * lns;
+}
+
+void estimate(int lines, double (*pf)(int))
+{
+    cout << lines << " lines will take ";
+    cout << (*pf)(lines) << " hours(s)\n";
+}
+```
+
+### 深入探讨函数指针
+
+​		函数指针的表示可能非常恐怖。下面通过一个示例演示使用函数指针时面临的一些挑战。首先，下面是一些函数的原型，它们的特征标和返回类型相同
+
+```C++
+const double * f1(const double ar[], int n);
+const double * f2(const double [], int);
+const double * f3(const double *, int);
+```
+
+这些函数的特征标看似不同，但实际上相同。首先，前面说过，在函数原型中，参数列表const double ar [ ]与const double * ar的含义完全相同。其次，在函数原型中，可以省略标识符。因此，const double ar [ ]可简化为const double [ ]，而const double * ar可简化为const double *。因此，上述所有函数特征标的含义都相同。另一方面，函数定义必须提供标识符，因此需要使用const double ar [ ]或const double * ar。
+
+​		接下来，假设要声明一个指针，它可指向这三个函数之一。假定该指针名为pa，则只需将目标函数原型中的函数名替换为(*pa)
+
+```C++
+const double * (*p1)(const double *, int);
+```
+
+可在声明的同时进行初始化
+
+```C++
+const double * (*p1)(const double *, int)=f1;
+```
+
+使用C++11的自动类型推断功能时，代码要简单得多
+
+```C++
+auto p2=f2;
+```
+
+​		现在来看下面的语句
+
+```C++
+cout << (*p1)(av,3) << ": " << *(*p1)(av,3)<< endl;
+cout << p2(av,3)<< ": " <<*p2(av,3)<< endl;
+```
+
+`(*p1) (av, 3)和p2(av, 3)`都调用指向的函数（这里为f1()和f2()），并将av和3作为参数。因此，显示的是这两个函数的返回值。返回值的类型为`const double *`（即double值的地址），因此在每条cout语句中，前半部分显示的都是一个double值的地址。为查看存储在这些地址处的实际值，需要将运算符`*`应用于这些地址，如表达式`*(*p1)(av,3)`和`*p2(av,3)`所示。
+
+​		鉴于需要使用三个函数，如果有一个函数指针数组将很方便。这样，将可使用for循环通过指针依次调用每个函数。如何声明这样的数组呢？显然，这种声明应类似于单个函数指针的声明，但必须在某个地方加上[3]，以指出这是一个包含三个函数指针的数组。问题是在什么地方加上[3]，答案如下（包含初始化）
+
+```C++
+const double * (*pa[3])(const double *, int)={f1,f2,f3};
+```
+
+为何将[3]放在这个地方呢？pa是一个包含三个元素的数组，而要声明这样的数组，首先需要使用pa[3]。该声明的其他部分指出了数组包含的元素是什么样的。运算符[]的优先级高于`*`，因此`*pa[3]`表明pa是一个包含三个指针的数组。上述声明的其他部分指出了每个指针指向的是什么：特征标为const double *, int，且返回类型为const double *的函数。因此，pa是一个包含三个指针的数组，其中每个指针都指向这样的函数，即将const double *和int作为参数，并返回一个const double *。
+
+​		这里能否使用auto：不能。**自动类型推断只能用于单值初始化**，而不能用于初始化列表。但声明数组pa后，声明同样类型的数组就很简单了
+
+```C++
+auto pb=pa;
+```
+
+数组名是指向第一个元素的指针，因此pa和pb都是指向函数指针的指针。
+
+​		pa[i]和pb[i]都表示数组中的指针，因此可将任何一种函数调用表示法用于它们
+
+```C++
+const double * px=pa[0](av,3);
+const double * px=(*pb[1])(av,3);
+```
+
+要获得指向的double值，可使用运算符
+
+```C++
+double x=*pa[0](av,3);
+double y=*(*pb[1])(av,3);
+```
+
+可做的另一件事是创建指向整个数组的指针。由于数组名pa是指向函数指针的指针，因此指向数组的指针将是这样的指针，即它指向指针的指针。这听起来令人恐怖，但由于可使用单个值对其进行初始化，因此可使用auto
+
+```C++
+auto pc=&pa;
+```
+
+如果您喜欢自己声明，该如何办呢？显然，这种声明应类似于pa的声明，但由于增加了一层间接，因此需要在某个地方添加一个`*`。具体地说，如果这个指针名为pd，则需要指出它是一个指针，而不是数组。这意味着声明的核心部分应为`(*pd)[3]`，其中的括号让标识符pd与`*`先结合
+
+```C++
+*pd[3];  // an array of 3 pointers
+(*pd)[3];  // a pointer to an array of 3 elements
+```
+
+换句话说，pd是一个指针，它指向一个包含三个元素的数组。这些元素是什么呢？由pa的声明的其他部分描述，结果如下
+
+```C++
+const double *(*(*pd)[3])(const double *, int) = & pa;
+```
+
+要调用函数，需认识到这样一点：既然pd指向数组，那么`*pd`就是数组，而`(*pd)[i]`是数组中的元素，即函数指针。因此，较简单的函数调用是`(*pd)i`，而`*(*pd)i`是返回的指针指向的值。也可以使用第二种使用指针调用函数的语法：使用(*(*pd)[i])(av,3)来调用函数，而*(*(*pd)[i])(av,3)是指向的double值。
+
+​		请注意pa（它是数组名，表示地址）和&pa之间的差别。在大多数情况下，pa都是数组第一个元素的地址，即&pa[0]。因此，它是单个指针的地址。但&pa是整个数组（即三个指针块）的地址。从数字上说，pa和&pa的值相同，但它们的类型不同。一
+种差别是，pa+1为数组中下一个元素的地址，而&pa+1为数组pa后面一个12字节内存块的地址（这里假定地址为4字节）。另一个差别是，要得到第一个元素的值，只需对pa解除一次引用，但需要对&pa解除两次引用
+
+```C++
+**&pa==*pa==pa[0]
+```
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+const double *f1(const double ar[], int n);
+const double *f2(const double[], int);
+const double *f3(const double *, int);
+
+int main()
+{
+    double av[3] = {1112.3, 1542.6, 2227.9};
+
+    const double *(*p1)(const double *, int) = f1;
+    auto p2 = f2;
+    cout << "Using pointers to functions:\n";
+    cout << " Address Value\n";
+    cout << (*p1)(av, 3) << ": " << *(*p1)(av, 3) << endl;
+    cout << p2(av, 3) << ": " << *p2(av, 3) << endl;
+
+    const double *(*pa[3])(const double *, int) = {f1, f2, f3};
+    auto pb = pa;
+    // Pre C++11：const double *(**pb)(const double *, int) =pa;
+    cout << "\nUsing an array of pointers to functions:\n";
+    cout << " Address Value\n";
+    for (int i = 0; i < 3; i++)
+        cout << pa[i](av, 3) << ": " << *pa[i](av, 3) << "\n";
+    cout << "\nUsing a pointer to a pointer to a function:\n";
+    cout << " Address Value\n";
+    for (int i = 0; i < 3; i++)
+        cout << pb[i](av, 3) << ": " << *pb[i](av, 3) << "\n";
+
+    cout << "\nUsing pointers to an array of functions:\n";
+    cout << " Address Value\n";
+    auto pc = &pa;
+    // Pre C++11：const double *(*(*pc)[3])(const double *, int) =&pa;
+    cout << (*pc)[0](av, 3) << ": " << *(*pc)[0](av, 3) << "\n";
+    const double *(*(*pd)[3])(const double *, int) = &pa;
+    const double *pdb = (*pd)[1](av, 3);
+    cout << pdb << ": " << *pdb << endl;
+    cout << (*(*pd)[2])(av, 3) << ": " << *(*(*pd)[2])(av, 3) << endl;
+
+    return 0;
+}
+
+const double *f1(const double * ar, int n)
+{
+    return ar;
+}
+
+const double *f2(const double ar[], int)
+{
+    return ar + 1;
+}
+
+const double *f3(const double ar[], int)
+{
+    return ar + 2;
+}
+
+```
+
+这个示例可能看起来比较深奥，但指向函数指针数组的指针并不少见。实际上，类的虚方法实现通常都采用了这种技术，这些细节由编译器处理。
+
+​		C++11的目标之一是让C++更容易使用，从而让程序员将主要精力放在设计而不是细节上。
+
+```C++
+auto pc=&pa; // C++ 11
+```
+
+自动类型推断功能表明，编译器的角色发生了改变。在C++98中，编译器利用其知识帮助您发现错误，而在C++11中，编译器利用其知识帮助您进行正确的声明。
+
+​		存在一个潜在的缺点。自动类型推断确保变量的类型与赋给它的初值的类型一致，但您提供的初值的类型可能不对
+
+```C++
+auto pc=*pa; // ERROR
+```
+
+### 使用typedef进行简化
+
+​		除auto外，C++还提供了其他简化声明的工具。这里采用的方法是，将别名当做标识符进行声明，并在开头使用关键字typedef。因此，可将p_fun声明为程序清单使用的函数指针类型的别名：
+
+```C++
+typedef const double *(*p_func)(const double *, int);  // p_func now a type name
+p_func p1=f1;
+```
+
+然后使用这个别名来简化代码
+
+```C++
+p_func pa[3] ={f1,f2,f3};
+p_func (*pd)[3]=&pa;
+```
+
+使用typedef可减少输入量，让您编写代码时不容易犯错，并让程序更容易理解。
+
+# 函数探幽
+
+## C++内联函数
+
+​		内联函数是C++为提高程序运行速度所做的一项改进。常规函数和内联函数之间的主要区别不在于编写方式，而在于C++编译器如何将它们组合到程序中。要了解内联函数与常规函数之间的区别，必须深入到程序内部。
+
+​		编译过程的最终产品是可执行程序——由一组机器语言指令组成。运行程序时，操作系统将这些指令载入到计算机内存中，因此每条指令都有特定的内存地址。计算机随后将逐步执行这些指令。有时（如有循环或分支语句时），将跳过一些指令，向前或向后跳到特定地址。常规函数调用也使程序跳到另一个地址（函数的地址），并在函数结束时返回。下面更详细地介绍这一过程的典型实现。执行到函数调用指令时，程序将在函数调用后立即存储该指令的内存地址，并将函数参数复制到堆栈（为此保留的内存块），跳到标记函数起点的内存单元，执行函数代码（也许还需将返回值放入到寄存器中），然后跳回到地址被保存的指令处。**来回跳跃并记录跳跃位置意味着以前使用函数时，需要一定的开销**。
+
+​		C++内联函数提供了另一种选择。内联函数的编译代码与其他程序代码“内联”起来了。也就是说，编译器将使用相应的函数代码替换函数调用。对于内联代码，程序无需跳到另一个位置处执行代码，再跳回来。因此，内联函数的运行速度比常规函数稍快，但代价是需要占用更多内存。如果程序在10个不同的地方调用同一个内联函数，则该程序将包含该函数代码的10个副本
+
+​		要使用这项特性，必须采取下述措施之一
+
+- 在函数声明前加上关键字inline；
+- 在函数定义前加上关键字inline。
+
+通常的做法是省略原型，将整个定义（即函数头和所有函数代码）放在本应提供原型的地方。
+
+​		程序员请求将函数作为内联函数时，编译器并不一定会满足这种要求。它可能认为该函数过大或注意到函数调用了自己（内联函数不能递归），因此不将其作为内联函数；而有些编译器没有启用或实现这种特性。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+inline double square(double x) { return x * x; }
+
+int main()
+{
+    double a, b;
+    double c = 13.0;
+
+    a = square(5.0);
+    b = square(4.5 + 7.5);
+    cout << "a = " << a << " b = " << b << endl;
+    cout << "c = " << c;
+    cout << " , c squared = " << square(c++) << endl;
+    cout << "Now c = " << c << endl;
+
+    return 0;
+}
+```
+
+内联函数和常规函数一样，也是按值来传递参数的。如果参数为表达式，如4.5 + 7.5，则函数将传递表达式的值（这里为12）。这使得C++的内联功能远远胜过C语言的宏定义。
+
+​		尽管程序没有提供独立的原型，但C++原型特性仍在起作用。这是因为在函数首次使用前出现的整个函数定义充当了原型。这意味着可以给square( )传递int或long值，将值传递给函数前，程序自动将这个值强制转换为double类型。
+
+​		**内联与宏**：inline工具是C++新增的特性。C语言使用预处理器语句#define来提供宏——内联代码的原始实现。
+
+```C
+#define SQUARE(X) X*X
+```
+
+这并不是通过传递参数实现的，而是通过文本替换来实现的——X是“参数”的符号标记。
+
+```C
+a=SQUARE(5.0); // replaced by a= 5.0*5.0
+b=SQUARE(4.5+7.5); // replaced by b= 4.5+7.5*4.5+7.5
+c=SQUARE(c++); // replaced by c= c++*c++
+```
+
+上述示例只有第一个能正常工作。可以通过使用括号来进行改进
+
+```C++
+#define SQUARE(X) (X)*(X)
+```
+
+但仍然存在这样的问题，即宏不能按值传递。即使使用新的定义，SQUARE（C++）仍将c递增两次，但是程序中的内联函数square( )计算c的结果，传递它，以计算其平方值，然后将c递增一次。
+
+​		这里的目的不是演示如何编写C宏，而是要指出，如果使用C语言的宏执行了类似函数的功能，应考虑将它们转换为C++内联函数。
+
+## 引用变量
+
+​		C++新增了一种复合类型——引用变量。引用是已定义的变量的别名（另一个名称）。例如，如果将twain作为clement变量的引用，则可以交替使用twain和clement来表示该变量。
+
+​		引用变量的主要用途是用作函数的形参。通过将引用变量用作参数，函数将使
+用原始数据，而不是其副本。这样除指针之外，引用也为函数处理大型结构提供了一种非常方便的途径，同时对于设计类来说，引用也是必不可少的。
+
+### 创建引用变量
+
+​		C和C++使用&符号来指示变量的地址。C++给&符号赋予了另一个含义，将其用来声明引用。
+
+```C++
+int rats;
+int & rodents = rats;  // makes rodents an alias for rats
+```
+
+其中，&不是地址运算符，而是类型标识符的一部分。就像声明中的char*指的是指向char的指针一样，int &指的是指向int的引用。上述引用声明允许将rats和rodents互换——它们指向相同的值和内存单元
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+    int rats = 101;
+    int &rodents = rats;
+    cout << "rats = " << rats;
+    cout << ", rodents = " << rodents << endl;
+    rodents++;
+    cout << "rats = " << rats;
+    cout << ", rodents = " << rodents << endl;
+
+    cout << "rats address = " << &rats;
+    cout << ", rodents address = " << &rodents << endl;
+
+    return 0;
+}
+```
+
+rats和rodents的值和地址都相同（具体的地址和显示格式随系统而异）。
+
+​		虽然该示例演示了引用是如何工作的，但并没有说明引用的典型用途，即作为函数参数，具体地说是结构和对象参数。
+
+​		对于C语言用户而言，首次接触到引用时可能也会有些困惑，因为这些用户很自然地会想到指针，但它们之间还是有区别的
+
+```C++
+int rats=101;
+int & rodents=rats;
+int * prats=&rats;
+```
+
+​		这样，表达式rodents和`*prats`都可以同rats互换，而表达式&rodents和prats都可以同&rats互换。从这一点来说，引用看上去很像伪装表示的指针（其中，`*`解除引用运算符被隐式理解）。实际上，引用还是不同于指针的。除了表示法不同外，还有其他的差别。例如，差别之一是，必须在声明引用时将其初始化，而不能像指针那样，先声明，再赋值
+
+```C++
+int rats=101;
+int & rodents;
+rodents=rats; // ERROR
+```
+
+**必须在声明引用变量时进行初始化。**
+
+​		引用更接近const指针，必须在创建时进行初始化，一旦与某个变量关联起来，就将一直效忠于它
+
+```C++
+int & rodents=rats;
+// 实际上是下述代码的伪装表示
+int * const pr = &rats;
+```
+
+其中，引用rodents扮演的角色与表达式*pr相同。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+int main()
+{
+    int rats = 101;
+    int &rodents = rats;
+    cout << "rats = " << rats;
+    cout << ", rodents = " << rodents << endl;
+    cout << "rats address = " << &rats;
+    cout << ", rodents address = " << &rodents << endl;
+
+    int bunnies = 50;
+    rodents = bunnies;
+    cout << "bunnies = " << bunnies << endl;
+    cout << "rats = " << rats;
+    cout << ", rodents = " << rodents << endl;
+    cout << "bunnies address = " << &bunnies;
+    cout << ", rodents address = " << &rodents << endl;
+
+    return 0;
+}
+```
+
+最初，rodents引用的是rats，但随后程序试图将rodents作为bunnies的引用
+
+```C++
+rodents = bunnies;
+```
+
+咋一看，这种意图暂时是成功的，因为rodents的值从101变为了50。但仔细研究将发现，rats也变成了50，同时rats和rodents的地址相同，而该地址与bunnies的地址不同。由于rodents是rats的别名，因此上述赋值语句与下面的语句等效
+
+```C++
+rats = bunnies;
+```
+
+也就是说，这意味着“将bunnies变量的值赋给rat变量”。简而言之，可以通过初始化声明来设置引用，但不能通过赋值来设置。
+
+​		假设试图这样做
+
+```C++
+int rats = 101;
+int * pt = &rats;
+int & rodents = * pt;
+int bunnies = 50;
+pt = &bunnies;
+```
+
+将rodents初始化为*pt使得rodents指向rats。接下来将pt改为指向bunnies，并不能改变这样的事实，即rodents引用的是rats。
+
+### 将引用用作函数参数
+
+​		引用经常被用作函数参数，使得函数中的变量名成为调用程序中的变量的别名。这种传递参数的方法称为按引用传递。按引用传递允许被调用的函数能够访问调用函数中的变量。C++新增的这项特性是对C语言的超越，C语言只能按值传递。按值传递导致被调用函数使用调用程序的值的拷贝。当然，C语言也允许避开按值传递的限制，采用按指针传递的方式。
+
+​		通过一个常见的的计算机问题——交换两个变量的值，对使用引用和使用指针做一下比较。交换函数必须能够修改调用程序中的变量的值。这意味着按值传递变量将不管用，因为函数将交换原始变量副本的内容，而不是变量本身的内容。但传递引用时，函数将可以使用原始数据。另一种方法是，传递指针来访问原始数据。程序演示了这三种方法，其中包括一种不可行的方法，以便您能对这些方法进行比较。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+void swapr(int &a, int &b);
+void swapp(int *p, int *q);
+void swapv(int a, int b);
+int main()
+{
+    int wallet1 = 300;
+    int wallet2 = 350;
+
+    cout << "wallet1 = $" << wallet1;
+    cout << " wallet2 = $" << wallet2 << endl;
+
+    cout << "Using reference to swap contents:\n";
+    swapr(wallet1, wallet2);
+    cout << "wallet1 = $" << wallet1;
+    cout << " wallet2 = $" << wallet2 << endl;
+
+    cout << "Using pointers to swap contents:\n";
+    swapp(&wallet1, &wallet2);
+    cout << "wallet1 = $" << wallet1;
+    cout << " wallet2 = $" << wallet2 << endl;
+
+    cout << "Trying to use passing by value\n";
+    swapv(wallet1, wallet2);
+    cout << "wallet1 = $" << wallet1;
+    cout << " wallet2 = $" << wallet2 << endl;
+
+    return 0;
+}
+
+void swapr(int &a, int &b)
+{
+    int temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
+
+void swapp(int *p, int *q)
+{
+    int temp;
+    temp = *p;
+    *p = *q;
+    *q = temp;
+}
+
+void swapv(int a, int b)
+{
+    int temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
+
+```
+
+```
+wallet1 = $300 wallet2 = $350  // original values
+Using reference to swap contents:
+wallet1 = $350 wallet2 = $300  // values swapped
+Using pointers to swap contents:
+wallet1 = $300 wallet2 = $350  // values swapped again
+Trying to use passing by value
+wallet1 = $300 wallet2 = $350  // swap failed
+请按任意键继续. . .
+```
+
+引用和指针方法都成功地交换了两个钱夹（wallet）中的内容，而按值传递的方法没能完成这项任务。
+
+​		按引用传递（swapr(wallet1, wallet2)）和按值传递（swapv(wallet1,waller2)）看起来相同。只能通过原型或函数定义才能知道swapr( )是按引用传递的。然而，地址运算符（&）使得按地址传递（swapp(&wallet1, &wallet2)）一目了然（类型声明int * p表明，p是一个int指针，因此与p对应的参数应为地址，如&wallet1）。
+
+​		比较函数swapr( )（按引用传递）和swapv( )（按值传递）的代码，唯一的外在区别是声明函数参数的方式不同。当然还有内在区别：在swapr( )中，变量a和b是wallet1和wallet2的别名，所以交换a和b的值相当于交换wallet1和wallet2的值；但在swapv( )
+中，变量a和b是复制了wallet1和waller2的值的新变量，因此交换a和b的值并不会影响wallet1和wallet2的值。
+
+​		比较函数swapr( )（传递引用）和swapp( )（传递指针）。第一个区别是声明函数参数的方式不同。另一个区别是指针版本需要在函数使用p和q的整个过程中使用解除
+引用运算符*
+
+​		前面说过，应在定义引用变量时对其进行初始化。函数调用使用实参初始化形参，因此函数的引用参数被初始化为函数调用传递的实参。也就是说，下面的函数调用将形参a和b分别初始化为wallet1和wallet2
+
+```C++
+swapr(wallet1, wallet2);
+```
+
+### 引用的属性和特别之处
+
+​		使用引用参数时，需要了解其一些特点。下面的程序使用两个函数来计算参数的立方，其中一个函数接受double类型的参数，另一个接受double引用。为了说明这一点，我们有意将计算立方的代码编写得比较奇怪。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+double cube(double a);
+double refcube(double &ra);
+
+int main()
+{
+    double x = 3.0;
+
+    cout << cube(x);
+    cout << " = cube of " << x << endl;
+    cout << refcube(x);
+    cout << " = cube of " << x << endl;
+
+    return 0;
+}
+
+double cube(double a)
+{
+    a *= a * a;
+    return a;
+}
+
+double refcube(double &ra)
+{
+    ra *= ra * ra;
+    return ra;
+}
+```
+
+```
+27 = cube of 3
+27 = cube of 27
+请按任意键继续. . .
+```
+
+refcube( )函数修改了main( )中的x值，而cube( )没有，这提醒我们为何通常按值传递。变量a位于cube( )中，它被初始化为x的值，但修改a并不会影响x。但由于refcube( )使用了引用参数，因此修改ra实际上就是修改x。如果程序员的意图是让函数使用传递给它的信息，而不对这些信息进行修改，同时又想使用引用，则应使用常量引用。
+
+​		例如，在这个例子中，应在函数原型和函数头中使用const
+
+```C++
+double refcube(const double &ra);
+```
+
+如果这样做，当编译器发现代码修改了ra的值时，将生成错误消息。
+
+​		顺便说一句，如果要编写类似于上述示例的函数（即使用基本数值类型），应采用按值传递的方式，而不要采用按引用传递的方式。当数据比较大（如结构和类）时，引用参数将很有用。
+
+​		按值传递的函数，如函数cube( )，可使用多种类型的实参。例如，下面的调用都是合法的
+
+```C++
+double z=cube(x+2.0);
+z=cube(8.0);
+int k = 10;
+z=cube(k);
+double yo[3] = {2.2,3.3,4.4};
+z=cube(y[2]);
+```
+
+如果将与上面类似的参数传递给接受引用参数的函数，将会发现，传递引用的限制更严格。毕竟，如果ra是一个变量的别名，则实参应是该变量。下面的代码不合理，因为表达式x + 3.0并不是变量
+
+```C++
+double z=refcube(x+3.0); // ERROR
+```
+
+例如，不能将值赋给该表达式
+
+```C++
+x+3.0=5.0;
+```
+
+如果试图使用像refcube(x + 3.0)这样的函数调用，在现代的C++中，这是错误的，大多数编译器都将指出这一点；而有些较老的编译器将发出这样的警告
+
+```
+Warning: Temporary used for parameter 'ra' in call to recube(double &)
+```
+
+之所以做出这种比较温和的反应是由于早期的C++确实允许将表达式传递给引用变量。有些情况下，仍然是这样做的。这样做的结果如下：由于x + 3.0不是double类型的变量，因此程序将创建一个临时的无名变量，并将其初始化为表达式x + 3.0的值。然后，ra将成为该临时变量的引用。
+
+#### 临时变量、引用参数和const
+
+​		如果实参与引用参数不匹配，C++将生成临时变量。当前，仅当参数为const引用时，C++才允许这样做，但以前不是这样。下面来看看何种情况下，C++将生成临时变量，以及为何对const引用的限制是合理的。
+
+​		**什么时候将创建临时变量**：如果引用参数是const，则编译器将在下面两种情况下生成临时变量
+
+- 实参的类型正确，但不是左值；
+- 实参的类型不正确，但可以转换为正确的类型。
+
+左值参数是可被引用的数据对象，例如，变量、数组元素、结构成员、引用和解除引用的指针都是左值。非左值包括字面常量（用引号括起的字符串除外，它们由其地址表示）和包含多项的表达式。在C语言中，左值最初指的是可出现在赋值语句左边的实体，但这是引入关键字const之前的情况。现在，常规变量和const变量都可视为左值，因为可通过地址访问它们。但常规变量属于可修改的左值，而const变量属于不可修改的左值。
+
+​		假设重新定义了refcube( )，使其接受一个常量引用参数
+
+```C++
+double refcube(const double &ra){
+    return ra*ra*ra;
+}
+```
+
+现在考虑下面的代码
+
+```C++
+double side = 3.0;
+double * pd=&side;
+double & rd=side;
+long edge = 5L;
+double lens[4]={2.0,5.0,10.0,12.0};
+double c1=refcube(side); // ra is side
+double c2=refcube(lens[2]); // ra is lens[2]
+double c3=refcube(rd); // ra is rd is side 
+double c4=refcube(*pd); // ra is *pd is side
+double c5=refcube(edge); // ra is temporary variable 
+double c6=refcube(7.0); // ra is temporary variable 
+double c7=refcube(side+10.0); // ra is temporary variable 
+```
+
+参数side、lens[2]、rd和*pd都是有名称的、double类型的数据对象，因此可以为其创建引用，而不需要临时变量（数组元素的行为与同类型的变量类似）。edge虽然是变量，类型却不正确，double引用不能指向long。另一方面，参数7.0和side + 10.0的类型都正确，但没有名称，在这些情况下，编译器都将生成一个临时匿名变量，并让ra指向它。这些临时变量只在函数调用期间存在，此后编译器便可以随意将其删除。
+
+​		**为什么对于常量引用，这种行为是可行的，其他情况下却不行**：对于swapr()函数
+
+```C++
+void swapr(int & a, int & b){
+    int temp;
+    a=b;
+    b=temp;
+}
+```
+
+如果在早期C++较宽松的规则下
+
+```C++
+long a=3,b=5;
+swapr(a,b);
+```
+
+这里的类型不匹配，因此编译器将创建两个临时int变量，将它们初始化为3和5，然后交换临时变量的内容，而a和b保持不变。
+
+​		简而言之，如果接受引用参数的函数的意图是修改作为参数传递的变量，则创建临时变量将阻止这种意图的实现。解决方法是，禁止创建临时变量，现在的C++标准正是这样做的（然而，在默认情况下，有些编译器仍将发出警告，而不是错误消息，因此如果看到了有关临时变量的警告，请不要忽略）。
+
+​		现在来看refcube( )函数。该函数的目的只是使用传递的值，而不是修改它们，因此临时变量不会造成任何不利的影响，反而会使函数在可处理的参数种类方面更通用。因此，如果声明将引用指定为const，C++将在必要时生成临时变量。实际上，对于形参为const引用的C++函数，如果实参不匹配，则其行为类似于按值传递，为确保原始数据不被修改，将使用临时变量来存储值。
+
+​		如果函数调用的参数不是左值或与相应的const引用参数的类型不匹配，则C++将创建类型正确的匿名变量，将函数调用的参数的值传递给该匿名变量，并让参数来引用该变量。
+
+​		**应尽可能使用const**：将引用参数声明为常量数据的引用的理由有三个
+
+- 使用const可以避免无意中修改数据的编程错误；
+- 使用const使函数能够处理const和非const实参，否则将只能接受非const数据；
+- 使用const引用使函数能够正确生成并使用临时变量。
+
+因此，应尽可能将引用形参声明为const。
+
+​		C++11新增了另一种引用——右值引用（rvalue reference）。这种引用可指向右值，是使用&&声明
+
+```C++
+double && rref = std::sqrt(36.00); // not allowed for double &
+double j = 15.0;
+double && jref = 2.0*j+18.5;  // not allowed for double &
+std::cout << rref << '\n';   // display 6.0
+std::cout << jref << '\n';   // display 48.5
+```
+
+新增右值引用的主要目的是，让库设计人员能够提供有些操作的更有效实现。后面将讨论如何使用右值引用来实现移动语义（move semantics）。以前的引用（使用&声明的引用）现在称为左值引用。
+
+### 将引用用于结构
+
+​		引用非常适合用于结构和类（C++的用户定义类型）。确实，引入引用主要是为了用于这些类型的，而不是基本的内置类型。
+
+​		使用结构引用参数的方式与使用基本变量引用相同，只需在声明结构参数时使用引用运算符&即可。
+
+```C++
+struct free_throws{
+    std::string name;
+    int made;
+    int attempts;
+    float percent;
+};
+```
+
+则可以这样编写函数原型，在函数中将指向该结构的引用作为参数
+
+```C++
+void set_pc(free_throws & ft);
+```
+
+如果不希望函数修改传入的结构，可使用const
+
+```C++
+void set_pc(const free_throws & ft);
+```
+
+​		下面的程序正是这样做的。它还通过让函数返回指向结构的引用添加了一个有趣的特点，这与返回结构有所不同。对此，有一些需要注意的地方
+
+```C++
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+struct free_throws
+{
+    string name;
+    int made;
+    int attempts;
+    float percent;
+};
+
+void display(const free_throws &ft);
+void set_pc(free_throws &ft);
+free_throws &accumulate(free_throws &target, const free_throws &source);
+
+int main()
+{
+    free_throws one = {"Ifelsa Branch", 13, 14};
+    free_throws two = {"Andor Kott", 10, 16};
+    free_throws three = {"Minnie Max", 7, 9};
+    free_throws four = {"Whily Looper", 5, 9};
+    free_throws five = {"Long Long", 6, 14};
+    free_throws team = {"Throwgoods", 0, 0};
+
+    free_throws dup;
+
+    set_pc(one);
+    display(one);
+    accumulate(team, one);
+    display(team);
+
+    display(accumulate(team, two));
+    accumulate(accumulate(team, three), four);
+    display(team);
+
+    dup = accumulate(team, five);
+    cout << "Displaying team:\n";
+    display(team);
+    cout << "Displaying dup after assignment:\n";
+    display(dup);
+    set_pc(four);
+    accumulate(dup, five) = four; // ill-advised assignment
+    cout << "Displaying dup after ill-advised assignment:\n";
+    display(dup);
+
+    return 0;
+}
+
+void display(const free_throws &ft)
+{
+    cout << "Name: " << ft.name << '\n';
+    cout << " Made: " << ft.made << '\t';
+    cout << "Attempts: " << ft.attempts << '\t';
+    cout << "Percent: " << ft.percent << '\n';
+}
+
+void set_pc(free_throws &ft)
+{
+    if (ft.attempts != 0)
+        ft.percent = 100.0f * float(ft.made) / float(ft.attempts);
+    else
+        ft.percent = 0;
+}
+
+free_throws &accumulate(free_throws &target, const free_throws &source)
+{
+    target.attempts += source.attempts;
+    target.made += source.made;
+    set_pc(target);
+    return target;
+}
+
+```
+
+```
+Name: Ifelsa Branch
+ Made: 13       Attempts: 14    Percent: 92.8571
+Name: Throwgoods
+ Made: 13       Attempts: 14    Percent: 92.8571
+Name: Throwgoods
+ Made: 23       Attempts: 30    Percent: 76.6667
+Name: Throwgoods
+ Made: 35       Attempts: 48    Percent: 72.9167
+Displaying team:
+Name: Throwgoods
+ Made: 41       Attempts: 62    Percent: 66.129
+Displaying dup after assignment:
+Name: Throwgoods
+ Made: 41       Attempts: 62    Percent: 66.129
+Displaying dup after ill-advised assignment:
+Name: Whily Looper
+ Made: 5        Attempts: 9     Percent: 55.5556
+请按任意键继续. . .
+```
+
+该程序首先初始化了多个结构对象。如果指定的初始值比成员少，余下的成员（这里只有percent）将被设置为零。
+
+```C++
+set_pc(one);
+```
+
+由于函数set_pc()的形参ft为引用，因此ft指向one，函数set_pc()的代码设置成员one.percent。就这里而言，按值传递不可行，因此这将导致设置的是one的临时拷贝的成员percent。另一种方法是使用指针参数并传递地址，但要复杂些
+
+```C++
+set_pcp(&one);
+...
+void set_pcp(free_throws * pt){
+    if(pt->attempts != 0)
+        pt->percent = 100.0f*float(pt->made)/float(pt->attempts);
+    else
+        pt->percent=0;
+}
+```
+
+​		下一个函数调用如下
+
+```C++
+display(one);
+```
+
+由于display()显示结构的内容，而不修改它，因此这个函数使用了一个const引用参数。就这个函数而言，也可按值传递结构，但与复制原始结构的拷贝相比，使用引用可节省时间和内存。
+
+​		再下一个函数调用如下
+
+```C++
+accumulate(team,one);
+```
+
+函数accumulate()接收两个结构参数，并将第二个结构的成员attempts和made的数据添加到第一个结构的相应成员中。只修改了第一个结构，因此第一个参数为引用，而第二个参数为const引用
+
+```C++
+free_throws &accumulate(free_throws &target, const free_throws &source);
+```
+
+前讨论的函数调用没有使用它；就目前而言，原本可以将返回值声明为void，但请看下述函数调用
+
+```C++
+diaplay(accumulate(team,two));
+```
+
+首先，将结构对象team作为第一个参数传递给了accumulate()。这意味着在函数accumulate()中，target指向的是team。函数accumulate()修改team，再返回指向它的引用。注意到返回语句如下
+
+```C++
+return target;
+```
+
+光看这条语句并不能知道返回的是引用，但函数头和原型指出了这一点
+
+```C++
+free_throws &accumulate(free_throws &target, const free_throws &source);
+```
+
+如果返回类型被声明为free_throws而不是free_throws &，上述返回语句将返回target（也就是team）的拷贝。但返回类型为引用，这意味着返回的是最初传递给accumulate()的team对象。
+
+​		接下来，将accumulate()的返回值作为参数传递给了display()，这意味着将team传递给了display()。display()的参数为引用，这意味着函数display()中的ft指向的是team，因此将显示team的内容。所以，下述代码
+
+```C++
+diaplay(accumulate(team,two));
+```
+
+与下面的代码等效
+
+```C++
+accumulate(team,two);
+diaplay(team);
+```
+
+​		上述逻辑也适用于如下语句
+
+```C++
+accumulate(accumulate(team, three), four);
+```
+
+因此，该语句与下面的语句等效
+
+```
+accumulate(team, three);
+accumulate(team, four);
+```
+
+​		接下来，程序使用了一条赋值语句
+
+```C++
+dup=accumulate(team, five);
+```
+
+这条语句将team中的值复制到dup中。
+
+​		最后，程序以独特的方式使用了accumulate()
+
+```C++
+accumulate(dup, five)=four;
+```
+
+这条语句将值赋给函数调用，这是可行的，因为函数的返回值是一个引用。如果函数accumulate()按值返回，这条语句将不能通过编译。由于返回的是指向dup的引用，因此上述代码与下面的代码等效
+
+```C++
+accumulate(dup, five);  // add five's data to dup
+dup =four; // overwrite the contents of dup with the contents of four;
+```
+
+其中第二条语句消除了第一条语句所做的工作，因此在原始赋值语句使用accumulate()的方式并不好。
+
+#### 为何要返回引用
+
+​		传统返回机制与按值传递函数参数类似：计算关键字return后面的表达式，并将
+结果返回给调用函数。从概念上说，这个值被复制到一个临时位置，而调用程序将使用这个值。
+
+```C++
+double m = sqrt(16.0);
+cout << sqrt(25.0);
+```
+
+在第一条语句中，值4.0被复制到一个临时位置，然后被复制给m。在第二条语句中，值5.0被复制到一个临时位置，然后被传递给cout（这里理论上的描述，实际上，编译器可能合并某些步骤）。
+
+​		现在来看下面的语句
+
+```C++
+dup=accumulate(team,five);
+```
+
+如果accumulate()返回一个结构，而不是指向结构的引用，将把整个结构复制到一个临时位置，再将这个拷贝复制给dup。但在返回值为引用时，将直接把team复制到dup，其效率更高。
+
+​		返回引用的函数实际上是被引用的变量的别名
+
+#### 返回引用时需要注意的问题
+
+​		返回引用时最重要的一点是，应避免返回函数终止时不再存在的内存单元引用。您应避免编写下面这样的代码
+
+```C++
+const free_throws & clone2(free_throws & ft){
+    free_throw newguy;  // first step to big error
+    newguy = ft;   // copy info 
+    return newguy;  // return reference to copy
+}
+```
+
+该函数返回一个指向临时变量（newguy）的引用，函数运行完毕后它将不再存在。同样，也应避免返回指向临时变量的指针。
+
+​		为避免这种问题，最简单的方法是，返回一个作为参数传递给函数的引用。作为参数的引用将指向调用函数使用的数据，因此返回的引用也将指向这些数据。accumulate()正是这样做的。
+
+​		另一种方法是用new来分配新的存储空间。前面见过这样的函数，它使用new为字符串分配内存空间，并返回指向该内存空间的指针。下面是使用引用来完成类似工作的方法
+
+```C++
+const free_throws & clone2(free_throws & ft){
+    free_throw *pt;  // first step to big error
+    *pt = ft;   // copy info 
+    return *pt;  // return reference to copy
+}
+```
+
+第一条语句创建一个无名的free_throws结构，并让指针pt指向该结构，因此*pt就是该结构。上述代码似乎会返回该结构，但函数声明表明，该函数实际上将返回这个结构的引用。这样，便可以这样使用该函数
+
+```C++
+free_throws & jolly = clone(three);
+```
+
+这使得jolly成为新结构的引用。这种方法存在一个问题：在不再需要new分配的内存时，应使用delete来释放它们。调用clone( )隐藏了对new的调用，这使得以后很容易忘记使用delete来释放内存。auto_ptr模板以及C++11新增的unique_ptr可帮助程序员自动完成释放工作。
+
+#### 为何将const用于引用返回类型
+
+```C++
+accumulate(dup, five)=four;
+```
+
+其效果如下：首先将five的数据添加到dup中，再使用four的内容覆盖dup的内容。这条语句为何能够通过编译。**在赋值语句中，左边必须是可修改的左值**。也就是说，在赋值表达式中，左边的子表达式必须标识一个可修改的内存块。在这里，函数返回指向dup的引用，它确实标识的是一个这样的内存块，因此这条语句是合法的。
+
+​		另一方面，常规（非引用）返回类型是右值——不能通过地址访问的值。这种表达式可出现在赋值语句的右边，但不能出现在左边。其他右值包括字面值（如10.0）和表达式（如x + y）。显然，获取字面值（如10.0）的地址没有意义，但为何常规函数返回值是右值呢？这是因为这种返回值位于临时内存单元中，运行到下一条语句时，它们可能不再存在。
+
+​		假设您要使用引用返回值，但又不允许执行像给accumulate()赋值这样的操作，只需将返回类型声明为const引用
+
+```C++
+const free_throws &accumulate(free_throws &target, const free_throws &source);
+```
+
+现在返回类型为const，是不可修改的左值，因此下面的赋值语句不合法
+
+```C++
+accumulate(dup, five)=four;  // ERROR
+```
+
+​		该程序中的其他函数调用又如何呢？返回类型为const引用后，下面的语句仍合法
+
+```C++
+display(accumulate(team,two));
+```
+
+这是因为display()的形参也是const free_throws &类型。但下面的语句不合法，因此accumulate()的第一个形参不是const
+
+```C++
+accumulate(accumulate(team,three), four);
+```
+
+这影响大吗？就这里而言不大，因为您仍可以这样做
+
+```C++
+accumulate(team,three);
+accumulate(team,four)
+```
+
+另外，您仍可以在赋值语句右边使用accumulate()。
+
+​		通过省略const，可以编写更简短代码，但其含义也更模糊。
+
+​		通常，应避免在设计中添加模糊的特性，因为模糊特性增加了犯错的机会。将返回类型声明为const引用，可避免您犯糊涂。然而，有时候省略const确实有道理重载运算符<<就是一个这样的例子。
+
+### 将引用用于类对象
+
+​		将类对象传递给函数时，C++通常的做法是使用引用。例如，可以通过使用引用，让函数将类string、ostream、istream、ofstream和ifstream等类的对象作为参数。
+
+​		下面来看一个例子，它使用了string类，并演示了一些不同的设计方案，其中的一些是糟糕的。这个例子的基本思想是，创建一个函数，它将指定的字符串加入到另一个字符串的前面和后面。程序提供了三个这样的函数，然而其中的一个存在非常大的缺陷，可能导致程序崩溃甚至不同通过编译。
+
+```C++
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+string version1(const string &s1, const string &s2);
+const string &version2(string &s1, const string &s2); // has side effect
+const string &version3(string &s1, const string &s2); // bad design
+
+int main()
+{
+    string input;
+    string copy;
+    string result;
+
+    cout << "Enter a string: ";
+    getline(cin, input);
+    copy = input;
+    cout << "Your string as entered " << input << endl;
+    result = version1(input, "***");
+    cout << "Your string enhanced: " << result << endl;
+    cout << "Your original string " << input << endl;
+
+    result = version2(input, "###");
+    cout << "Your string enhanced: " << result << endl;
+    cout << "Your original string " << input << endl;
+
+    cout << "Resetting original string.\n";
+    input = copy;
+    result = version3(input, "@@@");
+    cout << "Your string enhanced: " << result << endl;
+    cout << "Your original string " << input << endl;
+
+    return 0;
+}
+
+string version1(const string &s1, const string &s2)
+{
+    string temp;
+    temp = s2 + s1 + s2;
+    return temp;
+}
+
+const string &version2(string &s1, const string &s2)
+{
+    s1 = s2 + s1 + s2;
+    return s1;
+}
+
+const string &version3(string &s1, const string &s2)
+{
+    string temp;
+    temp = s2 + s1 + s2;
+    // unsafe to return reference to local variable
+    return temp;
+}
+
+```
+
+​		version1接受两个string参数，并使用string类的相加功能来创建一个满足要求的新字符串。这两个函数参数都是const引用。如果使用string对象作为参数，最终结果将不变
+
+```C++
+string version4(string s1, string s2) // would work the same
+```
+
+在这种情况下，s1和s2将为string对象。使用引用的效率更高，因为函数不需要创建新的string对象，并将原来对象中的数据复制到新对象中。限定符const指出，该函数将使用原来的string对象，但不会修改它。
+
+​		temp是一个新的string对象，只在函数version1( )中有效，该函数执行完毕后，它将不再存在。因此，返回指向temp的引用不可行，因此该函数的返回类型为string，这意味着temp的内容将被复制到一个临时存储单元中，然后在main( )中，该存储单元的内容被复制到一个名为result的string中
+
+​		**将C-风格字符串用作string对象引用参数**：对于函数version1( )，您可能注意到了很有趣的一点：该函数的两个形参（s1和s2）的类型都是const string &，但实参（input和“***”）的类型分别是string和const char *。由于input的类型为string，因此让s1指向它没有任何问题。然而，程序怎么能够接受将char指针赋给string引用呢
+
+- 首先，string类定义了一种char *到string的转换功能，这使得可以使用C-风格字符串来初始化string对象。
+- 其次是前面讨论过的类型为const引用的形参的一个属性。假设实参的类型与引用参数类型不匹配，但可被转换为引用类型，程序将创建一个正确类型的临时变量，使用转换后的实参值来初始化它，然后传递一个指向该临时变量的引用。
+
+例如，在前面，将int实参传递给const double &形参时，就是以这种方式进行处理的。同样，也可以将实参char *或const char *传递给形参const string &。
+
+​		这种属性的结果是，如果形参类型为const string &，在调用函数时，使用的实参可以是string对象或C-风格字符串，如用引号括起的字符串字面量、以空字符结尾的char数组或指向char的指针变量。
+
+​		函数version2( )不创建临时string对象，而是直接修改原来的string对象。该函数可以修改s1，因为不同于s2，s1没有被声明为const。
+
+​		由于s1是指向main( )中一个对象（input）的引用，因此将s1最为引用返回是安全的。由于s1是指向input的引用，因此，下面一行代码
+
+```C++
+result=version2(input,"###");
+```
+
+与下面的代码等价
+
+```C++
+version2(input,"###");  // input altered directly by version2()
+result=input;      // reference to s1 is reference to input
+```
+
+然而，由于s1是指向input的引用，调用该函数将带来修改input的副作用。因此，如果要保留原来的字符串不变，这将是一种错误设计。
+
+​		第三个函数版本指出了什么不能做。它存在一个致命的缺陷：返回一个指向version3( )中声明的变量的引用。这个函数能够通过编译（但编译器会发出警告），但当程序试图执行该函数时将崩溃。具体地说，问题是由下面的赋值语句引发
+
+```C++
+result=version3(input,"@@@");
+```
+
+程序试图引用已经释放的内存。
+
+### 对象、继承和引用
+
+​		ostream和ofstream类凸现了引用的一个有趣属性。ofstream对象可以使用ostream类的方法，这使得文件输入/输出的格式与控制台输入/输出相同。使得能够将特性从一个类传递给另一个类的语言特性被称为继承。简单地说，ostream是基类（因为ofstream是建立在它的基础之上的），而ofstream是派生类（因为它是从ostream派生而来的）。派生类继承了基类的方法，这意味着ofstream对象可以使用基类的特性，如格式化方法precision( )和setf()。
+
+​		继承的另一个特征是，基类引用可以指向派生类对象，而无需进行强制类型转换。这种特征的一个实际结果是，可以定义一个接受基类引用作为参数的函数，调用该函数时，可以将基类对象作为参数，也可以将派生类对象作为参数
+
+​		程序通过调用同一个函数（只有函数调用参数不同）将数据写入文件和显示到屏幕上来说明了这一点。该程序要求用户输入望远镜物镜和一些目镜的焦距，然后计算并显示每个目镜的放大倍数。放大倍数等于物镜的焦距除以目镜的焦距，因此计算起来很简单。该程序还使用了一些格式化方法，这些方法用于cout和ofstream对象（在这个例
+子中为fout）时作用相同。
+
+```C++
+#include <iostream>
+#include <fstream>
+#include <cstdlib>
+
+using namespace std;
+
+void file_it(ostream &os, double fo, const double fe[], int n);
+const int LIMIT = 5;
+
+int main()
+{
+    ofstream fout;
+    const char *fn = "ep-data.txt";
+    fout.open(fn);
+    if (!fout.is_open())
+    {
+        cout << "Can't open " << fn << ". Bye.\n";
+        exit(EXIT_FAILURE);
+    }
+    double objective;
+    cout << "Enter the focal length of your "
+            "telescope objective in mm: ";
+    cin >> objective;
+    double eps[LIMIT];
+    cout << "Enter the focal lengths, in mm, of " << LIMIT
+         << " eyepieces:\n";
+    for (int i = 0; i < LIMIT; i++)
+    {
+        cout << "Eyepiece #" << i + 1 << ": ";
+        cin >> eps[i];
+    }
+    file_it(fout, objective, eps, LIMIT);
+    file_it(cout, objective, eps, LIMIT);
+    cout << "Done\n";
+
+    return 0;
+}
+
+void file_it(ostream &os, double fo, const double fe[], int n)
+{
+    ios_base::fmtflags initial;
+    initial = os.setf(ios_base::fixed);
+    os.precision(0);
+    os << "Focal length of objective: " << fo << " mm\n";
+    os.setf(ios_base::showpoint);
+    os.precision(1);
+    os.width(12);
+    os << "f.1. eyepiece";
+    os.width(15);
+    os << "magnification" << endl;
+    for (int i = 0; i < n; i++)
+    {
+        os.width(12);
+        os << fe[i];
+        os.width(15);
+        os << int(fo / fe[i] + 0.5) << endl;
+    }
+    os.setf(initial);
+}
+
+```
+
+​		下述代码行将目镜数据写入到文件ep-data.txt中
+
+```C++
+file_it(fout, objective, eps, LIMIT);
+```
+
+而下述代码行将同样的信息以同样的格式显示到屏幕上
+
+```C++
+file_it(cout, objective, eps, LIMIT);
+```
+
+​		对于该程序，最重要的一点是，参数os（其类型为ostream &）可以指向ostream对象（如cout），也可以指向ofstream对象（如fout）。该程序还演示了如何使用ostream类中的格式化方法。
+
+​		方法setf( )让您能够设置各种格式化状态。例如，方法调用setf(ios_base::fixed)将对象置于使用定点表示法的模式；setf(ios_base::showpoint)将对象置于显示小数点的模式，即使小数部分为零。方法precision( )指定显示多少位小数（假定对象处于定点模式下）。所有这些设置都将一直保持不变，直到再次调用相应的方法重新设置它们。方法width( )设置下一次输出操作使用的字段宽度，这种设置只在显示下一个值时有效，然后将恢复到默认设置。默认的字段宽度为零，这意味着刚好能容纳下要显示的内容。
+
+​		函数file_it( )使用了两个有趣的方法调用
+
+```C++
+ios_base::fmtflags initial;
+initial = os.setf(ios_base::fixed);
+...
+os.setf(initial);
+```
+
+方法setf( )返回调用它之前有效的所有格式化设置。ios_base::fmtflags是存储这种信息所需的数据类型名称。因此，将返回值赋给initial将存储调用file_it( )之前的格式化设置，然后便可以使用变量initial作为参数来调用setf( )，将所有的格式化设置恢复到原来的值。因此，该函数将对象回到传递给file_it( )之前的状态。
+
+​		了解更多有关类的知识将有助于更好地理解这些方法的工作原理，以及为何在代码中使用ios_base。
+
+​		需要说明的最后一点是，每个对象都存储了自己的格式化设置。因此，当程序将cout传递给file_it( )时，cout的设置将被修改，然后被恢复；当程序将fout传递给file_it( )时，fout的设置将被修改，然后被恢复。
+
+### 何时使用引用参数
+
+​		使用引用参数的主要原因有两个。
+
+- 程序员能够修改调用函数中的数据对象。
+- 通过传递引用而不是整个数据对象，可以提高程序的运行速度。
+
+当数据对象较大时（如结构和类对象），第二个原因最重要。这些也是使用指针参数的原因。这是有道理的，因为引用参数实际上是基于指针的代码的另一个接口。那么，什么时候应使用引用、什么时候应使用指针呢？什么时候应按值传递呢？下面是一些指导原则
+
+​		对于使用传递的值而不作修改的函数
+
+- 如果数据对象很小，如内置数据类型或小型结构，则按值传递。
+- 如果数据对象是数组，则使用指针，因为这是唯一的选择，并将指针声明为指向const的指针。
+- 如果数据对象是较大的结构，则使用const指针或const引用，以提高程序的效率。这样可以节省复制结构所需的时间和空间。
+- 如果数据对象是类对象，则使用const引用。类设计的语义常常要求使用引用，这是C++新增这项特性的主要原因。因此，传递类对象参数的标准方式是按引用传递。
+
+​		对于修改调用函数中数据的函数
+
+- 如果数据对象是内置数据类型，则使用指针。如果看到诸如fixit（&x）这样的代码（其中x是int），则很明显，该函数将修改x。
+- 如果数据对象是数组，则只能使用指针。
+- 如果数据对象是结构，则使用引用或指针。
+- 如果数据对象是类对象，则使用引用。
+
+当然，这只是一些指导原则，很可能有充分的理由做出其他的选择。例如，对于基本类型，cin使用引用，因此可以使用cin>>n，而不是cin >> &n。
+
+## 默认参数
+
+​		C++的另一项新内容——默认参数。默认参数指的是当函数调用中省略了实参时自动使用的一个值。这极大地提高了使用函数的灵活性。
+
+​		必须通过函数原型。由于编译器通过查看原型来了解函数所使用的参数数目，因此函数原型也必须将可能的默认参数告知程序。方法是将值赋给原型中的参数。例如，left( )的原型如下
+
+```C++
+char * left(const char * str, int n=1);
+```
+
+对于带参数列表的函数，必须从右向左添加默认值。也就是说，要为某个参数设置默认值，则必须为它右边的所有参数提供默认值
+
+​		实参按从左到右的顺序依次被赋给相应的形参，而不能跳过任何参数。
+
+​		默认参数并非编程方面的重大突破，而只是提供了一种便捷的方式。在设计类时您将发现，通过使用默认参数，可以减少要定义的析构函数、方法以及方法重载的数量。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+const int ArSize = 80;
+char *left(const char *str, int n = 1);
+
+int main()
+{
+    char sample[ArSize];
+    cout << "Enter a string:\n";
+    cin.get(sample, ArSize);
+    char *ps = left(sample, 4);
+    cout << ps << endl;
+    delete[] ps;
+    ps = left(sample);
+    cout << ps << endl;
+    delete[] ps;
+    return 0;
+}
+
+char *left(const char *str, int n)
+{
+    if (n < 0)
+        n = 0;
+    char *p = new char[n + 1];
+    int i;
+    for (i = 0; i < n && str[i]; i++)
+        p[i] = str[i];
+    while (i <= n)
+        p[i++] = '\0';
+    return p;
+}
+
+```
+
+该程序使用new创建一个新的字符串，以存储被选择的字符。一种可能出现的尴尬情况是，不合作的用户要求的字符数目可能为负。在这种情况下，函数将字符计数设置为0，并返回一个空字符串。另一种可能出现的尴尬情况是，不负责任的用户要求的字符数目可能多于字符串包含的字符数，为预防这种情况，函数使用了一个组合测试
+
+```C++
+i < n && str[i]
+```
+
+i < n测试让循环复制了n个字符后终止。测试的第二部分——表达式str[i]，是要复制的字符的编码。遇到空值字符（其编码为0）后，循环将结束。这样，while循环将使字符串以空值字符结束，并将余下的空间（如果有的话）设置为空值字符。
+
+​		另一种设置新字符串长度的方法是，将n设置为传递的值和字符串长度中较小的一个
+
+```C++
+int len=strle(str);
+n=(n<len)?n:len;
+char *p = new char[n+1];
+```
+
+这将确保new分配的空间不会多于存储字符串所需的空间。如果用户执行像left(“Hi!”, 32767)这样的调用，则这种方法很有用。第一种方法将把“Hi!”复制到由32767个字符组成的数组中，并将除前3个字符之外的所有字符都设置为空值字符；第二种方法将“Hi!”复制到由4个字符组成的数组中。但由于添加了另外一个函数调用（strlen( )），因此程序
+将更长，运行速度将降低，同时还必须包含头文件cstring（或string.h）。C程序员倾向于选择运行速度更快、更简洁的代码，因此需要程序员在正确使用函数方面承担更多责任。然而，C++的传统是更强调可靠性。毕竟，速度较慢但能正常运行的程序，要比运行速度虽快但无法正常运行的程序好。如果调用strlen( )所需的时间很长，则可以让left( )直接确定n和字符串长度哪个小。例如，当m的值等于n或到达字符串结尾时，下面的循环都将终止
+
+```C++
+int m=0;
+while(m<=n && str[m]!='\0')
+    m++;
+char *p = new char[m+1];  // use m instead of n in rest of code
+```
+
+别忘了，在str[m]不是空值字符时，表达式str[m] != '\0'的结果为true，否则为false。由于在&&表达式中，非零值被转换为true，而零被转换为false，因此也可以这样编写这个while测试
+
+```C++
+while(m<=n&&str[m])
+```
+
+## 函数重载
+
+​		函数多态是C++在C语言的基础上新增的功能。默认参数让您能够使用不同数目的参数调用同一个函数，而函数多态（函数重载）让您能够使用多个同名的函数。术语“多态”指的是有多种形式，因此函数多态允许函数可以有多种形式。类似地，术语“函数重载”指的是可以有多个同名的函数，因此对名称进行了重载。这两个术语指的是同一回事，但我们通常使用函数重载。可以通过函数重载来设计一系列函数——它们完成相同的工作，但使用不同的参数列表。
+
+​		C++使用上下文来确定要使用的重载函数版本。
+
+​		函数重载的关键是函数的参数列表——也称为函数特征标（function signature）。如果两个函数的参数数目和类型相同，同时参数的排列顺序也相同，则它们的特征标相同，而变量名是无关紧要的。C++允许定义名称相同的函数，条件是它们的特征标不同。如果参数数目和/或参数类型不同，则特征标也不同。
+
+​		使用被重载的函数时，需要在函数调用中使用正确的参数类型。
+
+​		没有匹配的原型并不会自动停止使用其中的某个函数，因为C++将尝试使用标准类
+型转换强制进行匹配。
+
+```C++
+void print(const char * str, int width);  // #1
+void print(double d, int width); // #2
+void print(long l, int width); // #3
+void print(int i, int width); // #4
+void print(const char * str); // #5
+```
+
+​		如果#2原型是print( )唯一的原型，则函数调用print(year, 6)将把year转换为double类型。但在上面的代码中，有3个将数字作为第一个参数的原型，因此有3种转换year的方式。在这种情况下，C++将拒绝这种函数调用，并将其视为错误。
+
+​		一些看起来彼此不同的特征标是不能共存的。
+
+```C++
+double cube(double x);
+double cube(double & x);
+```
+
+您可能认为可以在此处使用函数重载，因为它们的特征标看起来不同。然而，请从编译器的角度来考虑这个问题。假设有下面这样的代码
+
+```C++
+cout << cube(x);
+```
+
+参数x与double x原型和double &x原型都匹配，因此编译器无法确定究竟应使用哪个原型。**为避免这种混乱，编译器在检查函数特征标时，将把类型引用和类型本身视为同一个特征标。**
+
+​		匹配函数时，并不区分const和非const变量。
+
+```C++
+void dribble(char * bits);  //overload
+void dribble(const char * cbits); //overload
+void dabble(char * bits); //not overload
+void drivel(const char * bits);//not overload
+```
+
+下面列出了各种函数调用对应的原型
+
+```C++
+const char p1[20] = "How's the weather?";
+char p2[20]= "How's business?";
+dribble(p1);   //dribble(const char * cbits);
+dribble(p2);    //dribble(char * bits);
+dabble(p1);  //no match
+dabble(p2);  //dabble(char * bits);
+drivel(p1);  //drivel(const char * bits);
+drivel(p2);  //drivel(const char * bits);
+```
+
+dribble( )函数有两个原型，一个用于const指针，另一个用于常规指针，编译器将根据实参是否为const来决定使用哪个原型。dribble( )函数只与带非const参数的调用匹配，而drivel( )函数可以与带const或非const参数的调用匹配。drivel( )和dabble( )之所以在行为上有这种差别，主要是由于将非const值赋给const变量是合法的，但反之则是非法的。
+
+​		是特征标，而不是函数类型使得可以对函数进行重载。返回类型可以不同，但特征标也必须不同
+
+​		**重载引用参数**：类设计和STL经常使用引用参数，因此知道不同引用类型的重载很有用。请看下面三个原型
+
+```C++
+void sink(double & r1);  // matches modifiable lvalue
+void sank(const double & r2);  // matches modifiable or const lvalue, rvalue
+void sunk(double && r3);  // matches rvalue
+```
+
+左值引用参数r1与可修改的左值参数（如double变量）匹配；const左值引用参数r2与可修改的左值参数、const左值参数和右值参数（如两个double值的和）匹配；最后，左值引用参数r3与左值匹配。注意到与r1或r3匹配的参数都与r2匹配。这就带来了一个问题：如果重载使用这三种参数的函数，结果将如何？答案是将调用最匹配的版本
+
+```C++
+void staff(double & rs);   // matches modifiable lvalue
+void staff(const double & rcs);   // matches rvalue, const lvalue
+void stove(double & r1); // matches modifiable lvalue
+void stove(const double & r2); // matches const lvalue
+void stove(double && r3); // matches rvalue
+```
+
+这让您能够根据参数是左值、const还是右值来定制函数的行为
+
+```C++
+double x=55.5;
+const double y = 32.0;
+stove(x);  // calls stove(double & r1);
+stove(y);// calls stove(const double & r2);
+stove(x+y);// calls stove(double && r3);
+```
+
+如果没有定义函数stove(double &&)，stove(x+y)将调用函数stove(const double &)。
+
+### 重载示例
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+unsigned long left(unsigned long num, unsigned ct);
+char *left(const char *str, int n = 1);
+
+int main()
+{
+    char *trip = "Hawaii!!";
+    unsigned long n = 12345678;
+    int i;
+    char *temp;
+
+    for (i = 1; i <= 10; i++)
+    {
+        cout << left(n, i) << endl;
+        temp = left(trip, i);
+        cout << temp << endl;
+        delete[] temp;
+    }
+    return 0;
+}
+
+unsigned long left(unsigned long num, unsigned ct)
+{
+    unsigned digits = 1;
+    unsigned long n = num;
+
+    if (ct == 0 || num == 0)
+        return 0;
+    while (n /= 10)
+        digits++;
+    if (digits > ct)
+    {
+        ct = digits - ct;
+        while (ct--)
+            num /= 10;
+        return num;
+    }
+    else
+    {
+        return num;
+    }
+}
+
+char *left(const char *str, int n)
+{
+    if (n < 0)
+        n = 0;
+    char *p = new char[n + 1];
+    int i;
+    for (i = 0; i < n && str[i]; i++)
+        p[i] = str[i];
+    while (i <= n)
+        p[i++] = '\0';
+    return p;
+}
+
+```
+
+### 何时使用函数重载
+
+​		虽然函数重载很吸引人，但也不要滥用。仅当函数基本上执行相同的任务，但使用不同形式的数据时，才应采用函数重载。另外，您可能还想知道，是否可以通过使用默认参数来实现同样的目的。例如，可以用两个重载函数来代替面向字符串的left( )函数
+
+​		使用一个带默认参数的函数要简单些。只需编写一个函数（而不是两个函数），程序也只需为一个函数（而不是两个）请求内存；需要修改函数时，只需修改一个。**然而，如果需要使用不同类型的参数，则默认参数便不管用了，在这种情况下，应该使用函数重载。**
+
+​		**名称修饰**：C++如何跟踪每一个重载函数呢？它给这些函数指定了秘密身份。使用C++开发工具中的编辑器编写和编译程序时，C++编译器将执行一些神奇的操作——名称修饰（name decoration）或名称矫正（name mangling），它根据函数原型中指定的形参类型对每个函数名进行加密。请看下述未经修饰的函数原型
+
+```C++
+long MyFunctionFoo(int, float);
+```
+
+这种格式对于人类来说很适合；我们知道函数接受两个参数（一个为int类型，另一个为float类型），并返回一个long值。而编译器将名称转换为不太好看的内部表示，来描述该接口，如下所示
+
+```
+?MyFunctionFoo@@YAXH
+```
+
+对原始名称进行的表面看来无意义的修饰（或矫正，因人而异）将对参数数目和类型进
+行编码。添加的一组符号随函数特征标而异，而修饰时使用的约定随编译器而异。
+
+## 函数模板（泛型）
+
+​		现在的C++编译器实现了C++新增的一项特性——函数模板。函数模板是通用的函数描述，也就是说，它们使用泛型来定义函数，其中的泛型可用具体的类型（如int或double）替换。通过将类型作为参数传递给模板，可使编译器生成该类型的函数。由于模板允许以泛型（而不是具体类型）的方式编写程序，因此有时也被称为通用编程。由于类型是用参数表示的，因此模板特性有时也被称为参数化类型（parameterized types）。
+
+​		函数模板允许以任意类型的方式来定义函数。在标准C++98添加关键字typename之前，C++使用关键字class来创建模板。
+
+```C++
+template <class AnyType>
+void Swap(AnyType &a, AnyType &b){
+    AnyType temp;
+    temp=a;
+    a=b;
+    b=temp;
+}
+```
+
+typename关键字使得参数AnyType表示类型这一点更为明显；然而，有大量代码库是使用关键字class开发的。在这种上下文中，这两个关键字是等价的。本书使用了这两种形式，旨在让您在其他地方遇到它们时不会感到陌生。
+
+​		如果需要多个将同一种算法用于不同类型的函数，请使用模板。如果不考虑向后兼容的问题，并愿意键入较长的单词，则声明类型参数时，应使用关键字typename而不使用class。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+template <typename T> // or class T
+void Swap(T &a, T &b);
+
+int main()
+{
+    int i = 10;
+    int j = 20;
+    cout << "i, j = " << i << ", " << j << ".\n";
+    cout << "Using compiler-generated int swapper:\n";
+    Swap(i, j);
+    cout << "Now i,j = " << i << ", " << j << ".\n";
+
+    double x = 24.5;
+    double y = 81.7;
+    cout << "x, y = " << x << ", " << y << ".\n";
+    cout << "Using compiler-generated double swapper:\n";
+    Swap(x, y);
+    cout << "Now x, y = " << x << ", " << y << ".\n";
+
+    return 0;
+}
+
+template <typename T>
+void Swap(T &a, T &b)
+{
+    T temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
+```
+
+函数模板不能缩短可执行程序。对于上述程序，最终仍将由两个独立的函数定义，就像以手工方式定义了这些函数一样。最终的代码不包含任何模板，而只包含了为程序生成的实际函数。使用模板的好处是，它使生成多个函数定义更简单、更可靠。
+
+​		更常见的情形是，将模板放在头文件中，并在需要使用模板的文件中包含头文件。
+
+### 重载的模板
+
+​		需要多个对不同类型使用同一种算法的函数时，可使用模板。然而，并非所有的类型都使用相同的算法。为满足这种需求，可以像重载常规函数定义那样重载模板定义。和常规重载一样，被重载的模板的函数特征标必须不同。
+
+​		下面程序新增了一个交换模板，用于交换两个数组中的元素。原来的模板的特征标为(T&, T &)，而新模板的特征标为(T [ ], T [ ], int)。注意，在后一个模板中，最后一个参数的类型为具体类型（int），而不是泛型。并非所有的模板参数都必须是模板参数类型。
+
+​		编译器见到第一个Swap( )函数调用时，发现它有两个int参数，因此将它与原来的模板匹配。但第二次调用将两个int数组和一个int值用作参数，这与新模板匹配。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+template <typename T> // or class T
+void Swap(T &a, T &b);
+
+template <typename T> // or class T
+void Swap(T *a, T *b, int n);
+void Show(int a[]);
+const int Lim = 8;
+
+int main()
+{
+    int i = 10;
+    int j = 20;
+    cout << "i, j = " << i << ", " << j << ".\n";
+    cout << "Using compiler-generated int swapper:\n";
+    Swap(i, j);
+    cout << "Now i,j = " << i << ", " << j << ".\n";
+
+    int d1[Lim] = {0, 7, 0, 4, 1, 7, 7, 6};
+    int d2[Lim] = {0, 7, 2, 0, 1, 9, 6, 9};
+    cout << "Original arrays:\n";
+    Show(d1);
+    Show(d2);
+    Swap(d1, d2, Lim);
+    cout << "Swapped arrays:\n";
+    Show(d1);
+    Show(d2);
+
+    return 0;
+}
+
+template <typename T>
+void Swap(T &a, T &b)
+{
+    T temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
+
+template <typename T>
+void Swap(T a[], T b[], int n)
+{
+    T temp;
+    for (int i = 0; i < n; i++)
+    {
+        temp = a[i];
+        a[i] = b[i];
+        b[i] = temp;
+    }
+}
+
+void Show(int a[])
+{
+    cout << a[0] << a[1] << "/";
+    cout << a[2] << a[3] << "/";
+    for (int i = 4; i < Lim; i++)
+        cout << a[i];
+    cout << endl;
+}
+
+```
+
+### 模板的局限性
+
+​		假设有如下模板函数
+
+```C++
+template <class T> // or template<typename T>
+void f(T a, T b){...}
+```
+
+通常，代码假定可执行哪些操作。例如，下面的代码假定定义了赋值，但如果T为数组，这种假设将不成立
+
+```C++
+a=b;
+```
+
+同样，下面的语句假设定义了<，但如果T为结构，该假设便不成立
+
+```C++
+if(a>b)
+```
+
+另外，为数组名定义了运算符>，但由于数组名为地址，因此它比较的是数组的地址，而这可能不是您希望的。下面的语句假定为类型T定义了乘法运算符，但如果T为数组、指针或结构，这种假设便不成立
+
+```C++
+T c=a*b;
+```
+
+总之，编写的模板函数很可能无法处理某些类型。另一方面，有时候通用化是有意义的，但C++语法不允许这样做。例如，将两个包含位置坐标的结构相加是有意义的，虽然没有为结构定义运算符+。一种解决方案是，C++允许您重载运算符+，以便能够将其用于特定的结构或类。这样使用运算符+的模板便可处理重载了运算符+的结构。另一种解决方案是，为特定类型提供具体化的模板定义
+
+### 显式具体化
+
+​		假设定义了如下结构
+
+```C++
+struct job{
+    char name[40];
+    double salary;
+    int floor;
+};
+```
+
+另外，假设希望能够交换两个这种结构的内容。原来的模板使用下面的代码来完成交换
+
+```C++
+temp =a;
+a=b;
+b=temp;
+```
+
+由于C++允许将一个结构赋给另一个结构，因此即使T是一个job结构，上述代码也适用。然而，假设只想交换salary和floor成员，而不交换name成员，则需要使用不同的代码，但Swap( )的参数将保持不变（两个job结构的引用），因此无法使用模板重载来提供其他的代码。
+
+​		然而，可以提供一个具体化函数定义——称为显式具体化（explicit specialization），其中包含所需的代码。当编译器找到与函数调用匹配的具体化定义时，将使用该定义，而不再寻找模板。
+
+​		具体化机制随着C++的演变而不断变化。下面介绍C++标准定义的形式
+
+#### 第三代具体化（ISO/ANSI C++标准）
+
+​		试验其他具体化方法后，C++98标准选择了下面的方法。
+
+- 对于给定的函数名，可以有非模板函数、模板函数和显式具体化模板函数以及它们的重载版本。
+- 显式具体化的原型和定义应以template<>打头，并通过名称来指出类型。
+- 具体化优先于常规模板，而非模板函数优先于具体化和常规模板。
+
+下面是用于交换job结构的非模板函数、模板函数和具体化的原型
+
+```C++
+// non template functio prototype
+void Swap(job &, job &);
+
+// template prototype
+template <typename T>
+void Swap(T &, T &);
+
+// explicit specialization for the job type
+template <> void Swap<job>(job &, job &);
+```
+
+正如前面指出的，如果有多个原型，则编译器在选择原型时，非模板版本优先于显式具体化和模板版本，**而显式具体化优先于使用模板生成的版本**。例如，在下面的代码中，第一次调用Swap( )时使用通用版本，而第二次调用使用基于job类型的显式具体化版本。
+
+```C++
+...
+template <typename T>
+void Swap(T &, T &);
+
+// explicit specialization for the job type
+template <> void Swap<job>(job &, job &);
+
+int main(){
+    double u,v;
+    ...
+    Swap(u,v);  // use template
+    job a,b;
+    ...
+    Swap(a,b);  // use void Swap<job>(job &, job &);
+}
+```
+
+Swap<job>中的<job>是可选的，因为函数的参数类型表明，这是job的一个具体化。因此，该原型也可以这样编写
+
+```C++
+template <> void Swap<>(job &, job &);
+```
+
+#### 显式具体化示例
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+template <typename T>
+void Swap(T &a, T &b);
+
+struct job
+{
+    char name[40];
+    double salary;
+    int floor;
+};
+
+template <>
+void Swap<job>(job &j1, job &j2);
+void Show(job &j);
+
+int main()
+{
+    cout.precision(2);
+    cout.setf(ios_base::fixed, ios_base::floatfield);
+    int i = 10;
+    int j = 20;
+    cout << "i, j = " << i << ", " << j << ".\n";
+    cout << "Using compiler-generated int swapper:\n";
+    Swap(i, j);
+    cout << "Now i,j = " << i << ", " << j << ".\n";
+
+    job sue = {"Susan Yaffee", 73000.60, 7};
+    job sidney = {"Sidney Taffee", 78060.72, 9};
+    cout << "Before job swapping:\n";
+    Show(sue);
+    Show(sidney);
+    Swap(sue, sidney); // uses void Swap(job &, job &)
+    cout << "After job swapping:\n";
+    Show(sue);
+    Show(sidney);
+
+    return 0;
+}
+
+template <typename T>
+void Swap(T &a, T &b)
+{
+    T temp;
+    temp = a;
+    a = b;
+    b = temp;
+}
+
+template <>
+void Swap(job &j1, job &j2)
+{
+    double t1;
+    int t2;
+    t1 = j1.salary;
+    j1.salary = j2.salary;
+    j2.salary = t1;
+    t2 = j1.floor;
+    j1.floor = j2.floor;
+    j2.floor = t2;
+}
+
+void Show(job &j)
+{
+    cout << j.name << ": $" << j.salary
+         << " on floor " << j.floor << endl;
+}
+
+```
+
+### 实例化和具体化
+
+​		为进一步了解模板，必须理解术语实例化和具体化。记住，在代码中包含函数模板本身并不会生成函数定义，它只是一个用于生成函数定义的方案。编译器使用模板为特定类型生成函数定义时，得到的是模板实例（instantiation）。
+
+​		函数调用Swap(i, j)导致编译器生成Swap( )的一个实例，该实例使用int类型。模板并非函数定义，但使用int的模板实例是函数定义。这种实例化方式被称为隐式实例化（implicit instantiation），因为编译器之所以知道需要进行定义，是由于程序调用Swap( )函数时提供了int参数。
+
+​		最初，编译器只能通过隐式实例化，来使用模板生成函数定义，但现在C++还允许显式实例化（explicit instantiation）。这意味着可以直接命令编译器创建特定的实例，如Swap<int>( )。其语法是，声明所需的种类——用<>符号指示类型，并在声明前加上关键字template：
+
+```C++
+template void Swap<int>(int, int); // explicit instantiation
+```
+
+实现了这种特性的编译器看到上述声明后，将使用Swap( )模板生成一个使用int类型的实例。也就是说，该声明的意思是“使用Swap( )模板生成int类型的函数定义。”
+
+​		与显式实例化不同的是，显式具体化使用下面两个等价的声明之一
+
+```C++
+template <> void Swap<int>(int &, int &);
+template <> void Swap(int &, int &);
+```
+
+区别在于，这些声明的意思是“不要使用Swap( )模板来生成函数定义，而应使用专门为int类型显式地定义的函数定义”。这些原型必须有自己的函数定义。显式具体化声明在关键字template后包含<>，而显式实例化没有。
+
+​		**试图在同一个文件（或转换单元）中使用同一种类型的显式实例和显式具体化将出错。**
+
+​		还可通过在程序中使用函数来创建显式实例化。
+
+```C++
+template <class T>
+T Add(T a, T b){
+    return a+b;
+}
+...
+int m=6;
+double x=10.2;
+cout << Add<double>(x,m)<<endl;  // explicit instantiation
+```
+
+这里的模板与函数调用Add(x, m)不匹配，因为该模板要求两个函数参数的类型相同。但通过使用Add<double>(x, m)，可强制为double类型实例化，并将参数m强制转换为double类型，以便与函数Add<double>(double, double)的第二个参数匹配。
+
+​		如果对Swap()做类似的处理，结果将如何呢
+
+```C++
+int m=5;
+double x=14.3;
+Swap<double>(m, x); // almost works
+```
+
+这将为类型double生成一个显式实例化。不幸的是，这些代码不管用，因为第一个形参的类型为double &，不能指向int变量m。
+
+​		隐式实例化、显式实例化和显式具体化统称为具体化（specialization）。它们的相同之处在于，它们表示的都是使用具体类型的函数定义，而不是通用描述。
+
+​		引入显式实例化后，必须使用新的语法——在声明中使用前缀template和template <>，以区分显式实例化和显式具体化。通常，功能越多，语法规则也越多。下面的代码片段总结了这些概念
+
+```C++
+...
+template <class T>
+void Swap(T &, T &); // template prototype
+
+template <> void Swap<job>(job &, job &);  //explicit specilization for job
+
+int main(void){
+    template void Swap<char>(char &, char &);  //explicit specilization for char
+    short a,b;
+    ...
+    Swap(a,b); // implicit template instantiation for short
+    job n,m;
+    ...
+    Swap(n,m); // use explicit instantiation for job
+    char g,h;
+    ...
+    Swap(g,h); // use explicit template instantiation for char
+    ...
+}
+```
+
+编译器看到char的显式实例化后，将使用模板定义来生成Swap( )的char版本。对于其他Swap( )调用，编译器根据函数调用中实际使用的参数，生成相应的版本。例如，当编译器看到函数调用Swap(a, b)后，将生成Swap( )的short版本，因为两个参数的类型都是short。当编译器看到Swap(n, m)后，将使用为job类型提供的独立定义（显式具体化）。当编译器看到Swap(g, h)后，将使用处理显式实例化时生成的模板具体化。
+
+### 编译器选择使用哪个函数版本
+
+​		对于函数重载、函数模板和函数模板重载，C++需要（且有）一个定义良好的策略，来决定为函数调用使用哪一个函数定义，尤其是有多个参数时。这个过程称为重载解析（overloading resolution）。
+
+1. 创建候选函数列表。其中包含与被调用函数的名称相同的函数和模板函数。
+2. 使用候选函数列表创建可行函数列表。这些都是参数数目正确的函数，为此有一个隐式转换序列，其中包括实参类型与相应的形参类型完全匹配的情况。例如，使用float参数的函数调用可以将该参数转换为double，从而与double形参匹配，而模板可以为float生成一个实例。
+3. 确定是否有最佳的可行函数。如果有，则使用它，否则该函数调用出错。
+
+​		考虑只有一个函数参数的情况，如下面的调用
+
+```C++
+may('B'); // actual argument is type char
+```
+
+首先，编译器将寻找候选者，即名称为may( )的函数和函数模板。然后寻找那些可以用一个参数调用的函数。例如，下面的函数符合要求，因为其名称与被调用的函数相同，且可只给它们传递一个参数
+
+```C++
+void may(int);  // #1
+float may(float, float=3);  // #2
+void may(char);  // #3
+char * may(const char *);  // #4
+char may(const char &);  // #5
+template<class T> void may(const T &);  // #6
+template<class T> void may(T *);  // #7
+```
+
+注意，只考虑特征标，而不考虑返回类型。其中的两个候选函数（#4和#7）不可行，因为整数类型不能被隐式地转换（即没有显式强制类型转换）为指针类型。剩余的一个模板可用来生成具体化，其中T被替换为char类型。这样剩下5个可行的函数，其中的每一个函数，如果它是声明的唯一一个函数，都可以被使用。
+
+​		接下来，编译器必须确定哪个可行函数是最佳的。它查看为使函数调用参数与可行的候选函数的参数匹配所需要进行的转换。通常，从最佳到最差的顺序如下所述。
+
+1. 完全匹配，但常规函数优先于模板。
+2. 提升转换（例如，char和shorts自动转换为int，float自动转换为double）。
+3. 标准转换（例如，int转换为char，long转换为double）。
+4. 用户定义的转换，如类声明中定义的转换。
+
+​		例如，函数#1优于函数#2，因为char到int的转换是提升转换，而char到float的转换是标准转换。函数#3、函数#5和函数#6都优于函数#1和#2，因为它们都是完全匹配的。#3和#5优于#6，因为#6函数是模板。这种分析引出了两个问题。什么是完全匹配？如果两个函数（如#3和#5）都完全匹配，将如何办呢？通常，有两个函数完全匹配是一种错误，但这一规则有两个例外。显然，我们需要对这一点做更深入的探讨。
+
+#### 完全匹配和最佳匹配
+
+​		进行完全匹配时，C++允许某些“无关紧要的转换”。下表列出了这些转换——Type表示任意类型。例如，int实参与int &形参完全匹配。注意，Type可以是char &这样的类型，因此这些规则包括从char &到constchar &的转换。Type（argument-list）意味着用作实参的函数名与用作形参的函数指针只要返回类型和参数列表相同，就是匹配的（前面介绍了函数指针以及为何可以将函数名作为参数传递给接受函数指针的函数）
+
+​		**完全匹配允许的无关紧要转换**
+
+|        从实参        |          到形参          |
+| :------------------: | :----------------------: |
+|         Type         |          Type &          |
+|        Type &        |           Type           |
+|       Type []        |          * Type          |
+| Type (argument-list) | Type (*) (argument-list) |
+|         Type         |        const Type        |
+|         Type         |      volatile Type       |
+|        Type *        |        const Type        |
+|        Type *        |     volatile Type *      |
+
+​		假设有下面的函数代码
+
+```C++
+struct blot {int a; char b[10];};
+blot ink = {25, "spots"};
+...
+recycle(ink);
+```
+
+在这种情况下，下面的原型都是完全匹配的
+
+```C++
+void recycle(blot); // #1 blot-to-blot
+void recycle(const blot); // #2 blot-to-(const blot)
+void recycle(blot &); // #3 blot-to-(blot &)
+void recycle(const blot &); // #4 blot-to-(const blot &)
+```
+
+如果有多个匹配的原型，则编译器将无法完成重载解析过程；如果没有最佳的可行函数，则编译器将生成一条错误消息，该消息可能会使用诸如“ambiguous（二义性）”这样的词语。
+
+​		然而，有时候，即使两个函数都完全匹配，仍可完成重载解析。首先，指向非const数据的指针和引用优先与非const指针和引用参数匹配。也就是说，在recycle( )示例中，如果只定义了函数#3和#4是完全匹配的，则将选择#3，因为ink没有被声明为const。然而，const和非const之间的区别只适用于指针和引用指向的数据。也就是说，如果只定义了#1和#2，则将出现二义性错误。
+
+​		一个完全匹配优于另一个的另一种情况是，其中一个是非模板函数，而另一个不是。在这种情况下，非模板函数将优先于模板函数（包括显式具体化）。
+
+​		如果两个完全匹配的函数都是模板函数，则较具体的模板函数优先。例如，这意味着显式具体化将优于使用模板隐式生成的具体化
+
+```C++
+struct blot {int a; char b[10];};
+template <class Type> void recycle(Type t); // template
+template <> void recycle<blot>(blot & t);  // specialization for blot
+...
+blot ink = {25,"spots"};
+...
+recycle(ink); // use specialization
+```
+
+术语“最具体（most specialized）”并不一定意味着显式具体化，而是指编译器推断使用哪种类型时执行的转换最少。例如，请看下面两个模板
+
+```C++
+template <class Type> void recycle(Type t);  // #1
+template <class Type> void recycle(Type *t);  // #2
+```
+
+假设包含这些模板的程序也包含如下代码
+
+```C++
+struct blot {int a; char b[10];};
+blot ink = {25,"spots"};
+...
+recycle(&ink); //address of a structure
+```
+
+recycle(&ink)调用与#1模板匹配，匹配时将Type解释为blot *。
+
+​		recycle（&ink）函数调用也与#2模板匹配，这次Type被解释为ink。因此将两个隐式实例——recycle<blot *>(blot *)和recycle <blot>(blot *)发送到可行函数池中。
+
+​		在这两个模板函数中，recycle<blot *>(blot *)被认为是更具体的，因为在生成过程中，它需要进行的转换更少。也就是说，#2模板已经显式指出，函数参数是指向Type的指针，因此可以直接用blot标识Type；而#1模板将Type作为函数参数，因此Type必须被解释为指向blot的指针。也就是说，在#2模板中，Type已经被具体化为指针，因此说它“更具体”。
+
+​		用于找出最具体的模板的规则被称为函数模板的部分排序规则（partial ordering rules）。和显式实例一样，这也是C++98新增的特性。
+
+#### 部分排序规则示例
+
+​		先看一个完整的程序，它使用部分排序规则来确定要使用哪个模板定义。程序有两个用来显示数组内容的模板定义。第一个定义（模板A）假设作为参数传递的数组中包含了要显示的数据；第二个定义（模板B）假设数组元素为指针，指向要显示的数据。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+template <typename T>
+void ShowArray(T arr[], int n);
+
+template <typename T>
+void ShowArray(T *arr[], int n);
+
+struct debts
+{
+    char name[50];
+    double amount;
+};
+
+int main()
+{
+    int things[6] = {13, 31, 103, 301, 310, 130};
+    struct debts mr_E[3] =
+        {
+            {"Ima Wofle", 2400.0},
+            {"Ura Foxe", 1300.0},
+            {"Iby Stout", 1800.0}};
+    double *pd[3];
+
+    for (int i = 0; i < 3; i++)
+        pd[i] = &mr_E[i].amount;
+
+    cout << "Listing Mr. E's counts of things:\n";
+    ShowArray(things, 6); // uses template A
+    cout << "Listing Mr. E's debts:\n";
+    ShowArray(pd, 3); // uses template B (more specialized)
+
+    return 0;
+}
+
+template <typename T>
+void ShowArray(T arr[], int n)
+{
+    cout << "template A\n";
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << ' ';
+    cout << endl;
+}
+
+template <typename T>
+void ShowArray(T *arr[], int n)
+{
+    cout << "template B\n";
+    for (int i = 0; i < n; i++)
+        cout << *arr[i] << ' ';
+    cout << endl;
+}
+
+```
+
+​		如果将模板B从程序中删除，则编译器将使用模板A来显示pd的内容，因此显示的将是地址，而不是值。请试试看。
+
+​		简而言之，重载解析将寻找最匹配的函数。如果只存在一个这样的函数，则选择它；如果存在多个这样的函数，但其中只有一个是非模板函数，则选择该函数；如果存在多个适合的函数，且它们都为模板函数，但其中有一个函数比其他函数更具体，则选择该函数。如果有多个同样合适的非模板函数或模板函数，但没有一个函数比其他函数更具体，则函数调用将是不确定的，因此是错误的；当然，如果不存在匹配的函数，则也是错误。
+
+#### 自己选择
+
+​		在有些情况下，可通过编写合适的函数调用，引导编译器做出您希望的选择。请看程序，该程序将模板函数定义放在文件开头，从而无需提供模板原型。与常规函数一样，通过在使用函数前提供模板函数定义，它让它也充当原型。
+
+```C++
+#include <iostream>
+
+using namespace std;
+
+template <class T>
+T lesser(T a, T b)
+{ // #1
+    return a < b ? a : b;
+}
+
+int lesser(int a, int b)
+{ // #2
+    a = a < 0 ? -a : a;
+    b = b < 0 ? -b : b;
+    return a < b ? a : b;
+}
+
+int main()
+{
+
+    int m = 20;
+    int n = -30;
+    double x = 15.5;
+    double y = 25.9;
+
+    cout << lesser(m, n) << "\n";      // use #2
+    cout << lesser(x, y) << "\n";      // use #1 with double
+    cout << lesser<>(m, n) << "\n";    // use #1 with int
+    cout << lesser<int>(x, y) << "\n"; // use #1 with int
+
+    return 0;
+}
+```
+
+最后的函数调用将double转换为int，有些编译器会针对这一点发出警告。=
+
+​		程序清单提供了一个模板和一个标准函数，其中模板返回两个值中较小的一个，而标准函数返回两个值中绝对值较小的那个。如果函数定义是在使用函数前提供的，它将充当函数原型，因此这个示例无需提供原型。
+
+#### 多个参数的函数
+
+​		将有多个参数的函数调用与有多个参数的原型进行匹配时，情况将非常复杂。编译器必须考虑所有参数的匹配情况。如果找到比其他可行函数都合适的函数，则选择该函数。一个函数要比其他函数都合适，其所有参数的匹配程度都必须不比其他函数差，同时至少有一个参数的匹配程度比其他函数都高。
+
+### 模板函数的发展
+
+​		在C++发展的早期，大多数人都没有想到模板函数和模板类会有这么强大而有用，它们甚至没有就这个主题发挥想象力。但聪明而专注的程序员挑战模板技术的极限，阐述了各种可能性。根据熟悉模板的程序员提供的反馈，C++98标准做了相应的修改，并添加了标准模板库。从此以后，模板程序员在不断探索各种可能性，并消除模板的局限性。C++11标准根据这些程序员的反馈做了相应的修改。
+
+#### 是什么类型
+
+​		在C++98中，编写模板函数时，一个问题是并非总能知道应在声明中使用哪种类型。请看下面这个不完整的示例
+
+```C++
+template<class T1, class T2>
+void ft(T1 x, T2 y){
+    ...
+    ?type? xpy=x+y;
+    ...
+}
+```
+
+py应为什么类型呢？由于不知道ft()将如何使用，因此无法预先知道这一点。正确的类型可能是T1、T2或其他类型。例如，T1可能是double，而T2可能是int，在这种情况下，两个变量的和将为double类型。T1可能是short，而T2可能是int，在这种情况下，两个变量的和为int类型。T1还可能是short，而T2可能是char，在这种情况下，加法运算
+将导致自动整型提升，因此结果类型为int。另外，结构和类可能重载运算符+，这导致问题更加复杂。因此，在C++98中，没有办法声明xpy的类型。
+
+#### 关键字decltype（C++11）
+
+​		C++11新增的关键字decltype提供了解决方案。可这样使用该关键字
+
+```C++
+int x;
+decltype(x) y; // make y the same type as x
+```
+
+给decltype提供的参数可以是表达式，因此在前面的模板函数ft()中，可使用下面的代码
+
+```C++
+decltype(x+y) xpy;  // make xpy same type as x+y
+xpy = x+y;
+```
+
+另一种方法是，将这两条语句合而为一
+
+```C++
+decltype(x+y) xpy= x+y;
+```
+
+因此，可以这样修复前面的模板函数ft()
+
+```C++
+template<class T1, class T2>
+void ft(T1 x, T2 y){
+    ...
+    decltype(x+y) xpy= x+y;
+    ...
+}
+```
+
+decltype比这些示例演示的要复杂些。为确定类型，编译器必须遍历一个核对表。假设有如下声明
+
+```C++
+decltype(expression) var;
+```
+
+则核对表的简化版如下
+
+1. 如果expression是一个没有用括号括起的标识符，则var的类型与该标识符的类型相同，包括const等限定符
+
+   ```C++
+   double x=5.5;
+   double y=7.9;
+   double &rx=x;
+   const double * pd;
+   decltype(x) w;			// w is type double
+   decltype(rx) u=y;		// u is type double &
+   decltype(pd) v;			// v is type const double *
+   ```
+
+2. 如果expression是一个函数调用，则var的类型与函数的返回类型相同
+
+   ```C++
+   long indeed(int);
+   decltype(indeed(3)) m;			// m is type int
+   ```
+
+   并不会实际调用函数。编译器通过查看函数的原型来获悉返回类型，而无需实际调用函数。
+
+3. 如果expression是一个左值，则var为指向其类型的引用。这好像意味着前面的w应为引用类型，因为x是一个左值。但别忘了，这种情况已经在第一步处理过了。要进入第三步，expression不能是未用括号括起的标识符。那么，expression是什么时将进入第三步呢？一种显而易见的情况是，expression是用括号括起的标识符
+
+   ```C++
+   double xx=4.4;
+   decltype((xx)) r2=xx;  // r2 is double &
+   decltype(xx) w=xx; // w is double(Stage 1 match)
+   ```
+
+   顺便说一句，括号并不会改变表达式的值和左值性。例如，下面两条语句等效
+
+   ```C++
+   xx=98.6;
+   (xx)=98.6; // () don't affect use of xx
+   ```
+
+4. 如果前面的条件都不满足，则var的类型与expression的类型相同
+
+   ```C++
+   int j=3;
+   int &k =j;
+   int &n=j;
+   decltype(j+6) i1; // i1 type int
+   decltype(100L) i2; // i2 type long
+   decltype(k+n) i3; // i3 type int
+   ```
+
+   虽然k和n都是引用，但表达式k+n不是引用；它是两个int的和，因此类型为int。
+
+   如果需要多次声明，可结合使用typedef和decltype
+
+   ```C++
+   template<class T1, class T2>
+   void ft(T1 x, T2 y){
+       ...
+       typedef decltype(x+y) xytype;
+       xytype xpy = x+y;
+       xytype arr[10];
+       xytype & rxy = arr[2];    // rxy a reference
+       ...
+   }
+   ```
+
+#### 另一种函数声明语法（C++11后置返回类型）
+
+​		同样，无法预先知道将x和y相加得到的类型。好像可以将返回类型设置为decltype ( x + y)，但不幸的是，此时还未声明参数x和y，它们不在作用域内（编译器看不到它们，也无法使用它们）。必须在声明参数后使用decltype。为此，C++新增了一种声明和定义函数的语法。下面使用内置类型来说明这种语法的工作原理。对于下面的原型
+
+```C++
+double h(int x, float y);
+```
+
+使用新增的语法可编写成这样
+
+```C++
+auto h(int x, float y)->double;
+```
+
+这将返回类型移到了参数声明后面。->double被称为后置返回类型（trailing return type）。其中auto是一个占位符，表示后置返回类型提供的类型，这是C++11给auto新增的一种角色。这种语法也可用于函数定义
+
+```C++
+auto h(int x, float y)->double
+{/* function body */}
+```
+
+通过结合使用这种语法和decltype，便可给gt()指定返回类型，如下所示
+
+```C++
+template<class T1, class T2>
+auto gt(T1 x, T2 y) -> decltype(x+y)
+{
+    ...
+    return x+y;
+}
+```
+
+现在，decltype在参数声明后面，因此x和y位于作用域内，可以使用它们。
+
+# 内存模型和名称空间
+
+​		C++为在内存中存储数据方面提供了多种选择。可以选择数据保留在内存中的时间长度（存储持续性）以及程序的哪一部分可以访问数据（作用域和链接）等。可以使用new来动态地分配内存，而定位new运算符提供了这种技术的一种变种。C++名称空间是另一种控制访问权的方式。通常，大型程序都由多个源代码文件组成，这些文件可能共享一些数据。这样的程序涉及到程序文件的单独编译
+
+## 单独编译
+
+​		和C语言一样，C++也允许甚至鼓励程序员将组件函数放在独立的文件中。可以单独编译这些文件，然后将它们链接成可执行的程序。（通常，C++编译器既编译程序，也管理链接器。）如果只修改了一个文件，则可以只重新编译该文件，然后将它与其他文件的编译版本链接。这使得大程序的管理更便捷。另外，大多数C++环境都
+提供了其他工具来帮助管理。例如，UNIX和Linux系统都具有make程序，可以跟踪程序依赖的文件以及这些文件的最后修改时间。运行make时，如果它检测到上次编译后修改了源文件，make将记住重新构建程序所需的步骤。大多数集成开发环境（包括Embarcadero C++ Builder、Microsoft Visual C++、Apple Xcode和Freescale CodeWarrior）都在Project菜单中提供了类似的工具。
+
+​		可以将原来的程序分成三部分。
+
+- **头文件**：包含结构声明和使用这些结构的函数的原型。
+- **源代码文件**：包含与结构有关的函数的代码。
+- **源代码文件**：包含调用与结构相关的函数的代码。
+
+这是一种非常有用的组织程序的策略。例如，如果编写另一个程序时，也需要使用这些函数，则只需包含头文件，并将函数文件添加到项目列表或make列表中即可。另外，这种组织方式也与OOP方法一致。一个文件（头文件）包含了用户定义类型的定义；另一个文件包含操纵用户定义类型的函数的代码。这两个文件组成了一个软件包，可用于各种程序中。
+
+​		请不要将函数定义或变量声明放到头文件中。这样做对于简单的情况可能是可行的，但通常会引来麻烦。例如，如果在头文件包含一个函数定义，然后在其他两个文件（属于同一个程序）中包含该头文件，则同一个程序中将包含同一个函数的两个定义，除非函数是内联的，否则这将出错。下面列出了头文件中常包含的内容。
+
+- 函数原型。
+- 使用#define或const定义的符号常量。
+- 结构声明。
+- 类声明。
+- 模板声明。
+- 内联函数。
+
+​		将结构声明放在头文件中是可以的，因为它们不创建变量，而只是在源代码文件中声明结构变量时，告诉编译器如何创建该结构变量。同样，模板声明不是将被编译的代码，它们指示编译器如何生成与源代码中的函数调用相匹配的函数定义。被声明为const的数据和内联函数有特殊的链接属性，因此可以将其放在头文件中，而不会引起问题。
+
+​		使用“coordin.h”，而不是<coodin.h>。如果文件名包含在尖括号中，则C++编译器将在存储标准头文件的主机系统的文件系统中查找；但如果文件名包含在双引号中，则编译器将首先查找当前的工作目录或源代码目录（或其他目录，这取决于编译器）。如果没有在那里找到头文件，则将在标准位置查找。因此在包含自己的头文件时，应使用引号而不是尖括号。
+
+- coordin.h
+
+  ```C++
+  #ifndef COORDIN_H_
+  #define COORDIN_H_
+  
+  struct polar
+  {
+      double distance;
+      double angle;
+  };
+  
+  struct rect
+  {
+      double x;
+      double y;
+  };
+  
+  polar rect_to_polar(rect xypos);
+  void show_polar(polar dapos);
+  
+  #endif
+  ```
+
+- coordin.cpp
+
+  ```C++
+  #include <iostream>
+  #include <cmath>
+  #include "coordin.h"
+  
+  polar rect_to_polar(rect xypos)
+  {
+      using namespace std;
+      polar answer;
+  
+      answer.distance = sqrt(xypos.x * xypos.x + xypos.y * xypos.y);
+      answer.angle = atan2(xypos.y, xypos.x);
+      return answer;
+  }
+  
+  void show_polar(polar dapos)
+  {
+      using namespace std;
+      const double Rad_to_deg = 57.29577951;
+  
+      cout << "distance = " << dapos.distance;
+      cout << ", angle = " << dapos.angle * Rad_to_deg;
+      cout << " degrees\n";
+  }
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "coordin.h"
+  
+  using namespace std;
+  
+  int main()
+  {
+      rect rplace;
+      polar pplace;
+  
+      cout << "Enter the x and y values: ";
+      while (cin >> rplace.x >> rplace.y)
+      {
+          pplace = rect_to_polar(rplace);
+          show_polar(pplace);
+          cout << "Next two numbers (q to quit)";
+      }
+      cout << "Bye!\n";
+      
+      return 0;
+  }
+  ```
+
+  
+
+​		注意，只需执行编译命令CC即可，其他步骤将自动完成。g++和gpp命令行编译器以及Borland C++命令行编译器（bcc32.exe）的行为类似。Apple Xcode、Embarcadero C++ Builderr和Microsoft Visual C++基本上执行同样的步骤，启动这个过程的方式不同——使用能够创建项目并将其与源代码文件关联起来的菜单。注意，只需将源代码文件加入到项目中，而不用加入头文件。这是因为#include指令管理头文件。另外，不要使用#include来包含源代码文件，这样做将导致多重声明。
+
+​		在IDE中，不要将头文件加入到项目列表中，也不要在源代码文件中使用#include来包含其他源代码文件。
+
+​		**头文件管理**：在同一个文件中只能将同一个头文件包含一次。记住这个规则很容易，但很可能在不知情的情况下将头文件包含多次。例如，可能使用包含了另外一个头文件的头文件。有一种标准的C/C++技术可以避免多次包含同一个头文件。它是基于预处理器编译指令#ifndef（即if not defined）的。下面的代码片段意味着仅当以前没有使用预处理器编译指令#define定义名称COORDINH时，才处理#ifndef和#endif之间的语句
+
+```C++
+#ifndef COORDIN_H_
+...
+#endif
+```
+
+通常，使用#define语句来创建符号常量
+
+```C++
+#define MAXIMUM 4096
+```
+
+但只要将#define用于名称，就足以完成该名称的定义
+
+```C++
+#define COORDIN_H_
+```
+
+coordin.h中使用这种技术是为了将文件内容包含在#ifndef中
+
+```C++
+#ifndef COORDIN_H_
+#define COORDIN_H_
+// place include file contents here
+#endif
+```
+
+编译器首次遇到该文件时，名称COORDINH没有定义（我们根据include文件名来选择名称，并加上一些下划线，以创建一个在其他地方不太可能被定义的名称）。在这种情况下，编译器将查看#ifndef和#endif之间的内容（这正是我们希望的），并读取定义COORDINH的一行。如果在同一个文件中遇到其他包含coordin.h的代码，编译器将知道COORDINH已经被定义了，从而跳到#endif后面的一行上。注意，这种方法并不能防止编译器将文件包含两次，而只是让它忽略除第一次包含之外的所有内容。大多数标准C和C++头文件都使用这种防护（guarding）方案。否则，可能在一个文件中定义同一个结构两次，这将导致编译错误。
+
+​		虽然我们讨论的是根据文件进行单独编译，但为保持通用性，C++标准使用了术语翻译单元（translation unit），而不是文件；文件并不是计算机组织信息时的唯一方式。出于简化的目的，本书使用术语文件，您可将其解释为翻译单元。
+
+​		**多个库的链接**：C++标准允许每个编译器设计人员以他认为合适的方式实现名称修饰，因此由不同编译器创建的二进制模块（对象代码文件）很可能无法正确地链接。也就是说，两个编译器将为同一个函数生成不同的修饰名称。名称的不同将使链接器无法将一个编译器生成的函数调用与另一个编译器生成的函数定义匹配。在链接编译模
+块时，请确保所有对象文件或库都是由同一个编译器生成的。如果有源代码，通常可以用自己的编译器重新编译源代码来消除链接错误。
+
+## 存储持续性、作用域和链接性
+
+​		C++使用三种（在C++11中是四种）不同的方案来存储数据，这些方案的区别就在于数据保留在内存中的时间。
+
+- **自动存储持续性**：在函数定义中声明的变量（包括函数参数）的存储持续性为自动的。它们在程序开始执行其所属的函数或代码块时被创建，在执行完函数或代码块时，它们使用的内存被释放。C++有两种存储持续性为自动的变量。
+- **静态存储持续性**：在函数定义外定义的变量和使用关键字static定义的变量的存储持续性都为静态。它们在程序整个运行过程中都存在。C++有3种存储持续性为静态的变量。
+- **线程存储持续性（C++11）**：当前，多核处理器很常见，这些CPU可同时处理多个执行任务。这让程序能够将计算放在可并行处理的不同线程中。如果变量是使用关键字thread_local声明的，则其生命周期与所属的线程一样长。
+- **动态存储持续性**：用new运算符分配的内存将一直存在，直到使用delete运算符将其释放或程序结束为止。这种内存的存储持续性为动态，有时被称为自由存储（free store）或堆（heap）。
+
+链接性决定了哪些信息可在文件间共享。
+
+### 作用域和链接
+
+​		作用域（scope）描述了名称在文件（翻译单元）的多大范围内可见。例如，函数中定义的变量可在该函数中使用，但不能在其他函数中使用；而在文件中的函数定义之前定义的变量则可在所有函数中使用。链接性（linkage）描述了名称如何在不同单元间共享。链接性为外部的名称可在文件间共享，链接性为内部的名称只能由一个文件中的函数共享。自动变量的名称没有链接性，因为它们不能共享。
+
+​		C++变量的作用域有多种。**作用域为局部的变量**只在定义它的代码块中可用。代码块是由花括号括起的一系列语句。例如函数体就是代码块，但可以在函数体中嵌入其他代码块。**作用域为全局（也叫文件作用域）的变量**在定义位置到文件结尾之间都可用。**自动变量的作用域为局部，静态变量的作用域是全局还是局部取决于它是如何被定义的。**在函数原型作用域（function prototype scope）中使用的名称只在包含参数列表的括号内可用（这就是为什么这些名称是什么以及是否出现都不重要的原因）。在类中声明的成员的作用域为整个类。**在名称空间中声明的变量的作用域为整个名称空间（由于名称空间已经引入到C++语言中，因此全局作用域是名称空间作用域的特例**）。
+
+​		C++函数的作用域可以是整个类或整个名称空间（包括全局的），但不能是局部的（因为不能在代码块内定义函数，如果函数的作用域为局部，则只对它自己是可见的，因此不能被其他函数调用。这样的函数将无法运行）。
+
+​		不同的C++存储方式是通过存储持续性、作用域和链接性来描述的。
+
+### 自动存储持续性
+
+​		在默认情况下，在函数中声明的函数参数和变量的存储持续性为自动，作用域为局部，没有链接性。当程序开始执行这些变量所属的代码块时，将为其分配内存；当函数结束时，这些变量都将消失（注意，执行到代码块时，将为变量分配内存，但其作用域的起点为其声明位置）。
+
+​		如果在代码块中定义了变量，则该变量的存在时间和作用域将被限制在该代码块内。有两个同名的变量（一个位于外部代码块中，另一个位于内部代码块中。在这种情况下，程序执行内部代码块中的语句时，解释为局部代码块变量。新的定义隐藏了（hide）以前的定义，新定义可见，旧定义暂时不可见。在程序离开该代码块时，原来的定义又重新可见
+
+```C++
+#include <iostream>
+#include "coordin.h"
+
+using namespace std;
+
+void oil(int x);
+
+int main()
+{
+    int texas = 31;
+    int year = 2011;
+    cout << "In main(), texas = " << texas << ", &texas = ";
+    cout << &texas << endl;
+    cout << "In main(), year = " << year << ", &year = ";
+    cout << &year << endl;
+    oil(texas);
+    cout << "In main(), texas = " << texas << ", &texas = ";
+    cout << &texas << endl;
+    cout << "In main(), year = " << year << ", &year = ";
+    cout << &year << endl;
+
+    return 0;
+}
+
+void oil(int x)
+{
+    int texas = 5;
+    cout << "In oil(), texas = " << texas << ", &texas = ";
+    cout << &texas << endl;
+    cout << "In oil(), x = " << x << ", &x = ";
+    cout << &x << endl;
+    {
+        int texas = 113;
+        cout << "In block, texas = " << texas << ", &texas = ";
+        cout << &texas << endl;
+        cout << "In block, x = " << x << ", &x = ";
+        cout << &x << endl;
+    }
+    cout << "Post-block, texas = " << texas << ", &texas = ";
+    cout << &texas << endl;
+}
+
+```
+
+​		**使用C++11中的auto**：在C++11中，关键字auto用于自动类型推断，但在C语言和以前的C++版本中，auto的含义截然不同，它用于显式地指出变量为自动存储。
+
+```C
+int froob(int n){
+    auto float ford;  // ford has automatic storage
+    ...
+}
+```
+
+由于只能将关键字auto用于默认为自动的变量，因此程序员几乎不使用它。它的主要用途是指出当前变量为局部自动变量。
+
+​		在C++11中，这种用法不再合法。制定标准的人不愿引入新关键字，因为这样做可能导致将该关键字用于其他目的的代码非法。考虑到auto的老用法很少使用，因此赋予其新含义比引入新关键字是更好的选择。
+
+#### 自动变量的初始化
+
+​		可以使用任何在声明时其值为已知的表达式来初始化自动变量，下面的示例初始化变量x、y和z
+
+```C++
+int w;  // value of w is indeterminate
+int x=5;  // initialized with a numeric literal
+int big= INT_MAX -1;  // initialized with a constant expression
+int y=2*x;  // use previously determined value of x
+cin >> w;
+int z= 3*w;  // use new value of w
+```
+
+#### 自动变量和栈
+
+​		了解典型的C++编译器如何实现自动变量有助于更深入地了解自动变量。由于自动变量的数目随函数的开始和结束而增减，因此程序必须在运行时对自动变量进行管理。常用的方法是留出一段内存，并将其视为栈，以管理变量的增减。之所以被称为栈，是由于新数据被象征性地放在原有数据的上面（也就是说，在相邻的内存单元中，而不是在同一个内存单元中），当程序使用完后，将其从栈中删除。栈的默认长度取决于实现，但编译器通常提供改变栈长度的选项。程序使用两个指针来跟踪栈，一个指针指向栈底——栈的开始位置，另一个指针指向堆顶——下一个可用内存单元。当函数被调用时，其自动变量将被加入到栈中，栈顶指针指向变量后面的下一个可用的内存单元。函数结束时，栈顶指针被重置为函数被调用前的值，从而释放新变量使用的内存。
+
+​		栈是LIFO（后进先出）的，即最后加入到栈中的变量首先被弹出。这种设计简化了参数传递。函数调用将其参数的值放在栈顶，然后重新设置栈顶指针。被调用的函数根据其形参描述来确定每个参数的地址。
+
+#### 寄存器变量
+
+​		关键字register最初是由C语言引入的，它建议编译器使用CPU寄存器来存储自动变量：
+
+```C
+register int count_fast; // request for a register variable;
+```
+
+这旨在提高访问变量的速度。
+
+​		在C++11之前，这个关键字在C++中的用法始终未变，只是随着硬件和编译器变得越来越复杂，这种提示表明变量用得很多，编译器可对其做特殊处理。在C++11中，这种提示作用也失去了，关键字register只是显式地指出变量是自动的。鉴于关键字register只能用于原本就是自动的变量，使用它的唯一原因是，指出程序员想使用一个自动变量，这个变量的名称可能与外部变量相同。这与auto以前的用途完全相同。然而，保留关键字register的重要原因是，避免使用了该关键字的现有代码非法。
+
+### 静态持续变量
+
+​		和C语言一样，C++也为静态存储持续性变量提供了3种链接性：外部链接性（可在其他文件中访问）、内部链接性（只能在当前文件中访问）和无链接性（只能在当前函数或代码块中访问）。
+
+​		这3种链接性都在整个程序执行期间存在，与自动变量相比，它们的寿命更长。由于静态变量的数目在程序运行期间是不变的，因此程序不需要使用特殊的装置（如栈）来管理它们。编译器将分配固定的内存块来存储所有的静态变量，这些变量在整个程序执行期间一直存在。另外，如果没有显式地初始化静态变量，编译器将把它设置为0。在默认情况下，静态数组和结构将每个元素或成员的所有位都设置为0。
+
+​		传统的K&R C不允许初始化自动数组和结构，但允许初始化静态数组和结构。ANSI C和C++允许对这两种数组和结构进行初始化，但有些旧的C++翻译器使用与ANSI C不完全兼容的C编译器。如果使用的是这样的实现，则可能需要使用这3种静态存储类型之一，以初始化数组和结构。
+
+​		要想创建链接性为外部的静态持续变量，必须在代码块的外面声明它；要创建链接性为内部的静态持续变量，必须在代码块的外面声明它，并使用static限定符；要创建没有链接性的静态持续变量，必须在代码块内声明它，并使用static限定符。
+
+```C++
+...
+int global = 1000; // static duration, external linkage
+static int one_file = 50;  //// static duration, internal linkage
+int main(){
+    ...
+}
+void funct1(int n){
+    static int count = 0;// static duration, no linkage
+    int llama = 0;
+    ...
+}
+void funct2(int q){
+    ...
+}
+```
+
+正如前面指出的，所有静态持续变量（上述示例中的global、one_file和count）在整个程序执行期间都存在。在funct1( )中声明的变量count的作用域为局部，没有链接性，这意味着只能在funct1( )函数中使用它，就像自动变量llama一样。然而，与llama不同的是，即使在funct1( )函数没有被执行时，count也留在内存中。global和one_file的作用域都为整个文件，即在从声明位置到文件结尾的范围内都可以被使用。具体地说，可以在main( )、funct1( )和funct2( )中使用它们。由于one_file的链接性为内部，因此只能在包含上述代码的文件中使用它；由于global的链接性为外部，因此可以在程序的其他文件中使用它。
+
+​		所有的静态持续变量都有下述初始化特征：未被初始化的静态变量的所有位都被设置为0。这种变量被称为零初始化的（zero-initialized）。
+
+​		下表总结了引入名称空间之前使用的存储特性
+
+​		**5种变量储存方式**
+
+|     存储描述     | 持续性 | 作用域 | 链接性 |             声明             |
+| :--------------: | :----: | :----: | :----: | :--------------------------: |
+|       自动       |  自动  | 代码块 |   无   |           代码块中           |
+|      寄存器      |  自动  | 代码块 |   无   |   代码块中，关键字register   |
+|  静态、无链接性  |  静态  | 代码块 |   无   |    代码块中，关键字static    |
+| 静态、外部链接性 |  静态  |  文件  |  外部  |        不在任何函数内        |
+| 静态、内部链接性 |  静态  |  文件  |  内部  | 不在任何函数内，关键字static |
+
+指出了关键字static的两种用法，但含义有些不同：用于局部声明，以指出变量是无链接性的静态变量时，static表示的是存储持续性；而用于代码块外的声明时，static表示内部链接性，而变量已经是静态持续性了。有人称之为关键字重载，即关键字的含义取决于上下文。
+
+#### 静态变量的初始化
+
+​		除默认的零初始化外，还可对静态变量进行常量表达式初始化和动态初始化。您可能猜到了，零初始化意味着将变量设置为零。对于标量类型，零将被强制转换为合适的类型。例如，在C++代码中，空指针用0表示，但内部可能采用非零表示，因此指针变量将被初始化相应的内部表示。结构成员被零初始化，且填充位都被设置为零。
+
+​		零初始化和常量表达式初始化被统称为静态初始化，这意味着在编译器处理文件（翻译单元）时初始化变量。动态初始化意味着变量将在编译后初始化。
+
+​		**初始化形式由什么因素决定**：所有静态变量都被零初始化，而不管程序员是否显式地初始化了它。接下来，如果使用常量表达式初始化了变量，且编译器仅根据文件内容（包括被包含的头文件）就可计算表达式，编译器将执行常量表达式初始化。必要时，编译器将执行简单计算。如果没有足够的信息，变量将被动态初始化
+
+```C++
+#include <cmath>
+
+int x;							// zero-initialization
+int y=5;						// constant-expression initialization
+long z=13*13;					// constant-expression initialization
+const double pi= 4.0*atan(1.0); // dynamic initialization
+```
+
+常量表达式并非只能是使用字面常量的算术表达式。例如，它还可使用sizeof运算符。C++11新增了关键字constexpr，这增加了创建常量表达式的方式。
+
+### 静态持续性、外部链接性
+
+​		链接性为外部的变量通常简称为外部变量，它们的存储持续性为静态，作用域为整个文件。外部变量是在函数外部定义的，因此对所有函数而言都是外部的。例如，可以在main( )前面或头文件中定义它们。可以在文件中位于外部变量定义后面的任何函数中使用它，因此外部变量也称全局变量（相对于局部的自动变量）。
+
+#### 单定义规则
+
+​		一方面，在每个使用外部变量的文件中，都必须声明它；另一方面，C++有“单定义规则”（One Definition Rule，ODR），该规则指出，变量只能有一次定义。为满足这种需求，C++提供了两种变量声明。
+
+- 定义声明（defining declaration）或简称为定义（definition），它给变量分配存储空间；
+- 引用声明（referencing declaration）或简称为声明（declaration），它不给变量分配存储空间，因为它引用已有的变量。
+
+引用声明使用关键字extern，且不进行初始化；否则，声明为定义，导致分配存储空间
+
+```C++
+double up;				// definition, up is 0
+extern int blem;		// blem defined elsewhere
+extern char gr='z';		// definition because initialized
+```
+
+如果要在多个文件中使用外部变量，只需在一个文件中包含该变量的定义（单定义规则），但在使用该变量的其他所有文件中，都必须使用关键字extern声明它
+
+- file1.cpp
+
+  ```C++
+  extern int cats = 20; // definition because of initizlization
+  int dogs=22;  // also a definition
+  int fleas;  // also a definition
+  ...
+  ```
+
+- file2.cpp
+
+  ```C++
+  // use cats and dogs from file1.cpp
+  extern int cats;  // not definitions because they use extern and have no initialization
+  extern int dogs;
+  ...
+  ```
+
+在文件file1.cpp中，关键字extern并非必不可少的，因为即使省略它，效果也相同
+
+​		单定义规则并非意味着不能有多个变量的名称相同。例如，在不同函数中声明的同名自动变量是彼此独立的，它们都有自己的地址。另外，正如后面的示例将表明的，局部变量可能隐藏同名的全局变量。然而，虽然程序中可包含多个同名的变量，但每个变量都只有一个定义。
+
+​		**如果在函数中声明了一个与外部变量同名的变量**：这种声明将被视为一个自动变量的定义，当程序执行自动变量所属的函数时，该变量将位于作用域内。
+
+​		下面的程序在两个文件中使用了一个外部变量，还演示了自动变量将隐藏同名的全局变量。它还演示了如何使用关键字extern来重新声明以前定义过的外部变量，以及如何使用C++的作用域解析运算符来访问被隐藏的外部变量。
+
+- support.cpp
+
+  ```C++
+  #include <iostream>
+  
+  extern double warming;
+  
+  void update(double dt);
+  void local();
+  
+  using namespace std;
+  
+  void update(double dt)
+  {
+      extern double warming; // optional redeclaration
+      warming += dt;
+      cout << "Updating global warming to " << warming;
+      cout << " degrees.\n";
+  }
+  
+  void local()
+  {
+      double warming = 0.8;
+      cout << "Local warming = " << warming << " degrees.\n";
+      // Access global variable with the scope resolution operator
+      cout << "But global warming = " <<:: warming;
+      cout << " degrees.\n";
+  }
+  
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  
+  using namespace std;
+  // external variable
+  double warming = 0.3;
+  // function prototypes
+  void update(double dt);
+  void local();
+  
+  int main()
+  {
+      cout << "Global warming is " << warming << " degrees.\n";
+      update(0.1);
+      cout << "Global warming is " << warming << " degrees.\n";
+      local();
+      cout << "Global warming is " << warming << " degrees.\n";
+  
+      return 0;
+  }
+  
+  ```
+
+​		C++比C语言更进了一步——它提供了作用域解析运算符（::）。放在变量名前面时，该运算符表示使用变量的全局版本。因此，local( )将warming显示为0.8，但将::warming显示为0.4。后面介绍名称空间和类时，将再次介绍该运算符。从清晰和避免错误的角度说，相对于使用warming并依赖于作用域规则，在函数update()中使用::warming是更好的选择，也更安全。
+
+​		**全局变量和局部变量**：既然可以选择使用全局变量或局部变量，那么到底应使用哪种。全局变量很有吸引力——因为所有的函数能访问全局变量，因此不用传递参数。但易于访问的代价很大——程序不可靠。计算经验表明，程序越能避免对数据进行不必要的访问，就越能保持数据的完整性。通常情况下，应使用局部变量，应在需要知晓时才传递数据，而不应不加区分地使用全局变量来使数据可用。读者将会看到，OOP在数据隔离方面又向前迈进了一步。
+
+​		全局变量也有它们的用处。例如，可以让多个函数可以使用同一个数据块（如月份名数组或原子量数组）。外部存储尤其适于表示常量数据，因为这样可以使用关键字const来防止数据被修改。
+
+```C++
+const char * const month[12]={
+  "January","February","March","April","May","June","July","August","September","October","November","December"
+};
+```
+
+在上述示例中，第一个const防止字符串被修改，第二个const确保数组中每个指针始终指向它最初指向的字符串。
+
+### 静态持续性、内部链接性
+
+​		将static限定符用于作用域为整个文件的变量时，该变量的链接性将为内部的。在多文件程序中，内部链接性和外部链接性之间的差别很有意义。链接性为内部的变量只能在其所属的文件中使用；但常规外部变量都具有外部链接性，即可以在其他文件中使用
+
+​		如果要在其他文件中使用相同的名称来表示其他变量，该如何办呢？只需省略关键字extern即可吗？
+
+- file1
+
+  ```C++
+  int errors= 20; // external declaration
+  ...
+  ```
+
+- file2
+
+  ```C++
+  int errors = 5;  // ??known to file2 only ??
+  void froobish(){
+      cout << errors;   // fails
+      ...
+  }
+  ```
+
+这种做法将失败，因为它违反了单定义规则。file2中的定义试图创建一个外部变量，因此程序将包含errors的两个定义，这是错误。
+
+​		但如果文件定义了一个静态外部变量，其名称与另一个文件中声明的常规外部变量相同，则在该文件中，静态变量将隐藏常规外部变量
+
+- file1
+
+  ```C++
+  int errors= 20; // external declaration
+  ...
+  ```
+
+- file2
+
+  ```C++
+  static int errors = 5;  // known to file2 only
+  void froobish(){
+      cout << errors;   // uses errors defined in file2
+      ...
+  }
+  ```
+
+这没有违反单定义规则，因为关键字static指出标识符errors的链接性为内部，因此并非要提供外部定义。
+
+​		在多文件程序中，可以在一个文件（且只能在一个文件）中定义一个外部变量。使用该变量的其他文件必须使用关键字extern声明它。
+
+​		可使用外部变量在多文件程序的不同部分之间共享数据；可使用链接性为内部的静态变量在同一个文件中的多个函数之间共享数据（名称空间提供了另外一种共享数据的方法）。另外，如果将作用域为整个文件的变量变为静态的，就不必担心其名称与其他文件中的作用域为整个文件的变量发生冲突。
+
+​		下面的程序演示了C++如何处理链接性为外部和内部的变量。main.cpp定义了外部变量tom和dick以及静态外部变量harry。这个文件中的main( )函数显示这3个变量的地址，然后调用remote_access( )函数，该函数是在另一个文件中定义的。file.cpp除定义remote_access( )外，该文件还使用extern关键字来与第一个文件共享tom。接下来，该文件定义一个名为dick的静态变量。static限定符使该变量被限制在这个文件内，并覆盖相应的全局定义。然后，该文件定义了一个名为harry的外部变量，这不会与第一个文件中的harry发生冲突，因为后者的链接性为内部的。随后，remote-access( )函数显示这3个变量的地址，以便于将它们与第一个文件中相应变量的地址进行比较。别忘了编译这两个文件，并将它们链接起来，以得到完整的程序。
+
+- file.cpp
+
+  ```C++
+  #include <iostream>
+  
+  extern int tom;
+  static int dick = 10;
+  int harry = 200;
+  
+  void remote_access()
+  {
+      using namespace std;
+      cout << "remote_access() reports the following addresses:\n";
+      cout << &tom << " = &tom, " << &dick << " = &dick, ";
+      cout << &harry << " = &harry" << endl;
+  }
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  
+  int tom = 3;
+  int dick = 30;
+  static int harry = 300;
+  
+  void remote_access();
+  
+  int main()
+  {
+      using namespace std;
+      cout << "main() reports the following addresses:\n";
+      cout << &tom << " = &tom, " << &dick << " = &dick, ";
+      cout << &harry << " = &harry" << endl;
+      remote_access();
+      return 0;
+  }
+  ```
+
+​		这两个文件使用了同一个tom变量，但使用了不同的dick和harry变量。具体的地址和格式可能随系统而异，但两个tom变量的地址将相同，而两个dick和harry变量的地址不同。
+
+### 静态存储持续性、无链接性
+
+​		至此，介绍了链接性分别为内部和外部、作用域为整个文件的变量。接下来介绍静态持续家族中的第三个成员——无链接性的局部变量。这种变量是这样创建的，将static限定符用于在代码块中定义的变量。在代码块中使用static时，将导致局部变量的存储持续性为静态的。这意味着虽然该变量只在该代码块中可用，但它在该代码块不处于活动状态时仍然存在。因此在两次函数调用之间，静态局部变量的值将保持不变。（静态变量适用于再生——可以用它们将瑞士银行的秘密账号传递到下一个要去的地方）。另外，如果初始化了静态局部变量，则程序
+只在启动时进行一次初始化。以后再调用函数时，将不会像自动变量那样再次被初始化。
+
+```C++
+#include <iostream>
+
+const int ArSize = 10;
+
+void strcount(const char *str);
+
+int main()
+{
+    using namespace std;
+    char input[ArSize];
+    char next;
+
+    cout << "Enter a line:\n";
+    cin.get(input, ArSize);
+    while (cin)
+    {
+        cin.get(next);
+        while (next != '\n')
+            cin.get(next);
+        strcount(input);
+        cout << "Enter next line (empty line to quit):\n";
+        cin.get(input, ArSize);
+    }
+    cout << "Bye\n";
+    return 0;
+}
+
+void strcount(const char *str)
+{
+    using namespace std;
+    static int total = 0;
+    int count = 0;
+
+    cout << "\"" << str << "\" contains ";
+    while (*str++)
+        count++;
+    total += count;
+    cout << count << " characters\n";
+    cout << total << " characters total\n";
+}
+```
+
+该程序演示了一种处理行输入可能长于目标数组的方法。前面讲过，方法cin.get(input, ArSize)将一直读取输入，直到到达行尾或读取了ArSize-1个字符为止。它把换行符留在输入队列中。该程序使用cin.get(next)读取行输入后的字符。如果next是换行符，则说明cin.get(input, ArSize)读取了整行；否则说明行中还有字符没有被读取。随后，程序使用一个循环来丢弃余下的字符，不过读者可以修改代码，让下一轮输入读取行中余下的字符。该程序还利用了这样一个事实，即试图使用get(char *, int)读取空行将导致cin为false。
+
+​		由于数组长度为10，因此程序从每行读取的字符数都不超过9个。另外还需要注意的是，每次函数被调用时，自动变量count都被重置为0。然而，静态变量total只在程序运行时被设置为0，以后在两次函数调用之间，其值将保持不变，因此能够记录读取的字符总数。
+
+### 说明符和限定符
+
+​		有些被称为存储说明符（storage class specifier）或cv-限定符（cv-qualifier）的C++关键字提供了其他有关存储的信息。下面是存储说明符
+
+- auto（在C++11中不再是说明符）；
+- register；
+- static；
+- extern；
+- thread_local（C++11新增的）；
+- mutable。
+
+​		在同一个声明中不能使用多个说明符，但thread_local除外，它可与static或extern结合使用。前面讲过，在
+C++11之前，可以在声明中使用关键字auto指出变量为自动变量；但在C++11中，auto用于自动类型推断。关键字register用于在声明中指示寄存器存储，而在C++11中，它只是显式地指出变量是自动的。关键字static被用在作用域为整个文件的声明中时，表示内部链接性；被用于局部声明中，表示局部变量的存储持续性为静态的。关键字extern表明是引用声明，即声明引用在其他地方定义的变量。**关键字thread_local指出变量的持续性与其所属线程的持续性相同**。thread_local变量之于线程，犹如常规静态变量之于整个程序。关键字mutable的含义将根据const来解释，因此先来介绍cv-限定符，然后再解释它。
+
+#### cv-限定符
+
+​		下面就是cv限定符
+
+- const；
+- volatile
+
+最常用的cv-限定符是const，而读者已经知道其用途。它表明，内存被初始化后，程序便不能再对它进行修改。
+
+​		关键字volatile表明，即使程序代码没有对内存单元进行修改，其值也可能发生变化。听起来似乎很神秘，实际上并非如此。例如，可以将一个指针指向某个硬件位置，其中包含了来自串行端口的时间或信息。在这种情况下，硬件（而不是程序）可能修改其中的内容。或者两个程序可能互相影响，共享数据。该关键字的作用是为了改善编译器的优化能力。例如，假设编译器发现，程序在几条语句中两次使用了某个变量的值，则编译器可能不是让程序查找这个值两次，而是将这个值缓存到寄存器中。这种优化假设变量的值在这两次使用之间不会变化。如果不
+将变量声明为volatile，则编译器将进行这种优化；将变量声明为volatile，相当于告诉编译器，不要进行这种优化。
+
+#### mutable
+
+​		可以用它来指出，即使结构（或类）变量为const，其某个成员也可以被修改。
+
+```C++
+struct data{
+    char name[30];
+    mutable int accesses;
+    ...
+};
+const data veep = {"Claybourne Clodde", 0, ...};
+strcpy(veep.name, "Joye Joux");  // not allowed
+veep.accesses++; // allowed
+```
+
+veep的const限定符禁止程序修改veep的成员，但access成员的mutable说明符使得access不受这种限制。
+
+#### 再谈const
+
+​		在C++（但不是在C语言）中，const限定符对默认存储类型稍有影响。在默认情况下全局变量的链接性为外部的，但const全局变量的链接性为内部的。也就是说，在C++看来，全局const定义（如下述代码段所示）就像使用了static说明符一样。
+
+```C++
+const int fingers = 10;  // same as static const int fingers = 10;
+int main(void){
+    ...
+}
+```
+
+C++修改了常量类型的规则，让程序员更轻松。例如，假设将一组常量放在头文件中，并在同一个程序的多个文件中使用该头文件。那么，预处理器将头文件的内容包含到每个源文件中后，所有的源文件都将包含类似下面这样的定义
+
+```C++
+const int fingers = 10;
+const char * warning = "Wak!";
+```
+
+​		如果全局const声明的链接性像常规变量那样是外部的，则根据单定义规则，这将出错。也就是说，只能有一个文件可以包含前面的声明，而其他文件必须使用extern关键字来提供引用声明。另外，只有未使用extern关键字的声明才能进行初始化
+
+```C++
+// extern would be required if const had external linkage
+extern const int fingers;			// can't be initialized
+extern const char * warning;
+```
+
+因此，需要为某个文件使用一组定义，而其他文件使用另一组声明。然而，由于外部定义的const数据的链接性为内部的，因此可以在所有文件中使用相同的声明。
+
+​		内部链接性还意味着，每个文件都有自己的一组常量，而不是所有文件共享一组常量。每个定义都是其所属文件私有的，这就是能够将常量定义放在头文件中的原因。这样，只要在两个源代码文件中包括同一个头文件，则它们将获得同一组常量。
+
+​		如果出于某种原因，程序员希望某个常量的链接性为外部的，则可以使用extern关键字来覆盖默认的内部链接性
+
+```C++
+extern const int states = 50; // definition with external linkage
+```
+
+在这种情况下，必须在所有使用该常量的文件中使用extern关键字来声明它。这与常规外部变量不同，定义常规外部变量时，不必使用extern关键字，但在使用该变量的其他文件中必须使用extern。然而，请记住，鉴于单个const在多个文件之间共享，因此只有一个文件可对其进行初始化。
+
+​		在函数或代码块中声明const时，其作用域为代码块，即仅当程序执行该代码块中的代码时，该常量才是可用的。这意味着在函数或代码块中创建常量时，不必担心其名称与其他地方定义的常量发生冲突。
+
+### 函数和链接性
+
+​		和变量一样，函数也有链接性，虽然可选择的范围比变量小。和C语言一样，C++不允许在一个函数中定义另外一个函数，因此所有函数的存储持续性都自动为静态的，即在整个程序执行期间都一直存在。
+
+​		在默认情况下，函数的链接性为外部的，即可以在文件间共享。实际上，可以在函数原型中使用关键字extern来指出函数是在另一个文件中定义的，不过这是可选的（要让程序在另一个文件中查找函数，该文件必须
+作为程序的组成部分被编译，或者是由链接程序搜索的库文件）。还可以使用关键字static将函数的链接性设置为内部的，使之只能在一个文件中使用。必须同时在原型和函数定义中使用该关键字
+
+```C++
+static int private(double x);
+
+static int private(double x){
+    ...
+}
+```
+
+这意味着该函数只在这个文件中可见，还意味着可以在其他文件中定义同名的的函数。和变量一样，在定义静态函数的文件中，静态函数将覆盖外部定义，因此即使在外部定义了同名的函数，该文件仍将使用静态函数。
+
+​		单定义规则也适用于非内联函数，因此对于每个非内联函数，程序只能包含一个定义。对于链接性为外部的函数来说，这意味着在多文件程序中，只能有一个文件（该文件可能是库文件，而不是您提供的）包含该函数的定义，但使用该函数的每个文件都应包含其函数原型。
+
+​		内联函数不受这项规则的约束，这允许程序员能够将内联函数的定义放在头文件中。这样，包含了头文件的每个文件都有内联函数的定义。然而，C++要求同一个函数的所有内联定义都必须相同。
+
+​		**C++在哪里查找函数**：假设在程序的某个文件中调用一个函数，C++将到哪里去寻找该函数的定义呢？如果该文件中的函数原型指出该函数是静态的，则编译器将只在该文件中查找函数定义；否则，编译器（包括链接程序）将在所有的程序文件中查找。如果找到两个定义，编译器将发出错误消息，因为每个外部函数只能有一个定义。如果在程序文件中没有找到，编译器将在库中搜索。这意味着如果定义了一个与库函数同名的函数，编译器将使用程序员定义的版本，而不是库函数（然而，C++保留了标准库函数的名称，即程序员不应使用它们）。有些编译器-链接程序要求显式地指出要搜索哪些库。
+
+### 语言链接性
+
+​		另一种形式的链接性——称为语言链接性（language linking）也对函数有影响。链接程序要求每个不同的函数都有不同的符号名。在C语言中，一个名称只对应一个函数，因此这很容易实现。为满足内部需要，C语言编译器可能将spiff这样的函数名翻译为`_spiff`。这种方法被称为C语言链接性（C language linkage）。但在C++中，同一个名称可能对应多个函数，必须将这些函数翻译为不同的符号名称。因此，C++编译器执行名称矫正或名称修饰，为重载函数生成不同的符号名称。例如，可能将spiff（int）转换为`_spoff_i`，而将spiff（double，double）转换为`_spiff_d_d`。这种方法被称为C++语言链接（C++ language linkage）。
+
+​		链接程序寻找与C++函数调用匹配的函数时，使用的方法与C语言不同。但如果要在C++程序中使用C库中预编译的函数，将出现什么情况。例如，假设有下面的代码
+
+```C++
+spiff(22); // want spiff(int)  from a C library
+```
+
+它在C库文件中的符号名称为`_spiff`，但对于我们假设的链接程序来说，C++查询约定是查找符号名称`_spiff_i`。为解决这种问题，可以用函数原型来指出要使用的约定
+
+```C++
+extern "C" void spiff(int); // use C protocol for name look-up
+extern void spiff(int); // use C++ protocol for name look-up
+extern "C++" void spiff(int); // use C++ protocol for name look-up
+```
+
+第一个原型使用C语言链接性；而后面的两个使用C++语言链接性。第二个原型是通过默认方式指出这一点的，而第三个显式地指出了这一点。
+
+​		C和C++链接性是C++标准指定的说明符，但实现可提供其他语言链接性说明符。
+
+### 存储方案和动态分配
+
+​		前面介绍C++用来为变量（包括数组和结构）分配内存的5种方案（线程内存除外），它们不适用于使用C++运算符new（或C函数malloc()）分配的内存，这种内存被称为动态内存。
+
+​		动态内存由运算符new和delete控制，而不是由作用域和链接性规则控制。因此，可以在一个函数中分配动态内存，而在另一个函数中将其释放。与自动内存不同，动态内存不是LIFO，其分配和释放顺序要取决于new和delete在何时以何种方式被使用。通常，编译器使用三块独立的内存：一块用于静态变量（可能再细分），一块用于自动变量，另外一块用于动态存储。
+
+​		虽然存储方案概念不适用于动态内存，但适用于用来跟踪动态内存的自动和静态指针变量。假设在一个函数中包含下面的语句
+
+```C++
+float * p_fees = new float [20];
+```
+
+​		由new分配的80个字节（假设float为4个字节）的内存将一直保留在内存中，直到使用delete运算符将其释放。但当包含该声明的语句块执行完毕时，p_fees指针将消失。如果希望另一个函数能够使用这80个字节中的内容，则必须将其地址传递或返回给该函数。另一方面，如果将p_fees的链接性声明为外部的，则文件中位于该声明后面的所有函数都可以使用它。另外，通过在另一个文件中使用下述声明，便可在其中使用该指针
+
+```C++
+extern float * p_fees;
+```
+
+​		在程序结束时，由new分配的内存通常都将被释放，不过情况也并不总是这样。例如，在不那么健壮的操作系统中，在某些情况下，请求大型内存块将导致该代码块在程序结束不会被自动释放。最佳的做法是，使用delete来释放new分配的内存。
+
+#### 使用new运算符初始化
+
+​		如果要初始化动态分配的变量。在C++98中，有时候可以这样做，C++11增加了其他可能性。下面先来看看C++98提供的可能性。
+
+​		如果要为内置的标量类型（如int或double）分配存储空间并初始化，可在类型名后面加上初始值，并将其用括号括起
+
+```C++
+int * pi = new int (6); // *pi set to 6
+double * pd = new double (99.99); // *pd set to 99.99
+```
+
+这种括号语法也可用于有合适构造函数的类
+
+​		然而，要初始化常规结构或数组，需要使用大括号的列表初始化，这要求编译器支持C++11。C++11允许您这样做
+
+```C++
+struct where { double x; double y; double z;};
+where * one = new where {2.5, 5.3, 7.2};  // C++11
+int * ar = new int [4] {2,4,6,7}; // C++11
+```
+
+在C++11中，还可将列表初始化用于单值变量
+
+```C++
+int *pin = new int {6}; 
+double * pdo = new double {99.99};
+```
+
+#### new失败时
+
+​		new可能找不到请求的内存量。在最初的10年中，C++在这种情况下让new返回空指针，但现在将引发异常std::bad_alloc。
+
+#### new：运算符、函数和替换函数
+
+​		运算符new和new []分别调用如下函数
+
+```C++
+void * operator new(std::size_t);   // used by new
+void * operator new[](std::size_t);  // used by new[]
+```
+
+这些函数被称为分配函数（alloction function），它们位于全局名称空间中。同样，也有由delete和delete []调用的释放函数（deallocation function）
+
+```C++
+void operator delete(void *);  
+void operator delete[](void *); 
+```
+
+​		它们使用的是运算符重载语法。std::size_t是一个typedef，对应于合适的整型。对于下面这样的基本语句
+
+```C++
+int * pi = new int;
+```
+
+将被转换为下面这样
+
+```C++
+int * pi = new(sizeof(int));
+```
+
+​		而下面的语句
+
+```C++
+int * pa = new int[40];
+```
+
+将被转换为下面这样
+
+```C++
+int * pa = new(40 * sizeof(int));
+```
+
+​		使用运算符new的语句也可包含初始值，因此，使用new运算符时，可能不仅仅是调用new()函数
+
+​		同样，下面的语句
+
+```C++
+delete pi;
+```
+
+将转换为如下函数调用
+
+```C++
+delete (pi);
+```
+
+​		有趣的是，C++将这些函数称为可替换的（replaceable）。这意味着如果您有足够的知识和意愿，可为new和delete提供替换函数，并根据需要对其进行定制。例如，可定义作用域为类的替换函数，并对其进行定制，以满足该类的内存分配需求。在代码中，仍将使用new运算符，但它将调用您定义的new()函数。
+
+#### 定位new运算符
+
+​		通常，new负责在堆（heap）中找到一个足以能够满足要求的内存块。new运算符还有另一种变体，被称为定位（placement）new运算符，它让您能够指定要使用的位置。程序员可能使用这种特性来设置其内存管理规程、处理需要通过特定地址进行访问的硬件或在特定位置创建对象。
+
+​		要使用定位new特性，首先需要包含头文件new，它提供了这种版本的new运算符的原型；然后将new运算符用于提供了所需地址的参数。除需要指定参数外，句法与常规new运算符相同。具体地说，使用定位new运算符时，变量后面可以有方括号，也可以没有。
+
+​		下面的代码段演示了new运算符的4种用法
+
+```C++
+#include <new>
+struct chaff{
+    char dross[20];
+    int slag;
+};
+
+char buffer1[50];
+char buffer2[500];
+
+int main(){
+    chaff *p1, *p2;
+    int *p3, *p4;
+    // the regular forms of new
+    p1=new chaff;   // place structure in heap
+    p3=new int[20]; // place int array in heap
+    // the two forms of placement new
+    p2 = new (buffer1) chaff;  // place structure in buffer1
+    p4 = new (buffer2) int[20];// place int array in buffer2
+    ...
+}
+```
+
+出于简化的目的，这个示例使用两个静态数组来为定位new运算符提供内存空间。因此，上述代码从buffer1中分配空间给结构chaff，从buffer2中分配空间给一个包含20个元素的int数组。
+
+​		看一个示例程序。使用常规new运算符和定位new运算符创建动态分配的数组。该程序说明了常规new运算符和定位new运算符之间的一些重要差别，在查看该程序的输出后，将对此进行讨论。
+
+```C++
+#include <iostream>
+#include <new>
+
+const int BUF = 512;
+const int N = 5;
+char buffer[BUF];
+
+int main()
+{
+    using namespace std;
+
+    double *pd1, *pd2;
+    int i;
+    cout << "Calling new and placement new:\n";
+    pd1 = new double[N];          // use heap
+    pd2 = new (buffer) double[N]; // use buffer array
+    for (i = 0; i < N; i++)
+        pd2[i] = pd1[i] = 1000 + 20.0 * i;
+    cout << "Memory addresses:\n"
+         << " heap: " << pd1
+         << " static: " << (void *)buffer << endl;
+    cout << "Memory contents:\n";
+    for (i = 0; i < N; i++)
+    {
+        cout << pd1[i] << " at " << &pd1[i] << "; ";
+        cout << pd2[i] << " at " << &pd2[i] << endl;
+    }
+
+    cout << "\nCalling new and placement new a second time:\n";
+    double *pd3, *pd4;
+    pd3 = new double[N];          // find new address
+    pd4 = new (buffer) double[N]; // overwrite old data
+    for (i = 0; i < N; i++)
+        pd4[i] = pd3[i] = 1000 + 40.0 * i;
+    cout << "Memory contents:\n";
+    for (i = 0; i < N; i++)
+    {
+        cout << pd3[i] << " at " << &pd3[i] << "; ";
+        cout << pd4[i] << " at " << &pd4[i] << endl;
+    }
+
+    cout << "\nCalling new and placement new a third time:\n";
+    delete[] pd1;
+    pd1 = new double[N];
+    pd2 = new (buffer + N * sizeof(double)) double[N];
+    for (i = 0; i < N; i++)
+        pd2[i] = pd1[i] = 1000 + 60.0 * i;
+    cout << "Memory contents:\n";
+    for (i = 0; i < N; i++)
+    {
+        cout << pd1[i] << " at " << &pd1[i] << "; ";
+        cout << pd2[i] << " at " << &pd2[i] << endl;
+    }
+    delete[] pd1;
+    delete[] pd3;
+
+    return 0;
+}
+
+```
+
+定位new运算符确实将数组p2放在了数组buffer中，p2和buffer的地址都是00FD9138。然而，它们的类型不同，p1是double指针，而buffer是char指针（顺便说一句，这也是程序使用(void *)对buffer进行强制转换的原因，如果不这样做，cout将显示一个字符串）同时，常规new将数组p1放在很远的地方，其地址为006E4AB0，位于动态管理的堆中。
+
+​		第二个常规new运算符查找一个新的内存块，其起始地址为006E4B68；但第二个定位new运算符分配与以前相同的内存块：起始地址为00FD9138的内存块。定位new运算符使用传递给它的地址，它不跟踪哪些内存单元已被使用，也不查找未使用的内存块。这将一些内存管理的负担交给了程序员。例如，在第三次调用定位new运算符时，提供了一个从数组buffer开头算起的偏移量，因此将分配新的内存
+
+```C++
+pd2 = new (buffer + N * sizeof(double)) double[N];  // offset of 40 bytes
+```
+
+第三点差别是，是否使用delete来释放内存。对于常规new运算符，下面的语句释放起始地址为006E4AB0的内存块，因此接下来再次调用new运算符时，该内存块是可用的
+
+```C++
+delete [] pd1;
+```
+
+然而，程序没有使用delete来释放使用定位new运算符分配的内存。事实上，在这个例子中不能这样做。buffer指定的内存是静态内存，而delete只能用于这样的指针：指向常规new运算符分配的堆内存。也就是说，数组buffer位于delete的管辖区域之外，下面的语句将引发运行阶段错误
+
+```C++
+delete [] pd2;  // won't work
+```
+
+​		另一方面，如果buffer是使用常规new运算符创建的，便可以使用常规delete运算符来释放整个内存块。
+
+​		定位new运算符的另一种用法是，将其与初始化结合使用，从而将信息放在特定的硬件地址处。
+
+​		定位new运算符的工作原理。基本上，它只是返回传递给它的地址，并将其强制转换为void *，以便能够赋给任何指针类型。但这说的是默认定位new函数，C++允许程序员重载定位new函数。将定位new运算符用于类对象时，情况将更复杂。
+
+#### 定位new的其他形式
+
+​		就像常规new调用一个接收一个参数的new()函数一样，标准定位new调用一个接收两个参数的new()函数
+
+```C++
+int * pi = new int;					// invokes new(sizeof(int))
+int * p2 = new(buffer) int;			// invokes new(sizeof(int), buffer)
+int * p3 = new(buffer) int[40];		// invokes new(40*sizeof(int), buffer)
+```
+
+定位new函数不可替换，但可重载。它至少需要接收两个参数，其中第一个总是std::size_t，指定了请求的字节数。这样的重载函数都被称为定义new，即使额外的参数没有指定位置。
+
+## 名称空间
+
+​		在C++中，名称可以是变量、函数、结构、枚举、类以及类和结构的成员。当随着项目的增大，名称相互冲突的可能性也将增加。使用多个厂商的类库时，可能导致名称冲突。例如，两个库可能都定义了名为List、Tree和Node的类，但定义的方式不兼容。用户可能希望使用一个库的List类，而使用另一个库的Tree类。这种冲突被称为名称空间问题。
+
+​		C++标准提供了名称空间工具，以便更好地控制名称的作用域。经过了一段时间后，编译器才支持名称空间，但现在这种支持很普遍。
+
+### 传统的C++名称空间
+
+​		第一个需要知道的术语是声明区域（declaration region）。声明区域是可以在其中进行声明的区域。例如，可以在函数外面声明全局变量，对于这种变量，其声明区域为其声明所在的文件。对于在函数中声明的变量，其声明区域为其声明所在的代码块。
+
+​		第二个需要知道的术语是潜在作用域（potential scope）。变量的潜在作用域从声明点开始，到其声明区域的结尾。因此潜在作用域比声明区域小，这是由于变量必须定义后才能使用。
+
+​		然而，变量并非在其潜在作用域内的任何位置都是可见的。例如，它可能被另一个在嵌套声明区域中声明的同名变量隐藏。例如，在函数中声明的局部变量（对于这种变量，声明区域为整个函数）将隐藏在同一个文件中声明的全局变量（对于这种变量，声明区域为整个文件）。变量对程序而言可见的范围被称为作用域（scope），前面正是以这种方式使用该术语的。
+
+​		C++关于全局变量和局部变量的规则定义了一种名称空间层次。每个声明区域都可以声明名称，这些名称独立于在其他声明区域中声明的名称。在一个函数中声明的局部变量不会与在另一个函数中声明的局部变量发生冲突。
+
+### 新的名称空间特性
+
+​		C++新增了这样一种功能，即通过定义一种新的声明区域来创建命名的名称空间，这样做的目的之一是提供一个声明名称的区域。一个名称空间中的名称不会与另外一个名称空间的相同名称发生冲突，同时允许程序的其他部分使用该名称空间中声明的东西。例如，下面的代码使用新的关键字namespace创建了两个名称空间：Jack和Jill。
+
+```C++
+namespace Jack{
+    double pail;		// variable declaration
+    void fetch();		// function prototype
+    int pal;			// variable declaration
+    struct Well {...};	// structure declaration
+}
+namespace Jill{
+    double bucket(double n){...}	// function definition
+    double fetch;					// variable declaration
+    int pal;						// variable declaration
+    struct Hill {...};				// structure declaration
+}
+```
+
+名称空间可以是全局的，也可以位于另一个名称空间中，但不能位于代码块中。因此，在默认情况下，在名称空间中声明的名称的链接性为外部的（除非它引用了常量）。
+
+​		除了用户定义的名称空间外，还存在另一个名称空间——全局名称空间（global namespace）。它对应于文件级声明区域，因此前面所说的全局变量现在被描述为位于全局名称空间中。
+
+​		任何名称空间中的名称都不会与其他名称空间中的名称发生冲突。因此，Jack中的fetch可以与Jill中的fetch共存，Jill中的Hill可以与外部Hill共存。名称空间中的声明和定义规则同全局声明和定义规则相同。
+
+​		名称空间是开放的（open），即可以把名称加入到已有的名称空间中。例如，下面这条语句将名称goose添加到Jill中已有的名称列表中
+
+```C++
+namespace Jill {
+    char * goose(const char *);
+}
+```
+
+​		同样，原来的Jack名称空间为fetch( )函数提供了原型。可以在该文件后面（或另外一个文件中）再次使用Jack名称空间来提供该函数的代码
+
+```C++
+namespace Jack {
+    void fetch(){
+        ...
+    }
+}
+```
+
+​		当然，需要有一种方法来访问给定名称空间中的名称。最简单的方法是，通过作用域解析运算符::，使用名称空间来限定该名称
+
+```C++
+Jack::pail = 12.34;		// use a variable	
+Jill::Hill mole;		// create a type Hill structure
+Jack::fetch();			// use a function
+```
+
+​		未被装饰的名称（如pail）称为未限定的名称（unqualified name）；包含名称空间的名称（如Jack::pail）称为限定的名称（qualified name）。
+
+#### using声明和using编译指令
+
+​		并不希望每次使用名称时都对它进行限定，因此C++提供了两种机制（using声明和using编译指令）来简化对名称空间中名称的使用。using声明使特定的标识符可用，using编译指令使整个名称空间可用。
+
+​		using声明由被限定的名称和它前面的关键字using组成
+
+```C++
+using Jill::fetch; // a using declaration
+```
+
+​		using声明将特定的名称添加到它所属的声明区域中。例如main( )中的using声明Jill::fetch将fetch添加到main( )定义的声明区域中。完成该声明后，便可以使用名称fetch代替Jill::fetch。
+
+```C++
+namespace Jill{
+    double bucket(double n) {...}
+    double fetch;
+    struct Hill {...};
+}
+char fetch;
+int main(){
+    using Jill::fetch;		// put fetch into local namespace
+    double fetch;			// Error! Already have a local fetch
+    cin >> fetch;			// read a value into Jill::fetch
+    cin >> ::fetch;			// read a value into global fetch
+    ...
+}
+```
+
+由于using声明将名称添加到局部声明区域中，因此这个示例避免了将另一个局部变量也命名为fetch。另外，和其他局部变量一样，fetch也将覆盖同名的全局变量。
+
+​		在函数的外面使用using声明时，将把名称添加到全局名称空间中
+
+```C++
+void other();
+namespace Jill{
+    double bucket(double n) {...}
+    double fetch;
+    struct Hill {...};
+}
+using Jill::fetch; // put fetch into global namespace
+int main(){
+    cin >> fetch; // read a value into Jill::fetch
+    other();
+    ...
+}
+void other(){
+    cout << fetch; // display Jill::fetch
+    ...
+}
+```
+
+​		using声明使一个名称可用，而using编译指令使所有的名称都可用。using编译指令由名称空间名和它前面的关键字using namespace组成，它使名称空间中的所有名称都可用，而不需要使用作用域解析运算符
+
+```C++
+using namespace Jack; // make all the names in Jack available
+```
+
+​		在函数中使用using编译指令，将使其中的名称在该函数中可用
+
+```C++
+int main(){
+    using namespace jack;  // make names available in vorn()
+    ...
+}
+```
+
+​		有关using编译指令和using声明，需要记住的一点是，它们增加了名称冲突的可能性。也就是说，如果有名称空间jack和jill，并在代码中使用作用域解析运算符，则不会存在二义性
+
+```C++
+Jack::pal = 3;
+Jill::pal = 10;
+```
+
+​		变量jack::pal和jill::pal是不同的标识符，表示不同的内存单元。然而，如果使用using声明，情况将发生变化
+
+```C++
+using Jack::pal;
+using Jill::pal;
+pal=4;  // which one? now have a conflict
+```
+
+事实上，编译器不允许您同时使用上述两个using声明，因为这将导致二义性。
+
+#### using编译指令和using声明之比较
+
+​		使用using编译指令导入一个名称空间中所有的名称与使用多个using声明是不一样的，而更像是大量使用作用域解析运算符。使用using声明时，就好像声明了相应的名称一样。如果某个名称已经在函数中声明了，则不能用using声明导入相同的名称。然而，使用using编译指令时，将进行名称解析，就像在包含using声明和名称空间本身的最小声明区域中声明了名称一样。在下面的示例中，名称空间为全局的。如果使用using编译指令导入一个已经在函数中声明的名称，则局部名称将隐藏名称空间名，就像隐藏同名的全局变量一样。不过仍可以像下面的示例中那样使用作用域解析运算符
+
+```C++
+namespace Jill{
+    double bucket(double n) {...}
+    double fetch;
+    struct Hill {...};
+}
+char fetch;
+int main(){
+    using namespace Jill; 	// import all namespace names
+    Hill Thrill;			// create a type Jill::Hill structure
+    double water=bucket(2);	// use Jill::bucket();
+    double fetch;			// not an error; hides Jill::fetch
+    cin >> fetch;			// read a value into the local fetch
+    cin >> ::fetch;			// read a value into global fetch
+    cin >> Jill::fetch;		// read a value into Jill::fetch
+    ...
+}
+int foom(){
+    Hill top;			// ERROR
+    Jill::Hill crest;	// valid
+}
+```
+
+在main( )中，名称Jill::fetch被放在局部名称空间中，但其作用域不是局部的，因此不会覆盖全局的fetch。然而，局部声明的fetch将隐藏Jill::fetch和全局fetch。然而，如果使用作用域解析运算符，则后两个fetch变量都是可用的。读者应将这个示例与前面使用using声明的示例进行比较。
+
+​		需要指出的另一点是，虽然函数中的using编译指令将名称空间的名称视为在函数之外声明的，但它不会使得该文件中的其他函数能够使用这些名称。因此，在前一个例子中，foom( )函数不能使用未限定的标识符Hill。
+
+​		假设名称空间和声明区域定义了相同的名称。如果试图使用using声明将名称空间的名称导入该声明区域，则这两个名称会发生冲突，从而出错。如果使用using编译指令将该名称空间的名称导入该声明区域，则局部版本将隐藏名称空间版本。
+
+​		一般说来，使用using声明比使用using编译指令更安全，这是由于它只导入指定的名称。如果该名称与局部名称发生冲突，编译器将发出指示。using编译指令导入所有名称，包括可能并不需要的名称。如果与局部名称发生冲突，则局部名称将覆盖名称空间版本，而编译器并不会发出警告。另外，名称空间的开放性意味着名称空间的名称可能分散在多个地方，这使得难以准确知道添加了哪些名称。
+
+​		大部分示例采用的方法
+
+```C++
+#include <iostream>
+int main(){
+    using namespace std;
+}
+```
+
+有些示例采取下述方式
+
+```C++
+#include <iostream>
+using namespace std;
+int main(){
+    
+}
+```
+
+这将名称空间std中的所有内容导出到全局名称空间中。使用这种方法的主要原因是方便。它易于完成，同时如果系统不支持名称空间，可以将前两行替换为
+
+```C++
+#include <iostream.h>
+```
+
+​		然而，名称空间的支持者希望有更多的选择，既可以使用解析运算符，也可以使用using声明。也就是说，不要这样做
+
+```C++
+using namespace std;  // avoid as too indiscriminate
+```
+
+而应这样做
+
+```C++
+int x;
+std::cin >> x;
+std::cout << x << std::endl;
+```
+
+或者这样做
+
+```C++
+using std::cin;
+using std::cout;
+using std::endl;
+int x;
+cin >> x;
+cout << x << endl;
+```
+
+​		可以用嵌套式名称空间来创建一个包含常用using声明的名称空间。
+
+#### 名称空间的其他特性
+
+​		可以将名称空间声明进行嵌套
+
+```C++
+namespace elements{
+    namespace fire{
+        int flame;
+        ...
+    }
+    float water;
+}
+```
+
+这里，flame指的是`element::fire::flame`。同样，可以使用下面的using编译指令使内部的名称可用
+
+```C++
+using namespace elements::fire;
+```
+
+​		另外，也可以在名称空间中使用using编译指令和using声明，如下所示
+
+```C++
+namespace myth{
+    using Jill::fetch;
+    using namespace elements;
+    using std::cout;
+    using std::cin;
+}
+```
+
+假设要访问Jill::fetch。由于Jill::fetch现在位于名称空间myth（在这里，它被叫做fetch）中，因此可以这样访问它
+
+```C++
+std::cin >> myth::fetch;
+```
+
+​		当然，由于它也位于Jill名称空间中，因此仍然可以称作Jill::fetch
+
+```C++
+Jill::fetch;
+std::cout << Jill::fetch; // display value read into myth::fetch
+```
+
+​		如果没有与之冲突的局部变量，则也可以这样做
+
+```C++
+using namespace myth;
+cin >> fetch; // really std::cin and Jill::fetch
+```
+
+​		现在考虑将using编译指令用于myth名称空间的情况。using编译指令是可传递的。如果A op B且B op C，则A op C，则说操作op是可传递的。例如，>运算符是可传递的（也就是说，如果A>B且B>C，则A>C）。在这个情况下，下面的语句将导入名称空间myth和elements
+
+```C++
+using namespace myth;
+```
+
+这条编译指令与下面两条编译指令等价
+
+```C++
+using namespace myth;
+using namespace elements;
+```
+
+​		可以给名称空间创建别名。例如，假设有下面的名称空间
+
+```C++
+namespace my_very_favorite_things {...};
+```
+
+则可以使用下面的语句让mvft成为my_very_favorite_things的别名
+
+```C++
+namespace mvft=my_very_favorite_things;
+```
+
+​		可以使用这种技术来简化对嵌套名称空间的使用
+
+```C++
+namespace MEF=myth::elements::fire;
+using MEF::flame;
+```
+
+#### 未命名的名称空间
+
+​		可以通过省略名称空间的名称来创建未命名的名称空间
+
+```C++
+namespace{		// unnamed namespace
+    int ice;
+    int bandycoot;
+}
+```
+
+这就像后面跟着using编译指令一样，也就是说，在该名称空间中声明的名称的潜在作用域为：从声明点到该声明区域末尾。从这个方面看，它们与全局变量相似。然而，由于这种名称空间没有名称，因此不能显式地使用using编译指令或using声明来使它在其他位置都可用。具体地说，不能在未命名名称空间所属文件之外的其他文件中，使用该名称空间中的名称。这提供了链接性为内部的静态变量的替代品
+
+​		假设有这样的代码
+
+```C++
+static int counts; // static storage, internal linkage
+int other();
+int main(){
+    ...
+}
+
+int other(){
+    ...
+}
+```
+
+​		采用名称空间的方法如下
+
+```C++
+namespace{
+    int counts; // static storage, internal linkage
+}
+int other();
+int main(){
+    ...
+}
+
+int other(){
+    ...
+}
+```
+
+### 名称空间示例
+
+​		现在来看一个多文件示例，该示例说明了名称空间的一些特性。该程序的第一个文件是头文件，其中包含头文件中常包含的内容：常量、结构定义和函数原型。在这个例子中，这些内容被放在两个名称空间中。第一个名称空间叫做pers，其中包含Person结构的定义和两个函数的原型——一个函数用人名填充结构，另一个函数显示结构的内容；第二个名称空间叫做debts，它定义了一个结构，该结构用来存储人名和金额。该结构使用了Person结构，因此，debts名称空间使用一条using编译指令，让pers中的名称在debts名称空间可用。debts名称空间也包含一些原型。
+
+- namesp.h
+
+  ```C++
+  #include <string>
+  
+  namespace pers
+  {
+      struct Person
+      {
+          std::string fname;
+          std::string lname;
+      };
+      void getPerson(Person &);
+      void showPerson(const Person &);
+  }
+  namespace debts
+  {
+      using namespace pers;
+      struct Debt
+      {
+          Person name;
+          double amount;
+      };
+      void getDebt(Debt &);
+      void showDebt(const Debt &);
+      double sumDebts(const Debt ar[], int n);
+  }
+  ```
+
+- namesp.cpp
+
+  ```C++
+  #include <iostream>
+  #include "namesp.h"
+  
+  namespace pers
+  {
+      using std::cin;
+      using std::cout;
+      void getPerson(Person &rp)
+      {
+          cout << "Enter first name: ";
+          cin >> rp.fname;
+          cout << "Enter last name: ";
+          cin >> rp.lname;
+      }
+      void showPerson(const Person &rp)
+      {
+          std::cout << rp.lname << ", " << rp.fname;
+      }
+  }
+  
+  namespace debts
+  {
+      void getDebt(Debt &rd)
+      {
+          getPerson(rd.name);
+          std::cout << "Enter debt: ";
+          std::cin >> rd.amount;
+      }
+      void showDebt(const Debt &rd)
+      {
+          showPerson(rd.name);
+          std::cout << ": $" << rd.amount << std::endl;
+      }
+      double sumDebts(const Debt ar[], int n)
+      {
+          double total = 0;
+          for (int i = 0; i < n; i++)
+              total += ar[i].amount;
+          return total;
+      }
+  }
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "namesp.h"
+  
+  void other(void);
+  void another(void);
+  
+  int main()
+  {
+      using debts::Debt;
+      using debts::showDebt;
+      Debt golf = {{"Benny", "Goatsniff"}, 120.0};
+      showDebt(golf);
+      other();
+      another();
+  
+      return 0;
+  }
+  
+  void other(void)
+  {
+      using std::cout;
+      using std::endl;
+      using namespace debts;
+      Person dg = {"Doodles", "Glister"};
+      showPerson(dg);
+      cout << endl;
+      Debt zippy[3];
+      int i;
+      for (i = 0; i < 3; i++)
+          getDebt(zippy[i]);
+      for (i = 0; i < 3; i++)
+          showDebt(zippy[i]);
+      cout << "Total debt: $" << sumDebts(zippy, 3) << endl;
+  }
+  
+  void another(void)
+  {
+      using pers::Person;
+      Person collector = {"Milo", "Rightshift"};
+      pers::showPerson(collector);
+      std::cout << std::endl;
+  }
+  
+  ```
+
+第二个文件是源代码文件，它提供了头文件中的函数原型对应的定义。在名称空间中声明的函数名的作用域为整个名称空间，因此定义和声明必须位于同一个名称空间中。这正是名称空间的开放性发挥作用的地方。通过包含namesp.h导入了原来的名称空间。然后该文件将函数定义添加入到两个名称空间中，如程序清单namesp.cpp所示。另外，文件names.cpp演示了如何使用using声明和作用域解析运算符来使名称空间std中的元素可用。
+
+### 名称空间及其前途
+
+​		随着程序员逐渐熟悉名称空间，将出现统一的编程理念。下面是当前的一些指导原则
+
+- 使用在已命名的名称空间中声明的变量，而不是使用外部全局变量。
+- 使用在已命名的名称空间中声明的变量，而不是使用静态全局变量。
+- 如果开发了一个函数库或类库，将其放在一个名称空间中。事实上，C++当前提倡将标准函数库放在名称空间std中，这种做法扩展到了来自C语言中的函数。例如，头文件math.h是与C语言兼容的，没有使用名称空间，但C++头文件cmath应将各种数学库函数放在名称空间std中。实际上，并非所有的编译器都完成了这种过渡。
+- 仅将编译指令using作为一种将旧代码转换为使用名称空间的权宜之计
+- 不要在头文件中使用using编译指令。首先，这样做掩盖了要让哪些名称可用；另外，包含头文件的顺序可能影响程序的行为。如果非要使用编译指令using，应将其放在所有预处理器编译指令#include之后。
+- 导入名称时，首选使用作用域解析运算符或using声明的方法。
+- 对于using声明，首选将其作用域设置为局部而不是全局。
+
+​		使用名称空间的主旨是简化大型编程项目的管理工作。对于只有一个文件的简单程序，使用using编译指令并非什么大逆不道的事。
+
+​		正如前面指出的，头文件名的变化反映了这些变化。老式头文件（如iostream.h）没有使用名称空间，但新头文件iostream使用了std名称空间。
+
