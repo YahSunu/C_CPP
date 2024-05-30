@@ -10804,3 +10804,3492 @@ int other(){
 
 ​		正如前面指出的，头文件名的变化反映了这些变化。老式头文件（如iostream.h）没有使用名称空间，但新头文件iostream使用了std名称空间。
 
+# 对象和类
+
+​		面向对象编程（OOP）是一种特殊的、设计程序的概念性方法，C++通过一些特性改进了C语言，使得应用这种方法更容易。下面是最重要的OOP特性
+
+- 抽象；
+- 封装和数据隐藏；
+- 多态；
+- 继承；
+- 代码的可重用性。
+
+## 过程性编程和面向对象编程
+
+​		采用过程性编程方法时，首先考虑要遵循的步骤，然后考虑如何表示这些数据（并不需要程序一直运行，用户可能希望能够将数据存储在一个文件中，然后从这个文件中读取数据）。
+
+​		采用OOP方法时，首先从用户的角度考虑对象——描述对象所需的数据以及描述用户与数据交互所需的操作。完成对接口的描述后，需要确定如何实现接口和数据存储。最后，使用新的设计方案创建出程序。
+
+## 抽象和类
+
+​		在C++中，用户定义类型指的是实现抽象接口的类设计。
+
+### 类型是什么
+
+​		指定基本类型完成了三项工作
+
+- 决定数据对象需要的内存数量；
+- 决定如何解释内存中的位（long和float在内存中占用的位数相同，但将它们转换为数值的方法不同）；
+- 决定可使用数据对象执行的操作或方法。
+
+对于内置类型来说，有关操作的信息被内置到编译器中。但在C++中定义用户自定义的类型时，必须自己提供这些信息。付出这些劳动换来了根据实际需要定制新数据类型的强大功能和灵活性。
+
+### C++中的类
+
+​		一般来说，类规范由两个部分组成。
+
+- **类声明**：以数据成员的方式描述数据部分，以成员函数（被称为方法）的方式描述公有接口。
+- **类方法定义**：描述如何实现类成员函数。
+
+类声明提供了类的蓝图，而方法定义则提供了细节。
+
+​		**接口**：接口是一个共享框架，供两个系统（如在计算机和打印机之间或者用户或计算机程序之间）交互时使用
+
+​		对于类，我们说公共接口。在这里，公众（public）是使用类的程序，交互系统由类对象组成，而接口由编写类的人提供的方法组成。接口让程序员能够编写与类对象交互的代码，从而让程序能够使用类对象。
+
+- stock.h
+
+  ```C++
+  #ifndef STOCK_H_
+  #define STOCK_H_
+  
+  #include <string>
+  
+  class Stock
+  {
+  private:
+      std::string company;
+      long shares;
+      double share_val;
+      double total_val;
+      void set_tot() { total_val = shares * share_val; }
+  
+  public:
+      void acquire(const std::string &co, long n, double pr);
+      void buy(long num, double price);
+      void sell(long num, double price);
+      void update(double price);
+      void show();
+  }; // note semicolon at the end
+  
+  #endif
+  ```
+
+  在这里，关键字class和typename不是同义词，不能使用typename代替class）
+
+  成员函数可以就地定义（如set_tot( )），也可以用原型表示（如其他成员函数）。其他成员函数的完整定义稍后将介绍，它们包含在实现文件中；但对于描述函数接口而言，原型足够了。
+
+#### 访问控制
+
+​		关键字private和public也是新的，它们描述了对类成员的访问控制。使用类对象的程序都可以直接访问公有部分，但只能通过公有成员函数（或友元函数）来访问对象的私有成员。
+
+​		要修改Stock类的shares成员，只能通过Stock的成员函数。因此，公有成员函数是程序和对象的私有成员之间的桥梁，提供了对象和程序之间的接口。防止程序直接访问数据被称为数据隐藏。C++还提供了第三个访问控制关键字protected
+
+​		类设计尽可能将公有接口与实现细节分开。公有接口表示设计的抽象组件。将实现细节放在一起并将它们与抽象分开被称为封装。数据隐藏（将数据放在类的私有部分中）是一种封装，将实现的细节隐藏在私有部分中，就像Stock类对set_tot( )所做的那样，也是一种封装。封装的另一个例子是，将类函数定义和类声明放在不同的文件中。
+
+​		**OOP和C++**：OOP是一种编程风格，从某种程度说，它用于任何一种语言中。当然，可以将OOP思想融合到常规的C语言程序中。
+
+​		C++中包括了许多专门用来实现OOP方法的特性，因此它使程序员更进一步。首先，将数据表示和函数原型放在一个类声明中（而不是放在一个文件中），通过将所有内容放在一个类声明中，来使描述成为一个整体。其次，让数据表示成为私有，使得数据只能被授权的函数访问。在C语言的例子中，如果main( )直接访问
+了结构成员，则违反了OOP的精神，但没有违反C语言的规则。然而，试图直接访问Stock对象的shares成员便违反了C++语言的规则，编译器将捕获这种错误。
+
+​		数据隐藏不仅可以防止直接访问数据，还让开发者（类的用户）无需了解数据是如何被表示的。从使用类的角度看，使用哪种方法没有什么区别。所需要知道的只是各种成员函数的功能；也就是说，需要知道成员函数接受什么样的参数以及返回什么类型的值。原则是将实现细节从接口设计中分离出来。如果以后找到了更好的、实现数据表示或成员函数细节的方法，可以对这些细节进行修改，而无需修改程序接口，这使程序维护起来更容易。
+
+#### 控制对成员的访问：公有还是私有
+
+​		无论类成员是数据成员还是成员函数，都可以在类的公有部分或私有部分中声明它。但由于隐藏数据是OOP主要的目标之一，因此数据项通常放在私有部分，组成类接口的成员函数放在公有部分；否则，就无法从程序中调用这些函数。正如Stock声明所表明的，也可以把成员函数放在私有部分中。不能直接从程序中调用这种函数，但公有方法却可以使用它们。通常，程序员使用私有成员函数来处理不属于公有接口的实现细节。
+
+​		不必在类声明中使用关键字private，因为这是类对象的默认访问控制
+
+​		**类和结构**：类描述看上去很像是包含成员函数以及public和private可见性标签的结构声明。实际上，C++对结构进行了扩展，使之具有与类相同的特性。它们之间唯一的区别是，结构的默认访问类型是public，而类为private。C++程序员通常使用类来实现类描述，而把结构限制为只表示纯粹的数据对象（常被称为普通老式数据（POD，Plain Old Data）结构）。
+
+### 实现类成员函数
+
+​		还需要创建类描述的第二部分：为那些由类声明中的原型表示的成员函数提供代码。成员函数定义与常规函数定义非常相似，它们有函数头和函数体，也可以有返回类型和参数。但是它们还有两个特殊的特征
+
+- 定义成员函数时，使用作用域解析运算符（::）来标识函数所属的类；
+- 类方法可以访问类的private组件。
+
+​		首先，成员函数的函数头使用作用域运算符解析（::）来指出函数所属的类。例如，update( )成员函数的函数头如下
+
+```C++
+void Stock::update(double price)
+```
+
+这种表示法意味着我们定义的update( )函数是Stock类的成员。这不仅将update( )标识为成员函数，还意味着我们可以将另一个类的成员函数也命名为update( )。
+
+​		因此，作用域解析运算符确定了方法定义对应的类的身份。我们说，标识符update( )具有类作用域（class scope）。Stock类的其他成员函数不必使用作用域解析运算符，就可以使用update( )方法，这是因为它们属于同一个类，因此update( )是可见的。然而，在类声明和方法定义之外使用update( )时，需要采取特殊的措施。
+
+​		类方法的完整名称中包括类名。我们说，Stock::update( )是函数的限定名（qualified name）；而简单的update( )是全名的缩写（非限定名，unqualified name），它只能在类作用域中使用。
+
+​		方法的第二个特点是，方法可以访问类的私有成员。如果试图使用非成员函数访问这些数据成员，编译器禁止这样做（但友元函数例外）。
+
+- stock.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stock.h"
+  
+  void Stock::acquire(const std::string &co, long n, double pr)
+  {
+      company = co;
+      if (n < 0)
+      {
+          std::cout << "Number of shares can't be negative; "
+                    << company << " shares set to 0.\n";
+          shares = 0;
+      }
+      else
+          shares = n;
+      share_val = pr;
+      set_tot();
+  }
+  void Stock::buy(long num, double price)
+  {
+      if (num < 0)
+      {
+          std::cout << "Number of shares purchased can't be negative."
+                    << "Transaction is aborted.\n";
+      }
+      else
+      {
+          shares += num;
+          share_val = price;
+          set_tot();
+      }
+  }
+  void Stock::sell(long num, double price)
+  {
+      using std::cout;
+      if (num < 0)
+      {
+          cout << "Number of shares sold can't be negative. "
+               << "Transaction is aborted.\n";
+      }
+      else if (num > shares)
+      {
+          cout << "You can't sell more than you have! "
+               << "Transaction is aborted.\n";
+      }
+      else
+      {
+          shares -= num;
+          share_val = price;
+          set_tot();
+      }
+  }
+  
+  void Stock::update(double price)
+  {
+      share_val = price;
+      set_tot();
+  }
+  
+  void Stock::show()
+  {
+      std::cout << "Company: " << company
+                << " Shares: " << shares << '\n'
+                << " Share Price: $" << share_val
+                << " Total Worth: $" << total_val << '\n';
+  }
+  ```
+
+  4个成员函数设置或重新设置了total_val成员值。这个类并非将计算代码编写4次，而是让每个函数都调用set_tot( )函数。由于set_tot( )只是实现代码的一种方式，而不是公有接口的组成部分，因此这个类将其声明为私有成员函数（即编写这个类的人可以使用它，但编写代码来使用这个类的人不能使用）。如果计算代码很长，则这种方法还可以省去许多输入代码的工作，并可节省空间。然而，这种方法的主要价值在于，通过使用函数调用，而不是每次重新输入计算代码，可以确保执行的计算完全相同。另外，如果必须修订计算代码（在这个例子中，这种可能性不大），则只需在一个地方进行修改即可。
+
+#### 内联方法
+
+​		**其定义位于类声明中的函数都将自动成为内联函数**，因此Stock::set_tot( )是一个内联函数。**类声明常将短小的成员函数作为内联函数**，set_tot( )符合这样的要求。
+
+​		如果愿意，也可以在类声明之外定义成员函数，并使其成为内联函数。为此，只需在类实现部分中定义函数时使用inline限定符即可
+
+​		内联函数的特殊规则要求在每个使用它们的文件中都对其进行定义。确保内联定义对多文件程序中的所有文件都可用的、最简便的方法是：将内联定义放在定义类的头文件中（有些开发系统包含智能链接程序，允许将内联定义放在一个独立的实现文件）。
+
+​		根据改写规则（rewrite rule），在类声明中定义方法等同于用原型替换方法定义，然后在类声明的后面将定义改写为内联函数。也就是说，程序清单中set_tot( )的内联定义与上述代码（定义紧跟在类声明之后）是等价的。
+
+#### 方法使用哪个对象
+
+​		调用成员函数时，它将使用被用来调用它的对象的数据成员。所创建的每个新对象都有自己的存储空间，用于存储其内部变量和类成员；但同一个类的所有对象共享同一组类方法，即每种方法只有一个副本。
+
+​		在OOP中，调用成员函数被称为发送消息，因此将同样的消息发送给两个不同的对象将调用同一个方法，但该方法被用于两个不同的对象
+
+### 使用类
+
+​		C++的目标是使得使用类与使用基本的内置类型（如int和char）尽可能相同。要创建类对象，可以声明类变量，也可以使用new为类对象分配存储空间。可以将对象作为函数的参数和返回值，也可以将一个对象赋给另一个。C++提供了一些工具，可用于初始化对象、让cin和cout识别对象，甚至在相似的类对象之间进行自动类型转换。
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stock.h"
+  
+  int main()
+  {
+      Stock fluffy_the_cat;
+      fluffy_the_cat.acquire("NanoSmart", 20, 12.50);
+      fluffy_the_cat.show();
+      fluffy_the_cat.buy(15, 18.125);
+      fluffy_the_cat.show();
+      fluffy_the_cat.sell(400, 20.00);
+      fluffy_the_cat.show();
+      fluffy_the_cat.buy(300000, 40.125);
+      fluffy_the_cat.show();
+      fluffy_the_cat.sell(300000, 0.125);
+      fluffy_the_cat.show();
+      return 0;
+  }
+  ```
+
+​		**客户/服务器模型**：OOP程序员常依照客户/服务器模型来讨论程序设计。在这个概念中，客户是使用类的程序。类声明（包括类方法）构成了服务器，它是程序可以使用的资源。客户只能通过以公有方式定义的接口使用服务器，这意味着客户（客户程序员）唯一的责任是了解该接口。服务器（服务器设计人员）的责任是确保服务器根据该接口可靠并准确地执行。服务器设计人员只能修改类设计的实现细节，而不能修改接口。这样程序员独立地对客户和服务器进行改进，对服务器的修改不会客户的行为造成意外的影响。
+
+### 修改实现
+
+​		在前面的程序输出中，可能有一个方面让您恼火——数字的格式不一致。现在可以改进实现，但保持接口不变。ostream类包含一些可用于控制格式的成员函数。这里不做太详细的探索
+
+```C++
+std::cout.setf(std::ios_base::fixed, std::ios_base::floatfield);
+```
+
+这设置了cout对象的一个标记，命令cout使用定点表示法。同样，下面的语句导致cout在使用定点表示法时，显示三位小数
+
+```C++
+std::cout.precision(3);
+```
+
+​		可在方法show()中使用这些工具来控制格式，但还有一点需要考虑。修改方法的实现时，不应影响客户程序的其他部分。上述格式修改将一直有效，直到您再次修改，因此它们可能影响客户程序中的后续输出。因此，show()应重置格式信息，使其恢复到自己被调用前的状态。
+
+```C++
+std::streamsize prec=std::cout.precision(3);  // save preceding value for precision
+...
+std::cout.precision(prec);  // reset to old value
+// store original flags
+std::ios_base::fmtflags orig = std::cout.setf(std::ios_baase::fixed);
+...
+// reset to stored values
+std::cout.setf(orig, std::ios_base::floatfield);
+```
+
+fmtflags是在ios_base类中定义的一种类型，而ios_base类又是在名称空间std中定义的，因此orig的类型名非常长。其次，orig存储了所有的标记，而重置语句使用这些信息来重置floatfield，而floatfield包含定点表示法标记和科学表示法标记。第三，请不要过多考虑这里的细节。这里的要旨是，将修改限定在实现文件中，以免影响程序的其他方面。
+
+​		可在实现文件中将方法show()的定义修改成如下
+
+```C++
+void Stock::show()
+{
+    using std::cout;
+    using std::ios_base;
+    ios_base::fmtflags orig = cout.setf(ios_base::fixed, ios_base::floatfield);
+    std::streamsize prec = cout.precision(3);
+    cout << "Company: " << company
+         << " Shares: " << shares << '\n'
+         << " Share Price: $" << share_val;
+    cout.precision(2);
+    cout << " Total Worth: $" << total_val << '\n';
+
+    cout.setf(orig, ios_base::floatfield);
+    cout.precision(prec);
+}
+```
+
+### 小结
+
+​		指定类设计的第一步是提供类声明。类声明类似结构声明，可以包括数据成员和函数成员。声明有私有部分，在其中声明的成员只能通过成员函数进行访问；声明还具有公有部分，在其中声明的成员可被使用类对象的程序直接访问。通常，数据成员被放在私有部分中，成员函数被放在公有部分中，因此典型的类声明的格式如下
+
+```C++
+class className{
+private:
+    data member declarations
+public:
+    member function prototypes
+};
+```
+
+公有部分的内容构成了设计的抽象部分——公有接口。将数据封装到私有部分中可以保护数据的完整性，这被称为数据隐藏。因此，C++通过类使得实现抽象、数据隐藏和封装等OOP特性很容易
+
+​		指定类设计的第二步是实现类成员函数。可以在类声明中提供完整的函数定义，而不是函数原型，但是通常的做法是单独提供函数定义（除非函数很小）。在这种情况下，需要使用作用域解析运算符来指出成员函数属于哪个类。例如，假设Bozo有一个名为Retort( )的成员函数，该函数返回char指针，则其函数头如下所示
+
+```C++
+char * Bozo::Retort()
+```
+
+换句话来说，Retort( )不仅是一个char *类型的函数，而是一个属于Bozo类的char *函数。该函数的全名（或限定名）为Bozo::Retort( )。而名称Retort( )是限定名的缩写，只能在某些特定的环境中使用，如类方法的代码中。
+
+​		另一种描述这种情况的方式是，名称Retort的作用域为整个类，因此在类声明和类方法之外使用该名称时，需要使用作用域解析运算符进行限定。
+
+​		要创建对象（类的实例），只需将类名视为类型名即可
+
+```C++
+Bozo bozetta;
+```
+
+这样做是可行的，因为类是用户定义的类型。
+
+​		类成员函数（方法）可通过类对象来调用。为此，需要使用成员运算符句点
+
+```C++
+cout << Bozetta.Retirt();
+```
+
+这将调用Retort( )成员函数，每当其中的代码引用某个数据成员时，该函数都将使用bozetta对象中相应成员的值。
+
+## 类的构造函数和析构函数
+
+​		应为类提供被称为构造函数和析构函数的标准函数。C++的目标之一是让使用类对象就像使用标准类型一样，然而，到现在为止，提供的代码还不能让您像初始化int或结构那样来初始化Stock对象。也就是说，常规的初始化语法不适用于类型Stock
+
+```C++
+int year = 2001;
+struct thing{		// valid initialization
+    char *pn;
+    int m;
+};
+thing amabob = {"wodget",-23};   // valid initialization
+Stock hot = {"Sukie's Autos, Inc. ", 200, 50.25};   // No! compile error
+```
+
+不能像上面这样初始化Stock对象的原因在于，数据部分的访问状态是私有的，这意味着程序不能直接访问数据成员。您已经看到，程序只能通过成员函数来访问数据成员，因此需要设计合适的成员函数，才能成功地将对象初始化（如果使数据成员成为公有，而不是私有，就可以按刚才介绍的方法初始化类对象，但使数据成为公有的违背了类的一个主要初衷：数据隐藏）。
+
+​		一般来说，最好是在创建对象时对它进行初始化。
+
+```C++
+Stock gift;
+gift.buy(10,24.75);
+```
+
+就Stock类当前的实现而言，gift对象的company成员是没有值的。类设计假设用户在调用任何其他成员函数之前调用acquire( )，但无法强加这种假设。避开这种问题的方法之一是在创建对象时，自动对它进行初始化。为此，C++提供了一个特殊的成员函数——类构造函数，专门用于构造新对象、将值赋给它们的数据成员。更准确地说，C++为这些成员函数提供了名称和使用语法，而程序员需要提供方法定义。名称与类名相同。例如，Stock类一个可能的构造函数是名为Stock( )的成员函数。构造函数的原型和函数头有一个有趣的特征——虽然没有返回值，但没有被声明为void类型。实际上，构造函数没有声明类型。
+
+### 声明和定义构造函数
+
+​		现在需要创建Stock的构造函数。由于需要为Stock对象提供3个值，因此应为构造函数提供3个参数。程
+序员可能只想设置company成员，而将其他值设置为0；这可以使用默认参数来完成
+
+```C++
+// constructor prototype with some default arguments
+Stock(const string & co, long n=0, double pr=0.0);
+```
+
+下面是构造函数的一种可能定义
+
+```C++
+// constructor definition
+Stock::Stock(const string & co, long n, double pr){
+    company = co;
+    if(n<0){
+        std::err << "Number of shares can't be negative; "
+            << company << " shares set to 0.\n";
+        shares = 0;
+    }else
+        shares = n;
+    share_val=pr;
+    set_tot();
+}
+```
+
+上述代码和本章前面的函数acquire( )相同。区别在于，程序声明对象时，将自动调用构造函数。
+
+​		**成员名和参数名**：不熟悉构造函数的您会试图将类成员名称用作构造函数的参数名。这是错误的。构造函数的参数表示的不是类成员，而是赋给类成员的值。因此，参数名不能与类成员相同。
+
+​		为避免这种混乱，一种常见的做法是在数据成员名中使用m_前缀
+
+```C++
+class Stock{
+private:
+    string m_company;
+    long m_shares;
+    ...
+}
+```
+
+另一种常见的做法是，在成员名中使用后缀_
+
+```C++
+class Stock{
+private:
+    string company_;
+    long shares_;
+    ...
+}
+```
+
+无论采用哪种做法，都可在公有接口中在参数名中包含company和shares。
+
+### 使用构造函数
+
+​		C++提供了两种使用构造函数来初始化对象的方式。第一种方式是显式地调用构造函数
+
+```C++
+Stock food = Stock("World Cabbage", 250, 1.25);
+```
+
+​		另一种方式是隐式地调用构造函数
+
+```C++
+Stock garment("Furry Mason", 50, 2.5);
+```
+
+这种格式更紧凑，它与下面的显式调用等价
+
+```C++
+Stock garment = Stock("Furry Mason", 50, 2.5);
+```
+
+​		每次创建类对象（甚至使用new动态分配内存）时，C++都使用类构造函数。下面是将构造函数与new一起使用的方法
+
+```C++
+Stock *pstock = new Stock("Electroshock Games", 18, 19.0);
+```
+
+这条语句创建一个Stock对象，将其初始化为参数提供的值，并将该对象的地址赋给pstock指针。在这种情况下，对象没有名称，但可以使用指针来管理该对象。
+
+​		构造函数的使用方式不同于其他类方法。一般来说，使用对象来调用方法
+
+```C++
+stock1.show(); // stock1 object invokes show() method
+```
+
+但无法使用对象来调用构造函数，因为在构造函数构造出对象之前，对象是不存在的。因此构造函数被用来创建对象，而不能通过对象来调用。
+
+### 默认构造函数
+
+​		默认构造函数是在未提供显式初始值时，用来创建对象的构造函数。也就是说，它是用于下面这种声明的构造函数
+
+```C++
+Stock flutty_the_cat; // uses the default constructor
+```
+
+这条语句管用的原因在于，如果没有提供任何构造函数，则C++将自动提供默认构造函数。它是默认构造函数的隐式版本，不做任何工作。对于Stock类来说，默认构造函数可能如下
+
+```C++
+Stock::Stock(){}
+```
+
+因此将创建fluffy_the_cat对象，但不初始化其成员，这和下面的语句创建x，但没有提供值给它一样
+
+```C++
+int x;
+```
+
+默认构造函数没有参数，因为声明中不包含值。
+
+​		奇怪的是，当且仅当没有定义任何构造函数时，编译器才会提供默认构造函数。为类定义了构造函数后，程序员就必须为它提供默认构造函数。如果提供了非默认构造函数（如Stock(const char * co, int n, double pr)），但没有提供默认构造函数，则下面的声明将出错
+
+```C++
+Stock stock1; // not possible with current constructor
+```
+
+这样做的原因可能是想禁止创建未初始化的对象。然而，如果要创建对象，而不显式地初始化，则必须定义一个不接受任何参数的默认构造函数。定义默认构造函数的方式有两种。一种是给已有构造函数的所有参数提供默认值
+
+```C++
+Stock(const string & co = "Error", int n=0, double pr=0.0);
+```
+
+另一种方式是通过函数重载来定义另一个构造函数——一个没有参数的构造函数
+
+```C++
+Stock();
+```
+
+​		由于只能有一个默认构造函数，因此不要同时采用这两种方式。实际上，通常应初始化所有的对象，以确保所有成员一开始就有已知的合理值。因此，用户定义的默认构造函数通常给所有成员提供隐式初始值。例如，下面是为Stock类定义的一个默认构造函数：
+
+```C++
+Stock::Stock(){
+    company = "no name";
+    shares = 0;
+    share_val=0.0;
+    total_val=0.0;
+}
+```
+
+在设计类时，通常应提供对所有类成员做隐式初始化的默认构造函数。
+
+​		使用上述任何一种方式（没有参数或所有参数都有默认值）创建了默认构造函数后，便可以声明对象变量，而不对它们进行显式初始化
+
+```C++
+Stock first;					// calls default constructor implicitly
+Stock first = Stock();			// calls it explicitly
+Stock *prelief = new Stock();	// calls it implicitly
+```
+
+然而，不要被非默认构造函数的隐式形式所误导：
+
+```C++
+Stock first("Concrete Conglomerate"); 		// calls constructor
+Stock second();  // declares a function
+Stock third; 	// calls default constructor
+```
+
+第一个声明调用非默认构造函数，即接受参数的构造函数；第二个声明指出，second( )是一个返回Stock对象的函数。**隐式地调用默认构造函数时，不要使用圆括号。**
+
+### 析构函数
+
+​		用构造函数创建对象后，程序负责跟踪该对象，直到其过期为止。对象过期时，程序将自动调用一个特殊的成员函数，该函数的名称令人生畏——析构函数。析构函数完成清理工作，因此实际上很有用。例如，如果构造函数使用new来分配内存，则析构函数将使用delete来释放这些内存。Stock的构造函数没有使用new，因此析构函数实际上没有需要完成的任务。在这种情况下，只需让编译器生成一个什么要不做的隐式析构函数即可，Stock类第一版正是这样做的。然而，了解如何声明和定义析构函数是绝对必要的，下面为Stock类提供一个析构函数。
+
+​		和构造函数一样，析构函数的名称也很特殊：在类名前加上~。因此，Stock类的析构函数为~Stock( )。另外，和构造函数一样，析构函数也可以没有返回值和声明类型。与构造函数不同的是，析构函数没有参数，因此Stock析构函数的原型必须是这样的
+
+```C++
+~Stock();
+```
+
+​		由于Stock的析构函数不承担任何重要的工作，因此可以将它编写为不执行任何操作的函数
+
+```C++
+Stock::~Stock(){}
+```
+
+然而，为让您能看出析构函数何时被调用，这样编写其代码
+
+```C++
+Stock::~Stock(){
+    cout << "Bye, " << company << "!\n";
+}
+```
+
+​		什么时候应调用析构函数由编译器决定，通常不应在代码中显式地调用析构函数（有关例外情形，请参阅“再谈定位new运算符”）。如果创建的是静态存储类对象，则其析构函数将在程序结束时自动被调用。如果创建的是自动存储类对象（就像前面的示例中那样），则其析构函数将在程序执行完代码块时（该对象是在其中定义的）自动被调用。如果对象是通过new创建的，则它将驻留在栈内存或自由存储区中，当使用delete来释放内存时，其析构函数将自动被调用。最后，程序可以创建临时对象来完成特定的操作，在这种情况下，程序将在结束对该对象的使用时自动调用其析构函数。
+
+​		由于在类对象过期时析构函数将自动被调用，因此必须有一个析构函数。如果程序员没有提供析构函数，编译器将隐式地声明一个默认析构函数，并在发现导致对象被删除的代码后，提供默认析构函数的定义。
+
+### 改进Stock类
+
+- stock.h
+
+  ```C++
+  #ifndef STOCK_H_
+  #define STOCK_H_
+  
+  #include <string>
+  
+  class Stock
+  {
+  private:
+      std::string company;
+      long shares;
+      double share_val;
+      double total_val;
+      void set_tot() { total_val = shares * share_val; }
+  
+  public:
+      Stock();
+      Stock(const std::string &co, long n = 0, double pr = 0.0);
+      ~Stock();
+      void buy(long num, double price);
+      void sell(long num, double price);
+      void update(double price);
+      void show();
+  }; // note semicolon at the end
+  
+  #endif
+  ```
+
+- stock.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stock.h"
+  
+  Stock::Stock()
+  {
+      std::cout << "Default constructor called\n";
+      company = "no name";
+      shares = 0;
+      share_val = 0.0;
+      total_val = 0.0;
+  }
+  Stock::Stock(const std::string &co, long n, double pr)
+  {
+      std::cout << "Constructor using " << co << " called\n";
+      company = co;
+      if (n < 0)
+      {
+          std::cout << "Number of shares can't be negative; "
+                    << company << " shares set to 0.\n";
+          shares = 0;
+      }
+      else
+          shares = n;
+      share_val = pr;
+      set_tot();
+  }
+  Stock::~Stock()
+  {
+      std::cout << "Bye, " << company << "!\n";
+  }
+  void Stock::buy(long num, double price)
+  {
+      if (num < 0)
+      {
+          std::cout << "Number of shares purchased can't be negative."
+                    << "Transaction is aborted.\n";
+      }
+      else
+      {
+          shares += num;
+          share_val = price;
+          set_tot();
+      }
+  }
+  void Stock::sell(long num, double price)
+  {
+      using std::cout;
+      if (num < 0)
+      {
+          cout << "Number of shares sold can't be negative. "
+               << "Transaction is aborted.\n";
+      }
+      else if (num > shares)
+      {
+          cout << "You can't sell more than you have! "
+               << "Transaction is aborted.\n";
+      }
+      else
+      {
+          shares -= num;
+          share_val = price;
+          set_tot();
+      }
+  }
+  
+  void Stock::update(double price)
+  {
+      share_val = price;
+      set_tot();
+  }
+  
+  void Stock::show()
+  {
+      using std::cout;
+      using std::ios_base;
+      ios_base::fmtflags orig = cout.setf(ios_base::fixed, ios_base::floatfield);
+      std::streamsize prec = cout.precision(3);
+      cout << "Company: " << company
+           << " Shares: " << shares << '\n'
+           << " Share Price: $" << share_val;
+      cout.precision(2);
+      cout << " Total Worth: $" << total_val << '\n';
+  
+      cout.setf(orig, ios_base::floatfield);
+      cout.precision(prec);
+  }
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stock.h"
+  
+  int main()
+  {
+      {
+          using std::cout;
+          cout << "Using constructors to creat new objects\n";
+          Stock stock1("NanoSmart", 12, 20.0);
+          stock1.show();
+          Stock stock2("Boffo Objects", 2, 2.0);
+          stock2.show();
+  
+          cout << "Assigning stock1 and stock2:\n";
+          stock2 = stock1;
+          cout << "Listing stock1 and stock2:\n";
+          stock1.show();
+          stock2.show();
+  
+          cout << "Using a constructor to reset an object\n";
+          stock1 = Stock("Nifty Foods", 10, 50.0);
+          cout << "Revised stock1:\n";
+          stock1.show();
+          cout << "Done\n";
+      }
+      return 0;
+  }
+  ```
+
+​		使用某些编译器编译该程序时，该程序输出的前半部分可能如下（比前面多了一行）
+
+```C++
+Bye, Boffo Objects!
+```
+
+main()的开头和末尾多了一个大括号。诸如stock1和stock2等自动变量将在程序退出其定义所属代码块时消失。如果没有这些大括号，代码块将为整个main()，因此仅当main()执行完毕后，才会调用析构函数。在窗口环境中，这意味着将在两个析构函数调用前关闭，导致您无法看到最后两条消息。但添加这些大括号后，最后两个析构函数调用将在到达返回语句前执行，从而显示相应的消息。
+
+​		在默认情况下，将一个对象赋给同类型的另一个对象时，C++将源对象的每个数据成员的内容复制到目标对象中相应的数据成员中。
+
+​		输出表明，下面两条语句有根本性的差别
+
+```C++
+Stock stock2("Boffo Objects", 2, 2.0);
+stock1 = Stock("Nifty Foods", 10, 50.0);   // temporary object
+```
+
+第一条语句是初始化，它创建有指定值的对象，可能会创建临时对象（也可能不会）；第二条语句是赋值。像这样在赋值语句中使用构造函数总会导致在赋值前创建一个临时对象。
+
+​		如果既可以通过初始化，也可以通过赋值来设置对象的值，则应采用初始化方式。通常这种方式的效率更高。
+
+#### C++11列表初始化
+
+​		在C++11中，可将列表初始化语法用于类吗？可以，只要提供与某个构造函数的参数列表匹配的内容，并用大括号将它们括起。
+
+```C++
+Stock hot_tip={"Derivatives Plus Plus", 100, 45.0};
+Stock jock {"Sport Age Storage, Inc"};
+Stock temp {};
+```
+
+在前两个声明中，用大括号括起的列表与下面的构造函数匹配
+
+```C++
+Stock::Stock(const std::string & co, long n=0, double pr=0.0);
+```
+
+因此，将使用该构造函数来创建这两个对象。创建对象jock时，第二和第三个参数将为默认值0和0.0。第三个声明与默认构造函数匹配，因此将使用该构造函数创建对象temp。
+
+​		另外，C++11还提供了名为std::initialize_list的类，可将其用作函数参数或方法参数的类型。这个类可表示任意长度的列表，只要所有列表项的类型都相同或可转换为相同的类型
+
+#### const成员函数
+
+```C++
+const Stock land = Stock("Kludgehorn Properties");
+land.show();
+```
+
+对于当前的C++来说，编译器将拒绝第二行。因为show( )的代码无法确保调用对象不被修改——调用对象和const一样，不应被修改。我们以前通过将函数参数声明为const引用或指向const的指针来解决这种问题。但这里存在语法问题：show( )方法没有任何参数。相反，它所使用的对象是由方法调用隐式地提供的。需要一种新的语法——保证函数不会修改调用对象。C++的解决方法是将const关键字放在函数的括号后面。也就是说，show( )声明应像这样
+
+```C++
+void show() const;  // promises not to change invoking object
+```
+
+同样，函数定义的开头应像这样
+
+```C++
+void stock::show() const // promises not to change invoking object
+```
+
+​		以这种方式声明和定义的类函数被称为const成员函数。就像应尽可能将const引用和指针用作函数形参一样，只要类方法不修改调用对象，就应将其声明为const。
+
+### 构造函数和析构函数小结
+
+​		构造函数是一种特殊的类成员函数，在创建类对象时被调用。构造函数的名称和类名相同，但通过函数重载，可以创建多个同名的构造函数，条件是每个函数的特征标（参数列表）都不同。另外，构造函数没有声明类型。通常，构造函数用于初始化类对象的成员，初始化应与构造函数的参数列表匹配。例如，假设Bozo类的构造函数的原型如下
+
+```C++
+Bozo(const char * fname, const char * lname);   // constructor prototype
+```
+
+则可以使用它来初始化新对象
+
+```C++
+Bozo bozetta = bozo("Bozetta", "Biggens");   // primary form
+Bozo fufu("Fufu", "O'Dweeb");   // short form
+Bozo *pc = new Bozo("Popo", "Le Peu");   // dynamic object
+```
+
+如果编译器支持C++11，则可使用列表初始化
+
+```C++
+Bozo bozetta = {"Bozetta", "Biggens"};   
+Bozo fufu{"Fufu", "O'Dweeb"};   
+Bozo *pc = new Bozo{"Popo", "Le Peu"};  
+```
+
+​		如果构造函数只有一个参数，则将对象初始化为一个与参数的类型相同的值时，该构造函数将被调用。例如，假设有这样一个构造函数原型
+
+```C++
+cout << trip;
+```
+
+则可以使用下面的任何一种形式来初始化对象
+
+```C++
+Bozo dribble = bozo(44);		// primary form
+Bozo roon(66);					// secondary form
+Bozo tubby = 32;				// special form for one-argument constructors
+```
+
+实际上，第三个示例是新内容，不属于复习内容，但现在正是介绍它的好时机。后面将介绍一种关闭这项特性的方式，因为它可能带来令人不愉快的意外。
+
+​		接受一个参数的构造函数允许使用赋值语法将对象初始化为一个值：
+
+```C++
+ClassName object=value;
+```
+
+这种特性可能导致问题，可关闭这项特性。
+
+​		默认构造函数没有参数，因此如果创建对象时没有进行显式地初始化，则将调用默认构造函数。如果程序中没有提供任何构造函数，则编译器会为程序定义一个默认构造函数；否则，必须自己提供默认构造函数。默认构造函数可以没有任何参数；如果有，则必须给所有参数都提供默认值
+
+```C++
+Bozo(); 								// default constructor prototype
+Bistro(const char * s = "Chez Zero");	// default for Bistro class
+```
+
+对于未被初始化的对象，程序将使用默认构造函数来创建
+
+```C++
+Bozo bubi;			  // use default
+Bozo *pb = new Bozo;  // use default
+```
+
+​		就像对象被创建时程序将调用构造函数一样，当对象被删除时，程序将调用析构函数。每个类都只能有一个析构函数。析构函数没有返回类型（连void都没有），也没有参数，其名称为类名称前加上~。例如，Bozo类的析构函数的原型如下
+
+```C++
+~Bozo();   // class destructor
+```
+
+如果构造函数使用了new，则必须提供使用delete的析构函数。
+
+## this指针
+
+​		到目前为止，每个类成员函数都只涉及一个对象，即调用它的对象。但有时候方法可能涉及到两个对象，在这种情况下需要使用C++的this指针。
+
+​		虽然Stock类声明可以显示数据，但它缺乏分析能力。例如，从show( )的输出我们可以知道持有的哪一支股票价格最高，但由于程序无法直接访问total_val，因此无法作出判断。要让程序知道存储的数据，最直接的方式是让方法返回一个值。为此，通常使用内联代码
+
+```C++
+class Stock{
+private:
+    ...
+    double total_val;
+    ...
+public:
+    double total() const {return total_val;}
+    ...
+};
+```
+
+就直接程序访问而言，上述定义实际上是使total_val为只读的。也就是说，可以使用方法total_val( )来获得total_val的值，但这个类没有提供专门用于重新设置total_val的值的方法（作为一种副产品，其他方法，如buy( )、sell( )和update( )确实在重新设置成员shares和share_val的值的同时修改了total_val的值）。
+
+​		通过将该函数添加到类声明中，可以让程序查看一系列股票，找到价格最高的那一支。然而，可以采用另一种方法——一种帮助您了解this指针的方法。这种方法是，定义一个成员函数，它查看两个Stock对象，并返回股价较高的那个对象的引用。实现这种方法时，将出现一些有趣的问题
+
+​		**如何将两个要比较的对象提供给成员函数**：例如，假设将该方法命名为topval( )，则函数调用stock1.topval( )将访问stock1对象的数据，而stock2.topval( )将访问stock2对象的数据。如果希望该方法对两
+个对象进行比较，则必须将第二个对象作为参数传递给它。出于效率方面的考虑，可以按引用来传递参数，也就是说，topval( )方法使用一个类型为const Stock &的参数。
+
+​		**如何将方法的答案传回给调用程序**：直接的方法是让方法返回一个引用，该引用指向股价总值较高的对象。因此，用于比较的方法的原型如下
+
+```C++
+const Stock & topval(const Stock & s) const;
+```
+
+该函数隐式地访问一个对象，而显式地访问另一个对象，并返回其中一个对象的引用。括号中的const表明，该函数不会修改被显式地访问的对象；而括号后的const表明，该函数不会修改被隐式地访问的对象。由于该函数返回了两个const对象之一的引用，因此返回类型也应为const引用。
+
+​		假设要对Stock对象stock1和stock2进行比较，并将其中股价总值较高的那一个赋给top对象，则可以使用下面两条语句之一
+
+```C++
+top = stock1.topval(stock2);
+top = stock2.topval(stock1);
+```
+
+第一种格式隐式地访问stock1，而显式地访问stock2；第二种格式显式地访问stock1，而隐式地访问stock2。无论使用哪一种方式，都将对这两个对象进行比较，并返回股价总值较高的那一个对象。
+
+​		实际上，这种表示法有些混乱。如果可以使用关系运算符>来比较这两个对象，将更为清晰。可以使用运算符重载完成这项工作。
+
+​		同时，还要注意的是topval( )的实现，它将引发一个小问题。下面的部分实现强调了这个问题
+
+```C++
+const Stock & Stock::topval(const Stock & s) const{
+    if(s.total_val > total_val)
+        return s;
+    else
+        return ????;  // invoking object
+}
+```
+
+其中，s.total_val是作为参数传递的对象的总值，total_val是用来调用该方法的对象的总值。如果s.total_val大于toatl_val，则函数将返回指向s的引用；否则，将返回用来调用该方法的对象（在OOP中，是topval消息要发送给的对象）。问题在于，如何称呼这个对象？如果调用stock1.topval(stock2)，则s是stock2的引用（即stock2的别名），但stock1没有别名。
+
+​		C++解决这种问题的方法是：使用被称为this的特殊指针。this指针指向用来调用成员函数的对象（this被作为隐藏参数传递给方法）。这样，函数调用stock1.topval（stock2）将this设置为stock1对象的地址，使
+得这个指针可用于topval( )方法。同样，函数调用stock2.topval（stock1）将this设置为stock2对象的地址。一般来说，所有的类方法都将this指针设置为调用它的对象的地址。确实，topval( )中的total_val只不过是this->total_val的简写（第前面使用->运算符，通过指针来访问结构成员。这也适用于类成员）（参见图10.4）。
+
+​		每个成员函数（包括构造函数和析构函数）都有一个this指针。this指针指向调用对象。如果方法需要引用整个调用对象，则可以使用表达式*this。在函数的括号后面使用const限定符将this限定为const，这样将不能使用this来修改对象的值。
+
+​		然而，要返回的并不是this，因为this是对象的地址，而是对象本身，即`*this`（将解除引用运算符`*`用于指针，将得到指针指向的值）。现在，可以将`*this`作为调用对象的别名来完成前面的方法定义。
+
+```C++
+const Stock & Stock::topval(const Stock & s) const{
+    if(s.total_val > total_val)
+        return s;
+    else
+        return *this;  // invoking object
+}
+```
+
+返回类型为引用意味着返回的是调用对象本身，而不是其副本。
+
+- stock.h
+
+  ```C++
+  #ifndef STOCK_H_
+  #define STOCK_H_
+  
+  #include <string>
+  
+  class Stock
+  {
+  private:
+      std::string company;
+      long shares;
+      double share_val;
+      double total_val;
+      void set_tot() { total_val = shares * share_val; }
+  
+  public:
+      Stock();
+      Stock(const std::string &co, long n = 0, double pr = 0.0);
+      ~Stock();
+      void buy(long num, double price);
+      void sell(long num, double price);
+      void update(double price);
+      void show() const;
+      const Stock &topval(const Stock &s) const;
+  }; // note semicolon at the end
+  
+  #endif
+  ```
+
+- stock.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stock.h"
+  
+  Stock::Stock()
+  {
+      std::cout << "Default constructor called\n";
+      company = "no name";
+      shares = 0;
+      share_val = 0.0;
+      total_val = 0.0;
+  }
+  Stock::Stock(const std::string &co, long n, double pr)
+  {
+      std::cout << "Constructor using " << co << " called\n";
+      company = co;
+      if (n < 0)
+      {
+          std::cout << "Number of shares can't be negative; "
+                    << company << " shares set to 0.\n";
+          shares = 0;
+      }
+      else
+          shares = n;
+      share_val = pr;
+      set_tot();
+  }
+  Stock::~Stock()
+  {
+      std::cout << "Bye, " << company << "!\n";
+  }
+  void Stock::buy(long num, double price)
+  {
+      if (num < 0)
+      {
+          std::cout << "Number of shares purchased can't be negative."
+                    << "Transaction is aborted.\n";
+      }
+      else
+      {
+          shares += num;
+          share_val = price;
+          set_tot();
+      }
+  }
+  void Stock::sell(long num, double price)
+  {
+      using std::cout;
+      if (num < 0)
+      {
+          cout << "Number of shares sold can't be negative. "
+               << "Transaction is aborted.\n";
+      }
+      else if (num > shares)
+      {
+          cout << "You can't sell more than you have! "
+               << "Transaction is aborted.\n";
+      }
+      else
+      {
+          shares -= num;
+          share_val = price;
+          set_tot();
+      }
+  }
+  
+  void Stock::update(double price)
+  {
+      share_val = price;
+      set_tot();
+  }
+  
+  void Stock::show() const
+  {
+      using std::cout;
+      using std::ios_base;
+      ios_base::fmtflags orig = cout.setf(ios_base::fixed, ios_base::floatfield);
+      std::streamsize prec = cout.precision(3);
+      cout << "Company: " << company
+           << " Shares: " << shares << '\n'
+           << " Share Price: $" << share_val;
+      cout.precision(2);
+      cout << " Total Worth: $" << total_val << '\n';
+  
+      cout.setf(orig, ios_base::floatfield);
+      cout.precision(prec);
+  }
+  
+  const Stock &Stock::topval(const Stock &s) const
+  {
+      if (s.total_val > total_val)
+          return s;
+      else
+          return *this; // invoking object
+  }
+  ```
+
+## 对象数组
+
+​		和Stock示例一样，用户通常要创建同一个类的多个对象。可以创建独立对象变量，但创建对象数组将更合适。这似乎是在介绍一个未知领域，但实际上，声明对象数组的方法与声明标准类型数组相同
+
+```c++
+Stock mystuff[4];
+```
+
+当程序创建未被显式初始化的类对象时，总是调用默认构造函数。上述声明要求，这个类要么没有显式地定义任何构造函数（在这种情况下，将使用不执行任何操作的隐式默认构造函数），要么定义了一个显式默认构造函数（就像这个例子那样）。每个元素（mystuff[0]、mystuff[1]等）都是Stock对象，可以使用Stock方法
+
+​		可以用构造函数来初始化数组元素。在这种情况下，必须为每个元素调用构造函数
+
+```C++
+const int STKS = 4;
+Stock stocks[STKS] = {
+    Stock("NanoSmart", 12.5, 20),
+    Stock("Boffo Objects", 200, 2.0),
+    Stock("Monolithic Obelisks", 130, 3.25),
+    Stock("Fleep Enterprises", 60, 6.5)
+};
+```
+
+这里的代码使用标准格式对数组进行初始化：用括号括起的、以逗号分隔的值列表。其中，每次构造函数调用表示一个值。如果类包含多个构造函数，则可以对不同的元素使用不同的构造函数
+
+```C++
+const int STKS = 10;
+Stock stocks[STKS] = {
+    Stock("NanoSmart", 12.5, 20),
+    Stock(),
+    Stock("Monolithic Obelisks", 130, 3.25)
+};
+```
+
+上述代码使用Stock(const string & co, long n, double pr)初始化stock[0]和stock[2]，使用构造函数Stock( )初始化stock[1]。由于该声明只初始化了数组的部分元素，因此余下的7个元素将使用默认构造函数进行初始化。
+
+​		初始化对象数组的方案是，首先使用默认构造函数创建数组元素，然后花括号中的构造函数将创建临时对象，然后将临时对象的内容复制到相应的元素中。因此，要创建类对象数组，则这个类必须有默认构造函数。
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stock.h"
+  
+  const int STKS = 4;
+  int main()
+  {
+      Stock stocks[STKS] = {
+          Stock("NanoSmart", 12.5, 20),
+          Stock("Boffo Objects", 200, 2.0),
+          Stock("Monolithic Obelisks", 130, 3.25),
+          Stock("Fleep Enterprises", 60, 6.5)};
+      std::cout << "Stock holdings:\n";
+      int st;
+      for (st = 0; st < STKS; st++)
+          stocks[st].show();
+  
+      const Stock *top = &stocks[0];
+      for (st = 1; st < STKS; st++)
+          top = &top->topval(stocks[st]);
+  
+      std::cout << "\nMost valuable holding:\n";
+      top->show();
+  
+      return 0;
+  }
+  ```
+
+​		大部分工作是在类设计中完成的。完成类设计后，编写程序的工作本身便相当简单。
+
+​		知道this指针就可以更深入了解C++的工作方式。例如，最初的UNIX实现使用C++前端cfront将C++程序转换为C程序。处理方法的定义时，只需将下面这样的C++方法定义
+
+```C++
+void Stock::show() const
+{
+
+    cout << "Company: " << company
+         << " Shares: " << shares << '\n'
+         << " Share Price: $" << share_val;
+    	 << " Total Worth: $" << total_val << '\n';
+}
+```
+
+转换为下面这样的C-风格定义
+
+```C++
+void show(const Stock * this) 
+{
+
+    cout << "Company: " << this->company
+         << " Shares: " << this->shares << '\n'
+         << " Share Price: $" << this->share_val;
+    	 << " Total Worth: $" << this->total_val << '\n';
+}
+```
+
+即将Stock::限定符转换为函数参数（指向Stock的指针），然后用这个指针来访问类成员。
+
+​		同样，该前端将下面的函数调用
+
+```C++
+top.show();
+```
+
+转换为
+
+```C++
+show(&top);
+```
+
+这样，将调用对象的地址赋给了this指针（实际情况可能更复杂些）。
+
+## 类作用域
+
+​		全局（文件）作用域和局部（代码块）作用域。可以在全局变量所属文件的任何地方使用它，而局部变量只能在其所属的代码块中使用。函数名称的作用域也可以是全局的，但不能是局部的。C++类引入了一种新的作用域：类作用域。
+
+​		在类中定义的名称（如类数据成员名和类成员函数名）的作用域都为整个类，作用域为整个类的名称只在该类中是已知的，在类外是不可知的。因此，可以在不同类中使用相同的类成员名而不会引起冲突。例如，Stock类的shares成员不同于JobRide类的shares成员。另外，类作用域意味着不能从外部直接访问类的成员，公有成员函数也是如此。也就是说，要调用公有成员函数，必须通过对象
+
+```C++
+Stock sleeper("Exclusive Ore", 100, 0.25);   // create object
+sleeper.show();  // use object to invoke a memeber function
+show();    // invalid -- can't call method directly
+```
+
+同样，在定义成员函数时，必须使用作用域解析运算符
+
+```C++
+void Stock::update(double price){
+    ...
+}
+```
+
+总之，在类声明或成员函数定义中，可以使用未修饰的成员名称（未限定的名称），就像sell( )调用set_tot( )成员函数时那样。构造函数名称在被调用时，才能被识别，因为它的名称与类名相同。在其他情况下，使用类成员名时，必须根据上下文使用直接成员运算符（．）、间接成员运算符（->）或作用域解析运算符（::）。下面的代码片段演示了如何访问具有类作用域的标识符
+
+```C++
+class Ik{
+private:
+    int fuss;   // fuss has class scope
+public:
+    Ik(int f = 9){fuss = f;}  // fuss is in scope
+    void ViewIk() const;   // ViewIk has class scope
+};
+
+void Ik::ViewIk() const // Ik:: places ViewIk into Ik scope
+{
+    cout << fuss << endl;
+}
+...
+int main(){
+    Ik * pik = new Ik;
+    Ik ee = Ik(8); // constructor in scope because has class name
+    ee.ViewIk();   // class object brings ViewIk into scope
+    pik -> ViewIk();  // pointer-to-Ik brings ViewIk into scope
+    ...
+}
+```
+
+### 作用域为类的常量
+
+​		有时候，使符号常量的作用域为类很有用。例如，类声明可能使用字面值30来指定数组的长度，由于该常量对于所有对象来说都是相同的，因此创建一个由所有对象共享的常量是个不错的主意。您可能以为这样做可行
+
+```C++
+class Bakery{
+private:
+    const int Months = 12; // declare a constant? FAILS
+    double const[Months];
+    ...
+}
+```
+
+​		但这是行不通的，因为声明类只是描述了对象的形式，并没有创建对象。因此，在创建对象前，将没有用于存储值的空间（实际上，C++11提供了成员初始化，但不适用于前述数组声明）。然而，有两种方式可以实现这个目标，并且效果相同。
+
+​		第一种方式是在类中声明一个枚举。在类声明中声明的枚举的作用域为整个类，因此可以用枚举为整型常量提供作用域为整个类的符号名称。也就是说，可以这样开始Bakery声明
+
+```C++
+class Bakery{
+private:
+    enum {Months = 12}; 
+    double const[Months];
+    ...
+}
+```
+
+注意，用这种方式声明枚举并不会创建类数据成员。也就是说，所有对象中都不包含枚举。另外，Months只是一个符号名称，在作用域为整个类的代码中遇到它时，编译器将用30来替换它。
+
+​		由于这里使用枚举只是为了创建符号常量，并不打算创建枚举类型的变量，因此不需要提供枚举名。顺便说一句，在很多实现中，ios_base类在其公有部分中完成了类似的工作，诸如ios_base::fixed等标识符就来自这里。其中，fixed是ios_base类中定义的典型的枚举量。
+
+​		C++提供了另一种在类中定义常量的方式——使用关键字static
+
+```C++
+class Bakery{
+private:
+    static const int Months = 12; 
+    double const[Months];
+    ...
+}
+```
+
+这将创建一个名为Months的常量，该常量将与其他静态变量存储在一起，而不是存储在对象中。因此，只有一个Months常量，被所有Bakery对象共享。后面深入介绍静态类成员。**在C++98中，只能使用这种技术声明值为整数或枚举的静态常量，而不能存储double常量**。C++11消除了这种限制。
+
+### 作用域内枚举（C++11）
+
+​		传统的枚举存在一些问题，其中之一是两个枚举定义中的枚举量可能发生冲突。假设有一个处理鸡蛋和T恤的项目，其中可能包含类似下面这样的代码
+
+```C++
+enum egg {Small, Medium, Large, Jumbo};
+enum t_shirt {Small, Medium, Large, Xlarge};
+```
+
+这将无法通过编译，因为egg Small和t_shirt Small位于相同的作用域内，它们将发生冲突。为避免这种问题，C++11提供了一种新枚举，其枚举量的作用域为类。这种枚举的声明类似于下面这样
+
+```C++
+enum class egg {Small, Medium, Large, Jumbo};
+enum class t_shirt {Small, Medium, Large, Xlarge};
+```
+
+也可使用关键字struct代替class。无论使用哪种方式，都需要使用枚举名来限定枚举量
+
+```C++
+egg choice = egg::Large;
+t_shirt Floyd=t_shirt::Large;
+```
+
+枚举量的作用域为类后，不同枚举定义中的枚举量就不会发生名称冲突了，而您可继续编写处理鸡蛋和T恤的项目。
+
+​		C++11还提高了作用域内枚举的类型安全。在有些情况下，常规枚举将自动转换为整型，如将其赋给int变量或用于比较表达式时，但作用域内枚举不能隐式地转换为整型
+
+```C++
+enum egg {Small, Medium, Large, Jumbo};						// unscoped
+enum class t_shirt {Small, Medium, Large, Xlarge}; 			// scoped
+egg_old one = Medium;										// unscoped
+t_shirt rolf=t_shirt::Large;								// scoped
+int king = one;				// implicit type conversion for unscoped
+int ring = rolf;			// not allowed, no implicit type conversion
+if(king < Jumbo)			// allowed
+    std::cout << "Jumbo converted to int before comparison.\n";
+if(king < t_shirt::Medium)		// not allowed
+    std::cout << "Not allowed: < not defined for scoped enum.\n";
+```
+
+但在必要时，可进行显式类型转换
+
+```C++
+int Frodo = int(t_shirt::Small);  // Frodo set to 0
+```
+
+枚举用某种底层整型类型表示，在C++98中，如何选择取决于实现，因此包含枚举的结构的长度可能随系统而异。对于作用域内枚举，C++11消除了这种依赖性。默认情况下，C++11作用域内枚举的底层类型为int。另外，还提供了一种语法，可用于做出不同的选择
+
+```C++
+// underlying type for pizza is short
+enum class : short pizza {Small, Medium, Large, Xlarge};
+```
+
+:short将底层类型指定为short。底层类型必须为整型。在C++11中，也可使用这种语法来指定常规枚举的底层类型，但如果没有指定，编译器选择的底层类型将随实现而异。
+
+## 抽象数据类型
+
+​		Stock类非常具体。然而，程序员常常通过定义类来表示更通用的概念。例如，就实现计算机专家们所说的抽象数据类型（abstract data type，ADT）而言，使用类是一种非常好的方式。顾名思义，ADT以通用的方式描述数据类型，而没有引入语言或实现细节。例如，通过使用栈，可以以这样的方式存储数据，即总是从堆顶添加或删除数据。例如，C++程序使用栈来管理自动变量。当新的自动变量被生成后，它们被添加到堆顶；消亡时，从栈中删除它们。
+
+​		栈存储了多个数据项（该特征使得栈成为一个容器——一种更为通用的抽象）；其次，栈由可对它执行的操作来描述。
+
+- 可创建空栈。
+- 可将数据项添加到堆顶（压入）。
+- 可从栈顶删除数据项（弹出）。
+- 可查看栈否填满。
+- 可查看栈是否为空。
+
+可以将上述描述转换为一个类声明，其中公有成员函数提供了表示栈操作的接口，而私有数据成员负责存储栈数据。类概念非常适合于ADT方法。
+
+​		私有部分必须表明数据存储的方式。例如，可以使用常规数组、动态分配数组或更高级的数据结构（如链表）。然而，公有接口应隐藏数据表示，而以通用的术语来表达，如创建栈、压入等。程序演示了一种方法，它假设系统实现了bool类型。如果您使用的系统没有实现，可以使用int、0和1代替bool、false和true。
+
+- stack.h
+
+  ```C++
+  #ifndef STACK_H_
+  #define STACK_H_
+  
+  typedef unsigned long Item;
+  
+  class Stack
+  {
+  private:
+      enum
+      {
+          MAX = 10
+      };
+      Item items[MAX];
+      int top;
+  
+  public:
+      Stack();
+      bool isEmpty() const;
+      bool isFull() const;
+      bool push(const Item &item);
+      bool pop(Item &item);
+  };
+  
+  #endif
+  ```
+
+  私有部分表明，栈是使用数组实现的；而公有部分隐藏了这一点。因此，可以使用动态数组来代替数
+  组，而不会改变类的接口。这意味着修改栈的实现后，不需要重新编写使用栈的程序，而只需重新编译栈代码，并将其与已有的程序代码链接起来即可。
+
+  接口是冗余的，因为pop( )和push( )返回有关栈状态的信息（满或空），而不是void类型。在如何处理超出栈限制或者清空栈方面，这为程序员提供了两种选择。他可以在修改栈前使用isempty( )和isfull( )来查看，也可以使用push( )和pop( )的返回值来确定操作是否成功。
+
+  这个类不是根据特定的类型来定义栈，而是根据通用的Item类型来描述。在这个例子中，头文件使用typedef用Item代替unsigned long。如果需要double栈或结构类型的栈，则只需修改typedef语句，而类声明和方法定义保持不变。类模板提供了功能更强大的方法，来将存储的数据类型与类设计隔离开来。
+
+- stack.cpp
+
+  ```C++
+  #include "stack.h"
+  
+  Stack::Stack()
+  {
+      top = 0;
+  }
+  
+  bool Stack::isEmpty() const
+  {
+      return top == 0;
+  }
+  
+  bool Stack::isFull() const
+  {
+      return top == MAX;
+  }
+  
+  bool Stack::push(const Item &item)
+  {
+      if (top < MAX)
+      {
+          items[top++] = item;
+          return true;
+      }
+      else
+          return false;
+  }
+  
+  bool Stack::pop(Item &item)
+  {
+      if (top > 0)
+      {
+          item = items[--top];
+          return true;
+      }
+      else
+          return false;
+  }
+  
+  ```
+
+  默认构造函数确保所有栈被创建时都为空。pop( )和push( )的代码确保栈顶被正确地处理。这种保证措施是OOP更可靠的原因之一。假设要创建一个独立数组来表示栈，创建一个独立变量来表示栈顶索引。则每次创建新栈时，都必须确保代码是正确的。没有私有数据提供的保护，则很可能由于无意修改了数据而导致程序出现非常严重的故障。
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include <cctype>
+  #include "stack.h"
+  
+  int main()
+  {
+      using namespace std;
+      Stack st;
+      char ch;
+      unsigned long po;
+      cout << "Please enter A to add a purchase order,\n"
+           << "P to process a PO, or Q to quit.\n";
+      while (cin >> ch && toupper(ch) != 'Q')
+      {
+          while (cin.get() != '\n')
+              continue;
+          if (!isalpha(ch))
+          {
+              cout << '\a';
+              continue;
+          }
+          switch (ch)
+          {
+          case 'A':
+          case 'a':
+              cout << "Enter a PO number to add: ";
+              cin >> po;
+              if (st.isFull())
+                  cout << "stack already full\n";
+              else
+                  st.push(po);
+              break;
+          case 'P':
+          case 'p':
+              if (st.isEmpty())
+                  cout << "stack already empty\n";
+              else
+              {
+                  st.pop(po);
+                  cout << "PO #" << po << " popped\n";
+              }
+          }
+          cout << "Please enter A to add a purchase order, \n"
+               << "P to process a PO, or Q to quit.\n";
+      }
+      cout << "Bye\n";
+  
+      return 0;
+  }
+  ```
+
+# 使用类
+
+​		轻松地使用这种语言。不要觉得必须使用所有的特性，不要在第一次学习时就试图使用所有的特性。
+
+## 运算符重载
+
+​		运算符重载是一种形式的C++多态。运算符重载将重载的概念扩展到运算符上，允许赋予C++运算符多种含义。实际上，很多C++（也包括C语言）运算符已经被重载。例如，将*运算符用于地址，将得到存储在这个地址中的值；但将它用于两个数字时，得到的将是它们的乘积。C++根据操作数的数目和类型来决定采用哪种操作。
+
+​		C++允许将运算符重载扩展到用户定义的类型，例如，允许使用+将两个对象相加。编译器将根据操作数的数目和类型决定使用哪种加法定义。重载运算符可使代码看起来更自然。
+
+​		要重载运算符，需使用被称为运算符函数的特殊函数形式。运算符函数的格式如下
+
+```C++
+operatorop(argument-list)
+```
+
+operator +( )重载+运算符，`operator *( )`重载`*`运算符。op必须是有效的C++运算符，不能虚构一个新的符号。例如，不能有operator@( )这样的函数，因为C++中没有@运算符。然而，operator 函数将重载[ ]运算符，因为[ ]是数组索引运算符。例如，假设有一个Salesperson类，并为它定义了一个operator +( )成员函数，以重载+运算符，以便能够将两个Saleperson对象的销售额相加，则如果district2、sid和sara都是Salesperson类对象，便可以编写这样的等式
+
+```C++
+district2 = sid + sara;
+```
+
+编译器发现，操作数是Salesperson类对象，因此使用相应的运算符函数替换上述运算符
+
+```C++
+district2 = sid.operate+(sara);
+```
+
+然后该函数将隐式地使用sid（因为它调用了方法），而显式地使用sara对象（因为它被作为参数传递），来计算总和，并返回这个值。当然最重要的是，可以使用简便的+运算符表示法，而不必使用笨拙的函数表示法。
+
+​		虽然C++对运算符重载做了一些限制，但了解重载的工作方式后，这些限制就很容易理解了。
+
+## 计算时间：一个运算符重载示例
+
+- mytime.h
+
+  ```C++
+  #ifndef MYTIME_H_
+  #define MYTIME_H_
+  
+  class Time{
+  private:
+      int hours;
+      int minutes;
+  public:
+      Time();
+      Time(int h, int m=0);
+      void AddMin(int m);
+      void AddHr(int h);
+      void Reset(int h=0, int m=0);
+      Time Sum(const Time & t) const;
+      void Show() const;
+  };
+  #endif
+  ```
+
+- mytime.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  Time::Time()
+  {
+      hours = minutes = 0;
+  }
+  
+  Time::Time(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  void Time::AddMin(int m)
+  {
+      minutes += m;
+      hours += minutes / 60;
+      minutes %= 60;
+  }
+  
+  void Time::AddHr(int h)
+  {
+      hours += h;
+  }
+  
+  void Time::Reset(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  Time Time::Sum(const Time &t) const
+  {
+      Time sum;
+      sum.minutes = minutes + t.minutes;
+      sum.hours = hours + t.hours;
+      +sum.minutes / 60;
+      sum.minutes %= 60;
+      return sum;
+  }
+  
+  void Time::Show() const
+  {
+      std::cout << hours << " hours, " << minutes << " minutes" << std::endl;
+  }
+  ```
+
+  来看一下Sum( )函数的代码。注意参数是引用，但返回类型却不是引用。将参数声明为引用的目的是为了提高效率。如果按值传递Time对象，代码的功能将相同，但传递引用，速度将更快，使用的内存将更少。
+
+  然而，返回值不能是引用。因为函数将创建一个新的Time对象（sum），来表示另外两个Time对象的和。返回对象（如代码所做的那样）将创建对象的副本，而调用函数可以使用它。然而，如果返回类型为Time &，则引用的将是sum对象。但由于sum对象是局部变量，在函数结束时将被删除，因此引用将指向一个不存在的对象。使用返回类型Time意味着程序将在删除sum之前构造它的拷贝，调用函数将得到该拷贝。
+
+  **不要返回指向局部变量或临时对象的引用。函数执行完毕后，局部变量和临时对象将消失，引用将指向不存在的数据。**
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  int main()
+  {
+      using std::cout;
+      using std::endl;
+      Time planning;
+      Time coding(2, 40);
+      Time fixing(5, 55);
+      Time total;
+  
+      cout << "planning time = ";
+      planning.Show();
+      cout << endl;
+  
+      cout << "coding time = ";
+      coding.Show();
+      cout << endl;
+  
+      cout << "fixing time = ";
+      fixing.Show();
+      cout << endl;
+  
+      total = coding.Sum(fixing);
+      cout << "coding.Sum(fixing) = ";
+      total.Show();
+      cout << endl;
+  
+      return 0;
+  }
+  ```
+
+### 添加加法运算符
+
+​		将Time类转换为重载的加法运算符很容易，只要将Sum( )的名称改为operator +( )即可。这样做是对的，只要把运算符（这里为+）放到operator的后面，并将结果用作方法名即可。在这里，可以在标识符中使用字母、数字或下划线之外的其他字符。
+
+- mytime.h
+
+  ```C++
+  #ifndef MYTIME_H_
+  #define MYTIME_H_
+  
+  class Time{
+  private:
+      int hours;
+      int minutes;
+  public:
+      Time();
+      Time(int h, int m=0);
+      void AddMin(int m);
+      void AddHr(int h);
+      void Reset(int h=0, int m=0);
+      Time operator+(const Time & t) const;
+      void Show() const;
+  };
+  #endif
+  ```
+
+- mytime.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  Time::Time()
+  {
+      hours = minutes = 0;
+  }
+  
+  Time::Time(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  void Time::AddMin(int m)
+  {
+      minutes += m;
+      hours += minutes / 60;
+      minutes %= 60;
+  }
+  
+  void Time::AddHr(int h)
+  {
+      hours += h;
+  }
+  
+  void Time::Reset(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  Time Time::operator+(const Time &t) const
+  {
+      Time sum;
+      sum.minutes = minutes + t.minutes;
+      sum.hours = hours + t.hours;
+      +sum.minutes / 60;
+      sum.minutes %= 60;
+      return sum;
+  }
+  
+  void Time::Show() const
+  {
+      std::cout << hours << " hours, " << minutes << " minutes" << std::endl;
+  }
+  
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  int main()
+  {
+      using std::cout;
+      using std::endl;
+      Time planning;
+      Time coding(2, 40);
+      Time fixing(5, 55);
+      Time total;
+  
+      cout << "planning time = ";
+      planning.Show();
+      cout << endl;
+  
+      cout << "coding time = ";
+      coding.Show();
+      cout << endl;
+  
+      cout << "fixing time = ";
+      fixing.Show();
+      cout << endl;
+  
+      // total = coding.operator+(fixing);
+      total = coding + fixing;
+      cout << "coding + fixing = ";
+      total.Show();
+      cout << endl;
+  
+      Time morefixing(3, 18);
+      cout << "more fixing time = ";
+      morefixing.Show();
+      cout << endl;
+      total = morefixing.operator+(total);
+      cout << "morefixing.operator+(total) = ";
+      total.Show();
+      cout << endl;
+  
+      return 0;
+  }
+  ```
+
+### 重载限制
+
+​		多数C++运算符都可以用这样的方式重载。重载的运算符（有些例外情况）不必是成员函数，但必须至少有一个操作数是用户定义的类型。下面详细介绍C++对用户定义的运算符重载的限制。
+
+- 重载后的运算符必须至少有一个操作数是用户定义的类型，这将防止用户为标准类型重载运算符。因此，不能将减法运算符（−）重载为计算两个double值的和，而不是它们的差。虽然这种限制将对创造性有所影响，但可以确保程序正常运行。
+
+- 使用运算符时不能违反运算符原来的句法规则。例如，不能将求模运算符（%）重载成使用一个操作
+
+  ```C++
+  int x;
+  Time shiva;
+  % x;   // invalid for modulus operator
+  % shiva; // invalid for overloaded operator
+  ```
+
+  同样，不能修改运算符的优先级。因此，如果将加号运算符重载成将两个类相加，则新的运算符与原来的加号具有相同的优先级。
+
+- 不能创建新运算符。例如，不能定义operator **( )函数来表示求幂。
+
+- 不能重载下面的运算符。
+
+  - sizeof：sizeof运算符。
+  - .：成员运算符。
+  - . *：成员指针运算符。
+  - ::：作用域解析运算符。
+  - ?:：条件运算符。
+  - typeid：一个RTTI运算符。
+  - const_cast：强制类型转换运算符。
+  - dynamic_cast：强制类型转换运算符。
+  - reinterpret_cast：强制类型转换运算符。
+  - static_cast：强制类型转换运算符。
+
+- 下表中所有的运算符都可以被重载。
+
+  **可重载的运算符**
+
+  |  +   |  -   |  *   |   /    |   %    |     ^     |
+  | :--: | :--: | :--: | :----: | :----: | :-------: |
+  |  &   |  \|  |  ~=  |   !    |   =    |     <     |
+  |  >   |  +=  |  -=  |   *=   |   /=   |    %=     |
+  |  ^=  |  &=  | \|=  |   <<   |   >>   |    >>=    |
+  | <<=  |  ==  |  !=  |   <=   |   >=   |    &&     |
+  | \|\| |  ++  |  --  |   ,    |  ->*   |    ->     |
+  |  ()  |  []  | new  | delete | new [] | delete [] |
+
+- 上表中的大多数运算符都可以通过成员或非成员函数进行重载，但下面的运算符只能通过成员函数进行重载。
+
+  - =：赋值运算符。
+  - ( )：函数调用运算符。
+  - [ ]：下标运算符。
+  - ->：通过指针访问类成员的运算符。
+
+​		除了这些正式限制之外，还应在重载运算符时遵循一些明智的限制。例如，不要将*运算符重载成交换两个Time对象的数据成员。表示法中没有任何内容可以表明运算符完成的工作，因此最好定义一个其名称具有说明性的类方法，如Swap( )。
+
+### 其他重载运算符
+
+​		还有一些其他的操作对Time类来说是有意义的。例如，可能要将两个时间相减或将时间乘以一个因子，这需要重载减法和乘法运算符。这和重载加法运算符采用的技术相同，即创建operator –( )和operator *( )方法。也就是说，将下面的原型添加到类声明中
+
+```C++
+Time operator-(const Time & t) const;
+Time operator*(double n) const;
+```
+
+- mytime.h
+
+  ```C++
+  #ifndef MYTIME_H_
+  #define MYTIME_H_
+  
+  class Time
+  {
+  private:
+      int hours;
+      int minutes;
+  
+  public:
+      Time();
+      Time(int h, int m = 0);
+      void AddMin(int m);
+      void AddHr(int h);
+      void Reset(int h = 0, int m = 0);
+      Time operator+(const Time &t) const;
+      Time operator-(const Time &t) const;
+      Time operator*(double n) const;
+      void Show() const;
+  };
+  #endif
+  ```
+
+- mytime.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  Time::Time()
+  {
+      hours = minutes = 0;
+  }
+  
+  Time::Time(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  void Time::AddMin(int m)
+  {
+      minutes += m;
+      hours += minutes / 60;
+      minutes %= 60;
+  }
+  
+  void Time::AddHr(int h)
+  {
+      hours += h;
+  }
+  
+  void Time::Reset(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  Time Time::operator+(const Time &t) const
+  {
+      Time sum;
+      sum.minutes = minutes + t.minutes;
+      sum.hours = hours + t.hours;
+      +sum.minutes / 60;
+      sum.minutes %= 60;
+      return sum;
+  }
+  
+  Time Time::operator-(const Time &t) const
+  {
+      Time diff;
+      int tot1, tot2;
+      tot1 = t.minutes + 60 * t.hours;
+      tot2 = minutes + 60 * hours;
+      diff.minutes = (tot2 - tot1) % 60;
+      diff.hours = (tot2 - tot1) / 60;
+      return diff;
+  }
+  
+  Time Time::operator*(double n) const
+  {
+      Time result;
+      long totalminutes = hours * n * 60 + minutes * n;
+      result.hours = totalminutes / 60;
+      result.minutes = totalminutes % 60;
+      return result;
+  }
+  
+  void Time::Show() const
+  {
+      std::cout << hours << " hours, " << minutes << " minutes" << std::endl;
+  }
+  
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  int main()
+  {
+      using std::cout;
+      using std::endl;
+      Time weeding(4, 35);
+      Time waxing(2, 47);
+      Time total;
+      Time diff;
+      Time adjusted;
+  
+      cout << "weeding time = ";
+      weeding.Show();
+      cout << endl;
+  
+      cout << "waxing time = ";
+      waxing.Show();
+      cout << endl;
+  
+      cout << "total work time = ";
+      total = weeding + waxing;
+      total.Show();
+      cout << endl;
+  
+      diff = weeding - waxing;
+      diff.Show();
+      cout << endl;
+  
+      adjusted = total * 1.5;
+      cout << "adjusted work time = ";
+      adjusted.Show();
+      cout << endl;
+  
+      return 0;
+  }
+  ```
+
+## 友元
+
+​		C++控制对类对象私有部分的访问。通常，公有类方法提供唯一的访问途径，但是有时候这种限制太严格，以致于不适合特定的编程问题。在这种情况下，C++提供了另外一种形式的访问权限：友元。友元有3种
+
+- 友元函数；
+- 友元类；
+- 友元成员函数
+
+通过让函数成为类的友元，可以赋予该函数与类的成员函数相同的访问权限。
+
+​		在为类重载二元运算符时（带两个参数的运算符）常常需要友元。将Time对象乘以实数就属于这种情况。
+
+​		在前面的Time类示例中，重载的乘法运算符与其他两种重载运算符的差别在于，它使用了两种不同的类型。也就是说，加法和减法运算符都结合两个Time值，而乘法运算符将一个Time值与一个double值结合在一起。这限制了该运算符的使用方式。记住，左侧的操作数是调用对象。也就是说，下面的语句
+
+```C++
+A = B * 2.75;
+```
+
+将被转换为下面的成员函数调用
+
+```C++
+A = B.operator*(2.75);
+```
+
+​		但下面的语句又如何呢
+
+```C++
+A = 2.75 * B;
+```
+
+从概念上说，2.75 * B应与B *2.75相同，但第一个表达式不对应于成员函数，因为2.75不是Time类型的对象。记住，左侧的操作数应是调用对象，但2.75不是对象。因此，编译器不能使用成员函数调用来替换该表达式。
+
+​		解决这个难题的一种方式是，告知每个人（包括程序员自己），只能按B * 2.75这种格式编写，不能写成2.75 * B。这是一种对服务器友好-客户警惕的（server-friendly, client-beware）解决方案，与OOP无关。
+
+​		然而，还有另一种解决方式——非成员函数（记住，大多数运算符都可以通过成员或非成员函数来重载）。非成员函数不是由对象调用的，它使用的所有值（包括对象）都是显式参数。这样，编译器能够将下面的表达式
+
+```C++
+A = 2.75 * B;  // cannot correspond to a memeber function
+```
+
+​		与下面的非成员函数调用匹配
+
+```C++
+A=operator*(2.75, B);
+```
+
+该函数的原型如下
+
+```C++
+Time operator*(double m, const Time & t);
+```
+
+对于非成员重载运算符函数来说，运算符表达式左边的操作数对应于运算符函数的第一个参数，运算符表达式右边的操作数对应于运算符函数的第二个参数。而原来的成员函数则按相反的顺序处理操作数，也就是说，double值乘以Time值。
+
+​		使用非成员函数可以按所需的顺序获得操作数（先是double，然后是Time），但引发了一个新问题：非成员函数不能直接访问类的私有数据，至少常规非成员函数不能访问。然而，有一类特殊的非成员函数可以访问类的私有成员，它们被称为友元函数。
+
+### 创建友元
+
+​		创建友元函数的第一步是将其原型放在类声明中，并在原型声明前加上关键字friend
+
+```C++
+friend Time operator*(double m, const Time & t);  // goes in class declaration
+```
+
+该原型意味着下面两点
+
+- 虽然operator *( )函数是在类声明中声明的，但它不是成员函数，因此不能使用成员运算符来调用；
+- 虽然operator *( )函数不是成员函数，但它与成员函数的访问权限相同。
+
+​		第二步是编写函数定义。因为它不是成员函数，所以不要使用Time::限定符。另外，不要在定义中使用关键字friend，定义应该如下
+
+```C++
+Time operator*(double m, const Time & t);  // friend not used in definition
+{
+    Time result;
+    long totalminutes = hours * n * 60 + minutes * n;
+    result.hours = totalminutes / 60;
+    result.minutes = totalminutes % 60;
+    return result;
+    
+}
+```
+
+有了上述声明和定义后，下面的语句
+
+```C++
+A = 2.75 * B; 
+```
+
+将转换为如下语句，从而调用刚才定义的非成员友元函数
+
+```C++
+A=operator*(2.75, B);
+```
+
+总之，类的友元函数是非成员函数，其访问权限与成员函数相同。
+
+​		**友元是否有悖于OOP**：乍一看，您可能会认为友元违反了OOP数据隐藏的原则，因为友元机制允许非成员函数访问私有数据。然而，这个观点太片面了。相反，应将友元函数看作类的扩展接口的组成部分。例如，从概念上看，double乘以Time和Time乘以double是完全相同的。也就是说，前一个要求有友元函数，后一个使用成员函数，这是C++句法的结果，而不是概念上的差别。通过使用友元函数和类方法，可以用同一个用户接口表达这两种操作。另外请记住，只有类声明可以决定哪一个函数是友元，因此类声明仍然控制了哪些函数可以访问私有数据。总之，类方法和友元只是表达类接口的两种不同机制。
+
+​		实际上，按下面的方式对定义进行修改（交换乘法操作数的顺序），可以将这个友元函数编写为非友元函数
+
+```C++
+Time operator*(double m, const Time & t); 
+{
+    
+    return t * m;
+    
+}
+```
+
+原来的版本显式地访问t.minutes和t.hours，所以它必须是友元。这个版本将Time对象t作为一个整体使用，让成员函数来处理私有值，因此不必是友元。然而，将该版本作为友元也是一个好主意。最重要的是，它将该作为正式类接口的组成部分。其次，如果以后发现需要函数直接访问私有数据，则只要修改函数定义即可，而不必修改类原型。
+
+​		如果要为类重载运算符，并将非类的项作为其第一个操作数，则可以用友元函数来反转操作数的顺序。
+
+### 常用的友元：重载<<运算符
+
+​		一个很有用的类特性是，可以对<<运算符进行重载，使之能与cout一起来显示对象的内容。与前面介绍的示例相比，这种重载要复杂些，因此我们分两步（而不是一步）来完成。
+
+​		假设trip是一个Time对象。为显示Time的值，前面使用的是Show()。然而，如果可以像下面这样操作将更好
+
+```C++
+cout << trip; // make cout recognize Time class?
+```
+
+​		之所以可以这样做，是因为<<是可被重载的C++运算符之一。实际上，它已经被重载很多次了。最初，<<运算符是C和C++的位运算符，将值中的位左移。ostream类对该运算符进行了重载，将其转换为一个输出工具。前面讲过，cout是一个ostream对象，它是智能的，能够识别所有的C++基本类型。这是因为对于每种基本类型，ostream类声明中都包含了相应的重载的operator<<( )定义。也就是说，一个定义使用int参数，一个定义使用double参数，等等。因此，要使cout能够识别Time对象，一种方法是将一个新的函数运算符定义添加到
+ostream类声明中。但修改iostream文件是个危险的主意，这样做会在标准接口上浪费时间。相反，通过Time类声明来让Time类知道如何使用cout。
+
+#### <<的第一种重载版本
+
+​		要使Time类知道使用cout，必须使用友元函数。因为下面这样的语句使用两个对象，其中第一个是ostream类对象（cout）
+
+```C++
+cout << trip; 
+```
+
+​			如果使用一个Time成员函数来重载<<，Time对象将是第一个操作数，就像使用成员函数重载*运算符那样。这意味着必须这样使用<<
+
+```C++
+trip << cout;
+```
+
+这样会令人迷惑。但通过使用友元函数，可以像下面这样重载运算符
+
+```C++
+void operator<<(ostream & os, const Time & t)
+{
+    os << t.hours << " hours, " << t.minutes << " minutes";
+}
+```
+
+这样可以使用下面的语句
+
+```C++
+cout << trip; 
+```
+
+​		**友元还是非友元**：新的Time类声明使operatro<<( )函数成为Time类的一个友元函数。但该函数不是ostream类的友元（尽管对ostream类并无害处）。operator<<( )函数接受一个ostream参数和一个Time参数，因此表面看来它必须同时是这两个类的友元。然而，看看函数代码就会发现，尽管该函数访问了Time对象的各个成员，但从始至终都将ostream对象作为一个整体使用。因为operator<<( )直接访问Time对象的私有成员，所以它必须是Time类的友元。但由于它并不直接访问ostream对象的私有成员，所以并不一定必须是ostream类的友元。这很好，因为这就意味着不必修订ostream的定义。
+
+​		注意，新的operator<<( )定义使用ostream引用os作为它的第一个参数。通常情况下，os引用cout对象，如表达式cout << trip所示。但也可以将这个运算符用于其他ostream对象，在这种情况下，os将引用相应的对象。
+
+​		**不知道其他ostream对象**：另一个ostream对象是cerr，它将输出发送到标准输出流——默认为显示器，但在UNIX、Linux和Windows命令行环境中，可将标准错误流重定向到文件。另外，ofstream对象可用于将输出写入到文件中。通过继承，ofstream对象可以使用ostream的方法。这样，便可以用operator<<( )定义来将Time的数据写入到文件和屏幕上，为此只需传递一个经过适当初始化的ofstream对象（而不是cout对象）。
+
+​		调用cout << trip应使用cout对象本身，而不是它的拷贝，因此该函数按引用（而不是按值）来传递该对象。这样，表达式cout << trip将导致os成为cout的一个别名；而表达式cerr << trip将导致os成为cerr的一个别名。Time对象可以按值或按引用来传递，因为这两种形式都使函数能够使用对象的值。按引用传递使用的内存和时间都比按值传递少。
+
+#### <<的第二种重载版本
+
+​		前面介绍的实现存在一个问题。像下面这样的语句可以正常工作
+
+```C++
+cout << trip;
+```
+
+但这种实现不允许像通常那样将重新定义的<<运算符与cout一起使用
+
+```C++
+cout << "Trip time: " << trip << " (Tuesday)\n"; // can't do
+```
+
+​		需要了解关于cout操作的一点知识
+
+```C++
+int x= 5;
+int y = 8;
+cout << x<< y;
+```
+
+C++从左至右读取输出语句，意味着它等同于
+
+```C++
+(cout << x) << y;
+```
+
+正如iosream中定义的那样，<<运算符要求左边是一个ostream对象。显然，因为cout是ostream对象，所以表达式cout << x满足这种要求。然而，因为表达式cout << x位于<< y的左侧，所以输出语句也要求该表达式是一个ostream类型的对象。因此，ostream类将operator<<( )函数实现为返回一个指向ostream对象的引用。具体地说，它返回一个指向调用对象（这里是cout）的引用。因此，表达式(cout << x)本身就是ostream对象cout，从而可以位于<<运算符的左侧。
+
+​		可以对友元函数采用相同的方法。只要修改operator<<( )函数，让它返回ostream对象的引用即可
+
+```C++
+ostream & operator<<(ostream & os, const Time & t){
+    os << t.hours << " hours, " << t.minutes << " minutes";
+    return os;
+}
+```
+
+返回类型是ostream &。这意味着该函数返回ostream对象的引用。因为函数开始执行时，程序传递了一个对象引用给它，这样做的最终结果是，函数的返回值就是传递给它的对象。也就是说，下面的语句
+
+```C++
+cout << trip;
+```
+
+将被转换为下面的调用
+
+```C++
+operator<<(cout, trip);
+```
+
+​		而该调用返回cout对象。因此，下面的语句可以正常工作
+
+```C++
+cout << "Trip time: " << trip << " (Tuesday)\n"; // can do
+```
+
+​		我们将这条语句分成多步，来看看它是如何工作的。首先，下面的代码调用ostream中的<<定义，它显示字符串并返回cout对象
+
+```C++
+cout << "Trip time: "
+```
+
+因此表达式cout << “Trip time:”将显示字符串，然后被它的返回值cout所替代。原来的语句被简化为下面的形式
+
+```C++
+cout << trip << " (Tuesda)\n";
+```
+
+​		接下来，程序使用<<的Time声明显示trip值，并再次返回cout对象。这将语句简化为
+
+```C++
+cout << " (Tuesday)\n";
+```
+
+现在，程序使用ostream中用于字符串的<<定义，来显示最后一个字符串，并结束运行。
+
+​		有趣的是，这个operator<<( )版本还可用于将输出写入到文件中
+
+```C++
+#include <fstream>
+...
+ofstream fout;
+fout.open("savetime.txt");
+Time trip(12,40);
+fout << trip;
+```
+
+其中最后一条语句将被转换为这样
+
+```C++
+operator<<(fout, trip);
+```
+
+类继承属性让ostream引用能够指向ostream对象和ofstream对象。
+
+​		一般来说，要重载<<运算符来显示c_name的对象，可使用一个友元函数
+
+```C++
+ostream & operator<<(ostream & os, const c_name & obj){
+    os << ...;  // display object contents
+    return os;
+}
+```
+
+​		下面列出了修改后的类定义。其中包括operator*( )和operator<<( )这两个友元函数。它将第一个友元函数作为内联函数，因为其代码很短。（当定义同时也是原型时，就像这个例子中那样，要使用friend前缀。）
+
+​		只有在类声明中的原型中才能使用friend关键字。除非函数定义也是原型，否则不能在函数定义中使用该关键字。
+
+- mytime.h
+
+  ```C++
+  #ifndef MYTIME_H_
+  #define MYTIME_H_
+  
+  class Time
+  {
+  private:
+      int hours;
+      int minutes;
+  
+  public:
+      Time();
+      Time(int h, int m = 0);
+      void AddMin(int m);
+      void AddHr(int h);
+      void Reset(int h = 0, int m = 0);
+      Time operator+(const Time &t) const;
+      Time operator-(const Time &t) const;
+      Time operator*(double n) const;
+      friend Time operator*(double m, const Time &t) { return t * m; } // inline definition
+      friend std::ostream &operator<<(std::ostream &os, const Time &t);
+  };
+  #endif
+  ```
+
+- mytime.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  Time::Time()
+  {
+      hours = minutes = 0;
+  }
+  
+  Time::Time(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  void Time::AddMin(int m)
+  {
+      minutes += m;
+      hours += minutes / 60;
+      minutes %= 60;
+  }
+  
+  void Time::AddHr(int h)
+  {
+      hours += h;
+  }
+  
+  void Time::Reset(int h, int m)
+  {
+      hours = h;
+      minutes = m;
+  }
+  
+  Time Time::operator+(const Time &t) const
+  {
+      Time sum;
+      sum.minutes = minutes + t.minutes;
+      sum.hours = hours + t.hours;
+      +sum.minutes / 60;
+      sum.minutes %= 60;
+      return sum;
+  }
+  
+  Time Time::operator-(const Time &t) const
+  {
+      Time diff;
+      int tot1, tot2;
+      tot1 = t.minutes + 60 * t.hours;
+      tot2 = minutes + 60 * hours;
+      diff.minutes = (tot2 - tot1) % 60;
+      diff.hours = (tot2 - tot1) / 60;
+      return diff;
+  }
+  
+  Time Time::operator*(double n) const
+  {
+      Time result;
+      long totalminutes = hours * n * 60 + minutes * n;
+      result.hours = totalminutes / 60;
+      result.minutes = totalminutes % 60;
+      return result;
+  }
+  
+  std::ostream &operator<<(std::ostream &os, const Time &t)
+  {
+      os << t.hours << " hours, " << t.minutes << " minutes";
+      return os;
+  }
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "mytime.h"
+  
+  int main()
+  {
+  
+      using std::cout;
+      using std::endl;
+      Time aida(3, 35);
+      Time tosca(2, 48);
+      Time temp;
+  
+      cout << "Aida and Tosca:\n";
+      cout << aida << "; " << tosca << endl;
+      temp = aida + tosca;
+      cout << "Aida +Tosca: " << temp << endl;
+      temp = aida * 1.17;
+      cout << "Aida * 1.17: " << temp << endl;
+      cout << "10.0 * Tosca: " << 10.0 * tosca << endl;
+  
+      return 0;
+  }
+  ```
+
+## 重载运算符：作为成员函数还是非成员函数
+
+​		对于很多运算符来说，可以选择使用成员函数或非成员函数来实现运算符重载。一般来说，非成员函数应是友元函数，这样它才能直接访问类的私有数据。例如，Time类的加法运算符在Time类声明中的原型如下
+
+```C++
+Time operator+(const Time &t) const;
+```
+
+这个类也可以使用下面的原型
+
+```C++
+friend Time operator+(const Time &t1, const Time &t2);
+```
+
+加法运算符需要两个操作数。对于成员函数版本来说，一个操作数通过this指针隐式地传递，另一个操作数作为函数参数显式地传递；对于友元版本来说，两个操作数都作为参数来传递。
+
+​		非成员版本的重载运算符函数所需的形参数目与运算符使用的操作数数目相同；而成员版本所需的参数数目少一个，因为其中的一个操作数是被隐式地传递的调用对象。
+
+​		这两个原型都与表达式T2 + T3匹配，其中T2和T3都是Time类型对象。
+
+```C++
+T1=T2+T3;
+```
+
+转换为下面两个的任何一个
+
+```C++
+T1=T2.operator+(T3);  //member function
+T1=operator+(T2,T3);	// nomember function
+```
+
+在定义运算符时，必须选择其中的一种格式，而不能同时选择这两种格式。因为这两种格式都与同一个表达式匹配，同时定义这两种格式将被视为二义性错误，导致编译错误。
+
+​		对于某些运算符来说，成员函数是唯一合法的选择。在其他情况下，这两种格式没有太大的区别。有时，根据类设计，使用非成员函数版本可能更好（尤其是为类定义类型转换时）
+
+## 再谈重载：一个矢量类
+
+​		下面介绍另一种使用了运算符重载和友元的类设计——一个表示矢量的类。这个类还说明了类设计的其他方面，例如，在同一个对象中包含两种描述同一样东西的不同方式等。即使并不关心矢量，也可以在其他情况下使用这里介绍的很多新技术。矢量（vector），是工程和物理中使用的一个术语，它是一个有大小和方向的量。例如，推东西时，推的效果将取决于推力的大小和推的方向。从某个方向推可能会省力，而
+从相反的方向推则要费很大的劲。为完整地描述汽车的运动情况，应指出其运动速度（大小）和运动方向；如果逆行，则向高速公路的巡警辩解没有超速、超载是徒劳的（免疫学家和计算机专家使用术语矢量的方式不同，请不要考虑这一点，至少在后面介绍计算机科学版本——vector模板类之前应如此）。
+
+​		**矢量**：许多数量都有大小和方向。例如，推的效果取决于力气的大小和方向。在计算机屏幕上移动对象时也涉及到距离和方向。可以使用矢量来描述这类问题。例如，可以用矢量来描述如何在屏幕上移动（放置）对象，即用箭头从起始位置画到终止位置，来对它作形象化处理。矢量的长度是其大小——描述了移动的距离；箭头的指向描述了方向。表示这种位置变化的矢量称为位移矢量（displacement vector）。
+
+​		应为矢量重载运算符。首先，无法用一个数来表示矢量，因此应创建一个类来表示矢量。其次，矢量与普通数学运算（如加法、减法）有相似之处。这种相似表明，应重载运算符，使之能用于矢量。
+
+​		出于简化的目的，本节将实现一个二维矢量（如屏幕位移），而不是三维矢量（如表示直升机或体操运动员的运动情况）。描述二维矢量只需两个数，但可以选择到底使用哪两个数
+
+- 可以用大小（长度）和方向（角度）描述矢量；
+- 可以用分量x和y表示矢量。
+
+​		下面是示例程序
+
+- vector.h
+
+  ```C++
+  #ifndef VECTOR_H_
+  #define VECTOR_H_
+  
+  namespace VECTOR
+  {
+      class Vector
+      {
+      public:
+          enum Mode
+          {
+              RECT,
+              POL
+          };
+  
+      private:
+          double x;
+          double y;
+          double mag;
+          double ang;
+          Mode mode;
+          void set_mag();
+          void set_ang();
+          void set_x();
+          void set_y();
+  
+      public:
+          Vector();
+          Vector(double n1, double n2, Mode form = RECT);
+          void reset(double n1, double n2, Mode form = RECT);
+          ~Vector();
+          double xval() const { return x; };
+          double yval() const { return y; };
+          double magval() const { return mag; };
+          double angval() const { return ang; };
+          void polar_mode();
+          void rect_mode();
+          Vector operator+(const Vector &b) const;
+          Vector operator-(const Vector &b) const;
+          Vector operator-() const;
+          Vector operator*(double n) const;
+          friend Vector operator*(double n, const Vector &a);
+          friend std::ostream &operator<<(std::ostream &os, const Vector &v);
+      };
+  }
+  
+  #endif
+  ```
+
+- vector.cpp
+
+  ```C++
+  #include <cmath>
+  #include <iostream>
+  #include "vector.h"
+  
+  using std::atan;
+  using std::atan2;
+  using std::cos;
+  using std::cout;
+  using std::sin;
+  using std::sqrt;
+  
+  namespace VECTOR
+  {
+      const double Rad_to_deg = 45.0 / atan(1.0);
+      void Vector::set_mag()
+      {
+          mag = sqrt(x * x + y * y);
+      }
+  
+      void Vector::set_ang()
+      {
+          if (x == 0.0 && y == 0.0)
+              ang = 0.0;
+          else
+              ang = atan2(y, x);
+      }
+  
+      void Vector::set_x()
+      {
+          x = mag * cos(ang);
+      }
+  
+      void Vector::set_y()
+      {
+          y = mag * sin(ang);
+      }
+  
+      Vector::Vector()
+      {
+          x = y = mag = ang = 0.0;
+          mode = RECT;
+      }
+  
+      Vector::Vector(double n1, double n2, Mode form)
+      {
+          mode = form;
+          if (mode == RECT)
+          {
+              x = n1;
+              y = n2;
+              set_mag();
+              set_ang();
+          }
+          else if (form == POL)
+          {
+              mag = n1;
+              ang = n2;
+              set_x();
+              set_y();
+          }
+          else
+          {
+              cout << "Incorrect 3rd argument to Vector() -- ";
+              cout << "vector set to 0\n";
+              x = y = mag = ang = 0.0;
+              mode = RECT;
+          }
+      }
+  
+      void Vector::reset(double n1, double n2, Mode form)
+      {
+          mode = form;
+          if (mode == RECT)
+          {
+              x = n1;
+              y = n2;
+              set_mag();
+              set_ang();
+          }
+          else if (form == POL)
+          {
+              mag = n1;
+              ang = n2;
+              set_x();
+              set_y();
+          }
+          else
+          {
+              cout << "Incorrect 3rd argument to Vector() -- ";
+              cout << "vector set to 0\n";
+              x = y = mag = ang = 0.0;
+              mode = RECT;
+          }
+      }
+  
+      Vector::~Vector()
+      {
+      }
+  
+      void Vector::polar_mode()
+      {
+          mode = POL;
+      }
+  
+      void Vector::rect_mode()
+      {
+          mode = RECT;
+      }
+  
+      Vector Vector::operator+(const Vector &b) const
+      {
+          return Vector(x + b.x, y + b.y);
+      }
+  
+      Vector Vector::operator-(const Vector &b) const
+      {
+          return Vector(x - b.x, y - b.y);
+      }
+  
+      Vector Vector::operator-() const
+      {
+          return Vector(-x, -y);
+      }
+  
+      Vector Vector::operator*(double n) const
+      {
+          return Vector(n * x, n * y);
+      }
+  
+      Vector operator*(double n, const Vector &a)
+      {
+          return a * n;
+      }
+  
+      std::ostream &operator<<(std::ostream &os, const Vector &v)
+      {
+          if (v.mode == Vector::RECT)
+              os << "(x,y) = (" << v.x << ", " << v.y << ")";
+          else if (v.mode == Vector::POL)
+          {
+              os << "(m,a) = (" << v.mag << ", " << v.ang * Rad_to_deg << ")";
+          }
+          else
+              os << "Vector object mode is invalid";
+          return os;
+      }
+  
+  }
+  
+  ```
+
+​		也可以以另一种方式来设计这个类。例如，在对象中存储直角坐标而不是极坐标，并使用方法magval( )和angval( )来计算极坐标。对于很好进行坐标转换的应用来说，这将是一种效率更高的设计。另外，方法reset( )并非必不可少的。假设shove是一个Vector对象，而您编写了如下代码
+
+```C++
+shove.reset(100,300);
+```
+
+可以使用构造函数来得到相同的结果
+
+```C++
+shove=Vector(100,300); // create and assign a temporary object
+```
+
+然而，方法set( )直接修改shove的内容，而使用构造函数将增加额外的步骤：创建一个临时对象，然后将其赋给shove。
+
+​		这些设计决策遵守了OOP传统，即将类接口的重点放在其本质上（抽象模型），而隐藏细节。这样，当用户使用Vector类时，只需考虑矢量的通用特性，例如，矢量可以表示位移，可以将两个矢量相加等。使用分量还是大小和方向来表示矢量已无关紧要，因为程序员可以设置矢量的值，并选择最方便的格式来显示它们。
+
+### 使用状态成员
+
+​		Vector类储存了矢量的直角坐标和极坐标。它使用名为mode的成员来控制使用构造函数、reset( )方法和重载的operator<<( )函数使用哪种形式，其中枚举RECT表示直角坐标模式（默认值）、POL表示极坐标模式。这样的成员被称为状态成员（state member），因为这种成员描述的是对象所处的状态。
+
+```C++
+Vector::Vector(double n1, double n2, Mode form)
+    {
+        mode = form;
+        if (mode == RECT)
+        {
+            x = n1;
+            y = n2;
+            set_mag();
+            set_ang();
+        }
+        else if (form == POL)
+        {
+            mag = n1;
+            ang = n2;
+            set_x();
+            set_y();
+        }
+        else
+        {
+            cout << "Incorrect 3rd argument to Vector() -- ";
+            cout << "vector set to 0\n";
+            x = y = mag = ang = 0.0;
+            mode = RECT;
+        }
+    }
+```
+
+如果第三个参数是RECT或省略了（原型将默认值设置为RECT），则将输入解释为直角坐标；如果为POL，则将输入解释为极坐标
+
+​		标识符POL的作用域为类，因此类定义可使用未限定的名称。但全限定名为VECTOR::Vector::POL，因为POL是在Vector类中定义的，而Vector是在名称空间VECTOR中定义的。注意，如果用户提供的是x值和y值，则构造函数将使用私有方法set_mag( )和set_ang( )来设置距离和角度值；如果提供的是距离和角度值，则构造函数将使用set_x( )和set_y( )方法来设置x值和y值。另外，如果用户指定的不是RECT或POL，则构造函数将显示一条警告消息，并将状态设置为RECT。
+
+​		看起来好像难以将RECT和POL外的其他值传递给构造函数，因为第三个参数的类型为VECTOR::Vector::Mode。像下面这样的调用无法通过编译，因为诸如2等整数不能隐式地转换为枚举类型
+
+```C++
+Vector rector(20.0, 30.0, 2);  // type mismatch - 2 not an enum type
+```
+
+​		然而，机智而好奇的用户可尝试下面这样的代码，看看结果如何
+
+```C++
+Vector rector(20.0, 30.0, VECTOR::Vector::Mode(2));  // type cast
+```
+
+就这里而言，编译器将发出警告。
+
+​		接下来，operator<<( )函数也使用模式来确定如何显示值
+
+```C++
+    std::ostream &operator<<(std::ostream &os, const Vector &v)
+    {
+        if (v.mode == Vector::RECT)
+            os << "(x,y) = (" << v.x << ", " << v.y << ")";
+        else if (v.mode == Vector::POL)
+        {
+            os << "(m,a) = (" << v.mag << ", " << v.ang * Rad_to_deg << ")";
+        }
+        else
+            os << "Vector object mode is invalid";
+        return os;
+    }
+```
+
+由于operator<<()是一个友元函数，而不在类作用域内，因此必须使用Vector::RECT，而不能使用RECT。但这个友元函数在名称空间VECTOR中，因此无需使用全限定名VECTOR:: Vector::RECT。
+
+​		设置模式的各种方法只接受RECT和POL为合法值，因此该函数中的else永远不会执行。但进行检查还是一个不错的主意，它有助于捕获难以发现的编程错误。
+
+​		**多种表示方式和类**：可以用不同但等价的方式表示的量很常见。例如，可以按每加仑汽油消耗汽车能行驶的英里数来计算油耗（美国），也可以按每100公里消耗多少公升汽油来计算（欧洲）。可以用字符串表示数字，也可以用数值方式表示，可以使用IQ或kiloturkey的方法表示智商。类非常适于在一个对象中表示实体的不同方面。首先在一个对象中存储多种表示方式；然后，编写这样的类函数，以便给一种表示方式赋值时，将自动给其他表示方式赋值。例如，Vector类的set_by_polar( )方法将mag和ang成员设置为函数参数的值，并同时设置成员x和y。也可存储一种表示方式，并使用方法来提供其他表示方式。通过在内部处理转换，类允许从本质（而不是表示方式）上来看待一个量。
+
+### 为Vector类重载算术运算符
+
+​		在使用x、y坐标时，将两个矢量相加将非常简单，只要将两个x分量相加，得到最终的x分量，将两个y分量相加，得到最终的y分量即可。
+
+```C++
+    Vector Vector::operator+(const Vector &b) const
+    {
+        Vector sum;
+        sum.x=x+b.x;
+        sum.y=y+b.y;
+        return sum;   // uncomplete version
+    }
+```
+
+如果对象只存储x和y分量，则这很好。遗憾的是，上述代码无法设置极坐标值。可以通过添加另外一些代码来解决这种问题
+
+```C++
+    Vector Vector::operator+(const Vector &b) const
+    {
+        Vector sum;
+        sum.x=x+b.x;
+        sum.y=y+b.y;
+        sum.set_ang(sum.x,sum.y);
+        sum.set_mag(sum.x,sum.y);
+        return sum;   // uncomplete version
+    }
+```
+
+然而，使用构造函数来完成这种工作，将更简单、更可靠
+
+```C++
+    Vector Vector::operator+(const Vector &b) const
+    {
+        return Vector(x+b.x,y+b.y);
+    }
+```
+
+上述代码将新的x分量和y分量传递给Vector构造函数，而后者将使用这些值来创建无名的新对象，并返回该对象的副本。这确保了新的Vector对象是根据构造函数制定的标准规则创建的。
+
+​		如果方法通过计算得到一个新的类对象，则应考虑是否可以使用类构造函数来完成这种工作。这样做不仅可以避免麻烦，而且可以确保新的对象是按照正确的方式创建的。
+
+#### 乘法
+
+​		将矢量与一个数相乘，将使该矢量加长或缩短（取决于这个数）。因此，将矢量乘以3得到的矢量的长度为原来的三倍，而方向不变。要在Vector类中实现矢量的这种行为很容易。对于极坐标，只要将长度进行伸缩，并保持角度不变即可；对于直角坐标，只需将x和y分量进行伸缩即可。也就是说，如果矢量的分量为5和12，则将其乘以3后，分量将分别是15和36。这正是重载的乘法运算符要完成的工作
+
+```C++
+    Vector Vector::operator*(double n) const
+    {
+        return Vector(n * x, n * y);
+    }
+```
+
+和重载加法一样，上述代码允许构造函数使用新的x和y分量来创建正确的Vector对象。上述函数用于处理Vector值和double值相乘。可以像Time示例那样，使用一个内联友元函数来处理double与Vector相乘
+
+```C++
+    Vector operator*(double n, const Vector &a)
+    {
+        return a * n;
+    }
+```
+
+#### 对已重载的运算符进行重载
+
+​		在C++中，−运算符已经有两种含义。首先，使用两个操作数，它是减法运算符。减法运算符是一个二元运算符，因为它有两个操作数。其次，使用一个操作数时（如−x），它是负号运算符。这种形式被称为一元运算符，即只有一个操作数。对于矢量来说，这两种操作（减法和符号反转）都是有意义的，因此Vector类有这两种操作。
+
+​		要从矢量A中减去矢量B，只要将分量相减即可，因此重载减法与重载加法相似
+
+```C++
+    Vector Vector::operator-(const Vector &b) const
+    {
+        return Vector(x - b.x, y - b.y);
+    }
+```
+
+操作数的顺序非常重要。下面的语句
+
+```C++
+diff = v1-v2;
+```
+
+将被转换为下面的成员函数调用
+
+```C++
+diff=v1.operator-(v2);
+```
+
+这意味着将从隐式矢量参数减去以显式参数传递的矢量，所以应使用x − b.x，而不是b.x − x。
+
+​		接下来，来看一元负号运算符，它只使用一个操作数。将这个运算符用于数字（如−x）时，将改变它的符号。因此，将这个运算符用于矢量时，将反转矢量的每个分量的符号。更准确地说，函数应返回一个与原来的矢量相反的矢量（对于极坐标，长度不变，但方向相反）。下面是重载负号的原型和定义
+
+```C++
+Vector operator-() const;
+    Vector Vector::operator-() const
+    {
+        return Vector(-x, -y);
+    }
+```
+
+现在，operator-( )有两种不同的定义。这是可行的，因为它们的特征标不同。可以定义−运算符的一元和二元版本，因为C++提供了该运算符的一元和二元版本。对于只有二元形式的运算符（如除法运算符），只能将其重载为二元运算符。
+
+​		**因为运算符重载是通过函数来实现的，所以只要运算符函数的特征标不同，使用的运算符数量与相应的内置C++运算符相同，就可以多次重载同一个运算符。**
+
+### 对实现的说明
+
+​		Vector对象中存储了矢量的直角坐标和极坐标，但公有接口并不依赖于这一事实。所有接口都只要求能够显示这两种表示，并可以返回各个值。内部实现方式可以完全不同。正如前面指出的，对象可以只存储x和y分量，而返回矢量长度的magval( )方法可以根据x和y的值来计算出长度，而不是查找对象中存储的这个值。这种方法改变了实现，但用户接口不变。将接口与实现分离是OOP的目标之一，这样允许对实现进行调整，而无需修改使用这个类的程序中的代码。
+
+​		这两种实现各有利弊。存储数据意味着对象将占据更多的内存，每次Vector对象被修改时，都需要更新直角坐标和极坐标表示；但查找数据的速度比较快。如果应用程序经常需要访问矢量的这两种表示，则这个例子采用的实现比较合适；如果只是偶尔需要使用极坐标，则另一种实现更好。可以在一个程序中使用一种实现，而在另一个程序中使用另一种实现，但它们的用户接口相同。
+
+### 使用Vector类来模拟随机漫步
+
+​		该程序模拟了著名的醉鬼走路问题（Drunkard Walk problem）。实际上，醉鬼
+被认为是一个有许多健康问题的人，而不是大家娱乐消遣的谈资，因此这个问题通常被称为随机漫步问题。其意思是，将一个人领到街灯柱下。这个人开始走动，但每一步的方向都是随机的（与前一步不同）。这个问题的一种表述是，这个人走到离灯柱50英尺处需要多少步。从矢量的角度看，这相当于不断将方向随机的矢量相加，直到长度超过50英尺。
+
+​		程序允许用户选择行走距离和步长。该程序用一个变量来表示位置（一个矢量），并报告到达指定距离处（用两种格式表示）所需的步数。可以看到，行走者前进得相当慢。虽然走了1000步，每步的距离为2英尺，但离起点可能只有50英尺。这个程序将行走者所走的净距离（这里为50英尺）除以步数，来指出这种行走方式的低效性。随机改变方向使得该平均值远远小于步长。为了随机选择方向，该程序使用了标准库函数rand( )、srand( )和time( )（参见程序说明）。
+
+```C++
+#include <iostream>
+#include "vector.h"
+#include <cstdlib>
+#include <ctime>
+int main()
+{
+    using namespace std;
+    using VECTOR::Vector;
+    srand(time(0)); // seed random-number generator
+    double direction;
+    Vector step;
+    Vector result(0.0, 0.0);
+    unsigned long steps = 0;
+    double target;
+    double dstep;
+    cout << "Enter target distance (q to quit): ";
+    while (cin >> target)
+    {
+        cout << "Enter step length: ";
+        if (!(cin >> dstep))
+            break;
+
+        while (result.magval() < target)
+        {
+            direction = rand() % 360;
+            step.reset(dstep, direction, Vector::POL);
+            result = result + step;
+            steps++;
+        }
+        cout << "After " << steps << " steps, the subject "
+                                     "has the following location:\n";
+        cout << result << endl;
+        result.polar_mode();
+        cout << " or\n"
+             << result << endl;
+        cout << "Average outward distance per step = "
+             << result.magval() / steps << endl;
+        steps = 0;
+        result.reset(0.0, 0.0);
+        cout << "Enter target distance (q to quit): ";
+    }
+    cout << "Bye!\n";
+    cin.clear();
+    while (cin.get() != '\n')
+        continue;
+    return 0;
+}
+```
+
+这种处理的随机性使得每次运行结果都不同，即使初始条件相同。然而，平均而言，步长减半，步数将为原来的4倍。概率理论表明，平均而言，步数（N）、步长（s），净距离D之间的关系如下
+$$
+N=(D/s)^2
+$$
+这只是平均情况，但每次试验结果可能相差很大。例如，进行1000次试验（走50英尺，步长为2英尺）时，平均步数为636（与理论值625非常接近），但实际步数位于91～3951。同样，进行1000次试验（走50英尺，步长为1英尺）时，平均步数为2557（与理论值2500非常接近），但实际步数位于345～10882。因此，如果发现自己在随机漫步时，请保持自信，迈大步走。虽然在蜿蜒前进的过程中仍旧无法控制前进的方向，但至少会走得远一点。
+
+​		首先需要指出的是，在程序清单中使用VECTOR名称空间非常方便。下面的using声明使Vector类的名称可用
+
+```C++
+using VECTOR::Vector;
+```
+
+因为所有的Vector类方法的作用域都为整个类，所以导入类名后，无需提供其他using声明，就可以使用Vector的方法。
+
+​		接下来谈谈随机数。标准ANSI C库（C++也有）中有一个rand( )函数，它返回一个从0到某个值（取决于实现）之间的随机整数。该程序使用求模操作数来获得一个0～359的角度值。rand( )函数将一种算法用于一个初始种子值来获得随机数，该随机值将用作下一次函数调用的种子）依此类推。这些数实际上是伪随机数，因为10次连续的调用通常将生成10个同样的随机数（具体值取决于实现）。然而，srand( )函数允许覆盖默认的种子值，重新启动另一个随机数序列。该程序使用time（0）的返回值来设置种子。time（0）函数返回当前时间，通常为从某一个日期开始的秒数（更广义地，time( )接受time_t变量的地址，将时间放到该变量中，并返回它。将0用作地址参数，可以省略time_t变量声明）。因此，下面的语句在每次运行程序时，都将设置不同的种子，使随机输出看上去更为随机
+
+```C++
+srand(time(0));
+```
+
+头文件cstdlib（以前为stdlib.h）包含了srand( )和rand( )的原型，而ctime（以前是time.h）包含了time( )的原型。C++11使用头文件radom中的函数提供了更强大的随机数支持。
+
+​		该程序使用result矢量记录行走者的前进情况。内循环每轮将step矢量设置为新的方向，并将它与当前的result矢量相加。当result的长度超过指定的距离后，该循环结束。
+
+​		程序通过设置矢量的模式，用直角坐标和极坐标显示最终的位置。
+
+​		下面这条语句将result设置为RECT模式，而不管result和step的初始模式是什么
+
+```C++
+result = result + step;
+```
+
+这样做的原因如下。首先，加法运算符函数创建并返回一个新矢量，该矢量存储了这两个参数的和。该函数使用默认构造函数以RECT模式创建矢量。因此，被赋给result的矢量的模式为RECT。默认情况下，赋值时将分别给每个成员变量赋值，因此将RECT赋给了result.mode。如果偏爱其他方式，例如，result保留原来的模式，可以通过为类定义赋值运算符来覆盖默认的赋值方式。
+
+​		在将一系列位置存储到文件中很容易。首先包含头文件fstream，声明一个ofstream对象，将其同一个文件关联起来
+
+```C++
+#include <fstream>
+...
+ofstream fout;
+fout.open("thewalk.txt");
+```
+
+然后，在计算结果的循环中加入类似于下面的代码
+
+```C++
+fout << result << endl;
+```
+
+这将调用友元函数operator<<(fout, result)，导致引用参数os指向fout，从而将输出写入到文件中。您还可以使用fout将其他信息写入到文件中，如当前由cout显示的总结信息。
+
+## 类的自动转换和强制类型转换
+
+​		C++是如何处理内置类型转换的。将一个标准类型变量的值赋给另一种标准类型
+的变量时，如果这两种类型兼容，则C++自动将这个值转换为接收变量的类型。
+
+​		C++语言不自动转换不兼容的类型。然而，在无法自动转换时，可以使用强制类型转换
+
+​		可以将类定义成与基本类型或另一个类相关，使得从一种类型转换为另一种类型是有意义的。在这种情况下，程序员可以指示C++如何自动进行转换，或通过强制类型转换来完成。为了说明这是如何进行的，我们将磅转换为英石的程序改写成类的形式。首先，设计一种合适的类型。我们基本上是以两种方式（磅和英石）来表示重量的。对于在一个实体中包含一个概念的两种表示来说，类提供了一种非常好的方式。因此可以将重量的两种表示放在同一个类中，然后提供以这两种方式表达重量的类方法。
+
+- stonewt.h
+
+  ```C++
+  #ifndef STONEWT_H_
+  #define STONEWT_H_
+  
+  class Stonewt
+  {
+  private:
+      enum
+      {
+          Lbs_per_stn = 14
+      };
+      int stone;
+      double pds_left;
+      double pounds;
+  
+  public:
+      Stonewt(double lbs);
+      Stonewt(int stn, double lbs);
+      Stonewt();
+      ~Stonewt();
+      void show_lbs() const;
+      void show_stn() const;
+  };
+  
+  #endif
+  ```
+
+  对于定义类特定的常量来说，如果它们是整数，enum提供了一种方便的途径。也可以采用下面这种方法
+
+  ```C++
+  static const int Lbs_per_stn = 14;
+  ```
+
+  Stonewt类有3个构造函数，让您能够将Stonewt对象初始化为一个浮点数（单位为磅）或两个浮点数（分别代表英石和磅）。也可以创建Stonewt对象，而不进行初始化
+
+  ```C++
+  Stonewt blossem(132.5);
+  Stonewt buttercup(10,2);
+  Stonewt bubbles;
+  ```
+
+  这个类并非真的需要声明构造函数，因为自动生成的默认构造函数就很好。另一方面，提供显式的声明可为以后做好准备，以防必须定义构造函数
+
+  另外，Stonewt类还提供了两个显示函数。一个以磅为单位来显示重量，另一个以英石和磅为单位来显示重量。
+
+- stonewt.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stonewt.h"
+  
+  using std::cout;
+  Stonewt::Stonewt(double lbs)
+  {
+      stone = int(lbs) / Lbs_per_stn;
+      pds_left = int(lbs) % Lbs_per_stn + lbs - int(lbs);
+      pounds = lbs;
+  }
+  
+  Stonewt::Stonewt(int stn, double lbs)
+  {
+      stone = stn;
+      pds_left = lbs;
+      pounds = stn * Lbs_per_stn + lbs;
+  }
+  
+  Stonewt::Stonewt()
+  {
+      stone = pounds = pds_left = 0;
+  }
+  
+  Stonewt::~Stonewt()
+  {
+  }
+  
+  void Stonewt::show_lbs() const
+  {
+      cout << stone << " stone, " << pds_left << " pounds\n";
+  }
+  
+  void Stonewt::show_stn() const
+  {
+      cout << pounds << " pounds\n";
+  }
+  
+  ```
+
+  因为Stonewt对象表示一个重量，所以可以提供一些将整数或浮点值转换为Stonewt对象的方法。我们已经这样做了！在C++中，接受一个参数的构造函数为将类型与该参数相同的值转换为类提供了蓝图。因此，下面的构造函数用于将double类型的值转换为Stonewt类型
+
+  ```C++
+  Stonewt(double lbs);  // template for double-to-Stonewt conversion
+  ```
+
+  也就是说，可以编写这样的代码
+
+  ```C++
+  Stonewt myCat; // create a Stonewt object
+  myCat = 19.6; // use Stonewt(double) to convert 19.6 to Stonewt
+  ```
+
+  程序将使用构造函数Stonewt(double)来创建一个临时的Stonewt对象，并将19.6作为初始化值。随后，采用逐成员赋值方式将该临时对象的内容复制到myCat中。这一过程称为隐式转换，因为它是自动进行的，而不需要显式强制类型转换。
+
+  只有接受一个参数的构造函数才能作为转换函数。下面的构造函数有两个参数，因此不能用来转换类型
+
+  ```C++
+  Stonewt(int stn, double lbs); // not a conversion function
+  ```
+
+  然而，如果给第二个参数提供默认值，它便可用于转换int
+
+  ```C++
+  Stonewt(int stn, double lbs=0); // int-to-Stonewt conversion
+  ```
+
+  将构造函数用作自动类型转换函数似乎是一项不错的特性。然而，当程序员拥有更丰富的C++经验时，将发现这种自动特性并非总是合乎需要的，因为这会导致意外的类型转换。因此，C++新增了关键字explicit，用于关闭这种自动特性。也就是说，可以这样声明构造函数
+
+  ```C++
+  explicit Stonewt(double lbs);  // no implicit conversions allowed
+  ```
+
+  这将关闭上述示例中介绍的隐式转换，但仍然允许显式转换，即显式强制类型转换
+
+  ```C++
+  Stonewt myCat;
+  myCat=19.6;  // not valid if Stonewt(double) is declared as explicit
+  myCat = Stonewt(19.6);  // ok, an explicit conversion
+  myCat = (Stonewt)19.6;  // ok, old form for explicit tpyecast
+  ```
+
+  只接受一个参数的构造函数定义了从参数类型到类类型的转换。如果使用关键字explicit限定了这种构造函数，则它只能用于显示转换，否则也可以用于隐式转换。
+
+​		编译器在什么时候将使用Stonewt(double)函数呢？如果在声明中使用了关键字explicit，则Stonewt(double)将只用于显式强制类型转换，否则还可以用于下面的隐式转换
+
+- 将Stonewt对象初始化为double值时。
+- 将double值赋给Stonewt对象时。
+- 将double值传递给接受Stonewt参数的函数时。
+- 返回值被声明为Stonewt的函数试图返回double值时。
+- 在上述任意一种情况下，使用可转换为double类型的内置类型时。
+
+​		函数原型化提供的参数匹配过程，允许使用Stonewt（double）构造函数来转换其他数值类型。也就是说，下面两条语句都首先将int转换为double，然后使用Stonewt（double）构造函数。
+
+```C++
+Stonewt Jumbo(7000);  // uses Stonewt(double), converting int to double
+Jumbo=7000;  // uses Stonewt(double), converting int to double
+```
+
+然而，当且仅当转换不存在二义性时，才会进行这种二步转换。也就是说，如果这个类还定义了构造函数Stonewt（long），则编译器将拒绝这些语句，可能指出：int可被转换为long或double，因此调用存在二义性。
+
+```C++
+#include <iostream>
+#include "stonewt.h"
+
+using std::cout;
+
+void display(const Stonewt &st, int n);
+
+int main()
+{
+    Stonewt incognito = 275;
+    Stonewt wolfe(285.7);
+    Stonewt taft(21, 8);
+
+    cout << "The celebrity weighed ";
+    incognito.show_stn();
+    cout << "The detective weighed ";
+    wolfe.show_stn();
+    cout << "The President weighed ";
+    taft.show_lbs();
+    incognito = 276.8;
+    taft = 325;
+    cout << "After dinner, the celebrity weighed ";
+    incognito.show_stn();
+    cout << "After dinner, the President weighed ";
+    taft.show_lbs();
+    display(taft, 2);
+    cout << "The wrestler weighed even more.\n";
+    display(422, 2);
+    cout << "Not stone left unearned\n";
+    return 0;
+}
+
+void display(const Stonewt &st, int n)
+{
+    for (int i = 0; i < n; i++)
+    {
+        cout << "Wow! ";
+        st.show_stn();
+    }
+}
+
+```
+
+​		当构造函数只接受一个参数时，可以使用下面的格式来初始化类对象
+
+```C++
+Stonewt incognito = 275;
+```
+
+这等价于前面介绍过过的另外两种格式
+
+```C++
+Stonewt incognito(275);
+Stonewt incognito=Stonewt(275);
+```
+
+然而，后两种格式可用于接受多个参数的构造函数。
+
+```C++
+incognito = 276.8;
+taft = 325;
+```
+
+第一条赋值语句使用接受double参数的构造函数，将276.8转换为一个Stonewt值，这将把incognito的pound成员设置为276.8。因为该语句使用了构造函数，所以还将设置stone和pds_left成员。同样，第二条赋值语句将一个int值转换为double类型，然后使用Stonewt(double)来设置全部3个成员。
+
+```C++
+display(422, 2);
+```
+
+display( )的原型表明，第一个参数应是Stonewt对象（Stonewt和Stonewt &形参都与Stonewt实参匹配）。遇到int参数时，编译器查找构造函数Stonewt(int)，以便将该int转换为Stonewt类型。由于没有找到这样的构造函数，因此编译器寻找接受其他内置类型（int可以转换为这种类型）的构造函数。Stone(double)构造函数满足这种要求，因此编译器将int转换为double，然后使用Stonewt(double)将其转换为一个Stonewt对象。
+
+### 转换函数
+
+​		程序清单将数字转换为Stonewt对象。可以做相反的转换吗？也就是说，是否可以将Stonewt对象转换为double值
+
+​		可以这样做，但不是使用构造函数。构造函数只用于从某种类型到类类型的转换。要进行相反的转换，必须使用特殊的C++运算符函数——转换函数
+
+​		转换函数是用户定义的强制类型转换，可以像使用强制类型转换那样使用它们。例如，如果定义了从Stonewt到double的转换函数，就可以使用下面的转换
+
+```C++
+Stonewt wolfe(185.7);
+double host = double(wolfe);
+double thinker = (double) wolfe
+```
+
+也可以让编译器来决定如何做
+
+```C++
+Stonewt wells(20,3);
+double star = wells;  // inplicit use of conversion function
+```
+
+编译器发现，右侧是Stonewt类型，而左侧是double类型，因此它将查看程序员是否定义了与此匹配的转换函数。（如果没有找到这样的定义，编译器将生成错误消息，指出无法将Stonewt赋给double。）
+
+​		要转换为typeName类型，需要使用这种形式的转换函数
+
+```C++
+operator typeName();
+```
+
+- 转换函数必须是类方法；
+- 转换函数不能指定返回类型；
+- 转换函数不能有参数。
+
+​		转换为double类型的函数的原型
+
+```C++
+operator double();
+```
+
+typeName（这里为double）指出了要转换成的类型，因此不需要指定返回类型。转换函数是类方法意味着：它需要通过类对象来调用，从而告知函数要转换的值。因此，函数不需要参数。
+
+​		要添加将stone_wt对象转换为int类型和double类型的函数，需要将下面的原型添加到类声明中
+
+```C++
+operator int();
+operator double();
+```
+
+- stonewt.h
+
+  ```C++
+  #ifndef STONEWT_H_
+  #define STONEWT_H_
+  
+  class Stonewt
+  {
+  private:
+      enum
+      {
+          Lbs_per_stn = 14
+      };
+      int stone;
+      double pds_left;
+      double pounds;
+  
+  public:
+      Stonewt(double lbs);
+      Stonewt(int stn, double lbs);
+      Stonewt();
+      ~Stonewt();
+      void show_lbs() const;
+      void show_stn() const;
+      operator int();
+      operator double();
+  };
+  
+  #endif
+  ```
+
+- stonewt.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stonewt.h"
+  
+  using std::cout;
+  Stonewt::Stonewt(double lbs)
+  {
+      stone = int(lbs) / Lbs_per_stn;
+      pds_left = int(lbs) % Lbs_per_stn + lbs - int(lbs);
+      pounds = lbs;
+  }
+  
+  Stonewt::Stonewt(int stn, double lbs)
+  {
+      stone = stn;
+      pds_left = lbs;
+      pounds = stn * Lbs_per_stn + lbs;
+  }
+  
+  Stonewt::Stonewt()
+  {
+      stone = pounds = pds_left = 0;
+  }
+  
+  Stonewt::~Stonewt()
+  {
+  }
+  
+  void Stonewt::show_lbs() const
+  {
+      cout << stone << " stone, " << pds_left << " pounds\n";
+  }
+  
+  void Stonewt::show_stn() const
+  {
+      cout << pounds << " pounds\n";
+  }
+  
+  Stonewt::operator int()
+  {
+      return int(pounds + 0.5);
+  }
+  
+  Stonewt::operator double()
+  {
+      return pounds;
+  }
+  
+  ```
+
+- main.cpp
+
+  ```C++
+  #include <iostream>
+  #include "stonewt.h"
+  
+  int main()
+  {
+      using std::cout;
+      Stonewt poppins(9, 2.8);
+      double p_wt = poppins;
+      cout << "Convert to double => ";
+      cout << "Poppins: " << p_wt << " pounds.\n";
+      cout << "Convert to int => ";
+      cout << "Poppins: " << int(poppins) << " pounds.\n";
+      return 0;
+  }
+  ```
+
+​		**自动应用类型转换**：程序将int(poppins)和cout一起使用。假设省略了显式强制类型转换
+
+```C++
+cout << "Poppins: " << poppins << " pounds.\n";
+```
+
+程序会像在下面的语句中那样使用隐式转换吗
+
+```C++
+double p_wt = poppins;
+```
+
+答案是否定的。在p_wt示例中，上下文表明，poppins应被转换为double类型。但在cout示例中，并没有指出应转换为int类型还是double类型。在缺少信息时，编译器将指出，程序中使用了二义性转换。该语句没有指出要使用什么类型。
+
+​		有趣的是，如果类只定义了double转换函数，则编译器将接受该语句。这是因为只有一种转换可能，因此不存在二义性。
+
+​		赋值的情况与此类似。对于当前的类声明来说，编译器将认为下面的语句有二义性而拒绝它。
+
+```C++
+int gone = poppins;  // ambiguous
+```
+
+在C++中，int和double值都可以被赋给long变量，所以编译器使用任意一个转换函数都是合法的。编译器不想承担选择转换函数的责任。然而，如果删除了这两个转换函数之一，编译器将接受这条语句。例如，假设省略了double定义，则编译器将使用int转换，将poppins转换为一个int类型的值。然后在将它赋给gone时，将int类型值转换为long类型。
+
+​		当类定义了两种或更多的转换时，仍可以用显式强制类型转换来指出要使用哪个转换函数。可以使用下面任何一种强制类型转换表示法
+
+```C++
+int gone = (double)poppins; 
+int gone = int(poppins); 
+```
+
+第一条语句将poppins转换为一个double值，然后赋值操作将该double值转换为long类型。同样，第二条语句将poppins首先转换为int类型，随后转换为long。
+
+​		和转换构造函数一样，转换函数也有其优缺点。提供执行自动、隐式转换的函数所存在的问题是：在用户不希望进行转换时，转换函数也可能进行转换。例如，假设您在睡眠不足时编写了下面的代码
+
+```C++
+int ar[20];
+...
+Stonewt temp(14,4);
+...
+int Temp =1;
+...
+cout << ar[temp] << "!\n"; // use temp instead of Temp
+```
+
+通常，您以为编译器能够捕获诸如使用了对象而不是整数作为数组索引等错误，但Stonewt类定义了一个operator int( )，因此Stonewt对象temp将被转换为int 200，并用作数组索引。原则上说，最好使用显式转换，而避免隐式转换。在C++98中，关键字explicit不能用于转换函数，但C++11消除了这种限制。因此，在C++11中，可将转换运算符声明为显式的
+
+```C++
+explicit operator int() const;
+explicit operator double() const;
+```
+
+有了这些声明后，需要强制转换时将调用这些运算符。
+
+​		另一种方法是，用一个功能相同的非转换函数替换该转换函数即可，但仅在被显式地调用时，该函数才会执行。也就是说，可以将
+
+```C++
+Stonewt::operator it(){return int (pounds+0.5);}
+```
+
+替换为
+
+```C++
+int Stonewt::Stone_to_Int(){return int (pounds+0.5);}
+```
+
+这样，下面的语句将是非法的
+
+```C++
+int plb = poppins;
+```
+
+但如果确实需要这种转换，可以这样做
+
+```C++
+int plb = poppins.Stone_to_Int();
+```
+
+应谨慎地使用隐式转换函数。通常，最好选择仅在被显式地调用时才会执行的函数。
+
+​		总之，C++为类提供了下面的类型转换
+
+- 只有一个参数的类构造函数用于将类型与该参数相同的值转换为类类型。例如，将int值赋给Stonewt对象时，接受int参数的Stonewt类构造函数将自动被调用。然而，在构造函数声明中使用explicit可防止隐式转换，而只允许显式转换。
+- 被称为转换函数的特殊类成员运算符函数，用于将类对象转换为其他类型。转换函数是类成员，没有返回类型、没有参数、名为operator typeName( )，其中，typeName是对象将被转换成的类型。将类对象赋给typeName变量或将其强制转换为typeName类型时，该转换函数将自动被调用。
+
+### 转换函数和友元函数
+
+​		下面为Stonewt类重载加法运算符。在讨论Time类时指出过，可以使用成员函数或友元函数来重载加法。（出于简化的目的，我们假设没有定义operator double( )转换函数。）可以使用下面的成员函数实现加法
+
+```C++
+Stonewt Stonewt::operator+(const Stonewt & st) const{
+    double pds = pounds + st.pounds;
+    Stonewt sum(pds);
+    return sum;
+}
+```
+
+也可以将加法作为友元函数来实现
+
+```C++
+Stonewt operator+(const Stonewt & st1, const Stonewt & st2){
+    double pds = st1.pounds + st2.pounds;
+    Stonewt sum(pds);
+    return sum;
+}
+```
+
+别忘了，可以提供方法定义或友元函数定义，但不能都提供。上面任何一种格式都允许这样做
+
+```C++
+Stonewt jennySt(9,12);
+Stonewt bennySt(12,8);
+Stonewt total;
+total=jennySt+bennySt;
+```
+
+另外，如果提供了Stonewt（double）构造函数，则也可以这样做
+
+```C++
+Stonewt jennySt(9,12);
+double kennyD=176.0;
+Stonewt total;
+total=jennySt+kennyD;
+```
+
+但只有友元函数才允许这样做
+
+```C++
+Stonewt jennySt(9,12);
+double pennyD=146.0;
+Stonewt total;
+total=pennyD+jennySt;
+```
+
+​		为了解其中的原因，将每一种加法都转换为相应的函数调用。首先
+
+```C++
+total=jennySt+bennySt;
+```
+
+被转换为
+
+```C++
+total=jennySt.operator+(bennySt);
+```
+
+或
+
+```C++
+total=operator+(jennySt, bennySt);
+```
+
+上述两种转换中，实参的类型都和形参匹配。另外，成员函数是通过Stonewt对象调用的。
+
+​		其次
+
+```C++
+total=jennySt+kennyD;
+```
+
+被转换为
+
+```C++
+total=jennySt.operator+(kennyD);
+```
+
+或
+
+```C++
+total=operator+(jennySt, kennyD);
+```
+
+同样，成员函数也是通过Stonewt对象调用的。这一次，每个调用中都有一个参数（kennyD）是double类型的，因此将调用Stonewt（double）构造函数，将该参数转换为Stonewt对象。
+
+​		另外，在这种情况下，如果定义了operator double( )成员函数，将造成混乱，因为该函数将提供另一种解释方式。编译器不是将kennyD转换为double并执行Stonewt加法，而是将jennySt转换为double并执行double加法。过多的转换函数将导致二义性。
+
+​		最后
+
+```C++
+total=pennyD+jennySt;
+```
+
+被转换为
+
+```C++
+total=operator+(pennyD,jennySt);  //friend function
+```
+
+其中，两个参数都是double类型，因此将调用构造函数Stonewt(double)，将它们转换为Stonewt对象。
+
+​		然而，不能调用成员函数将jennySt和peenyD相加。将加法语法转换为函数调用将类似于下面这样
+
+```C++
+total=pennyD.operator+(jennySt);  // not meaningful
+```
+
+这没有意义，因为只有类对象才可以调用成员函数。C++不会试图将pennyD转换为Stonewt对象。将对成员函数参数进行转换，而不是调用成员函数的对象。
+
+​		这里的经验是，将加法定义为友元可以让程序更容易适应自动类型转换。原因在于，两个操作数都成为函数参数，因此与函数原型匹配。
+
+#### 实现加法时的选择
+
+​		要将double量和Stonewt量相加，有两种选择。第一种方法是将下面的函数定义为友元函数，让Stonewt(double)构造函数将double类型的参数转换为Stonewt类型的参数
+
+```C++
+operator+(const Stonewt &, const Stonewt &)
+```
+
+第二种方法是，将加法运算符重载为一个显式使用double类型参数的函数
+
+```C++
+Stonewt operator+(double x); // member function
+friend Stonewt operator+(double x, Stonewt & s);
+```
+
+这样，下面的语句将与成员函数operator + (double x)完全匹配
+
+```C++
+total=jennySt+pennyD;  // Stonewt+double
+```
+
+而下面的语句将与友元函数operator + (double x, Stonewt &s)完全匹配
+
+```C++
+total=pennyD+jennySt; // double + Stonewt
+```
+
+前面对Vector乘法做了类似的处理。
+
+​		每一种方法都有其优点。第一种方法（依赖于隐式转换）使程序更简短，因为定义的函数较少。这也意味程序员需要完成的工作较少，出错的机会较小。这种方法的缺点是，每次需要转换时，都将调用转换构造函数，这增加时间和内存开销。第二种方法（增加一个显式地匹配类型的函数）则正好相反。它使程序较长，程序员需要完成的工作更多，但运行速度较快。
+
+​		如果程序经常需要将double值与Stonewt对象相加，则重载加法更合适；如果程序只是偶尔使用这种加法，则依赖于自动转换更简单，但为了更保险，可以使用显式转换。
+
